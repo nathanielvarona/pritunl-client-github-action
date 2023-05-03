@@ -1,0 +1,43 @@
+version-template: '$MAJOR.$MINOR.$PATCH'
+
+tag-template: 'v$RESOLVED_VERSION'
+name-template: 'v$RESOLVED_VERSION'
+
+categories:
+
+  - title: '✨ Breaking Features'
+    label: 'type: breaking'
+
+  - title: '💡 New Features'
+    label: 'type: feature'
+
+  - title: '🧩 Improvements'
+    label: 'type: improvement'
+
+version-resolver:
+  major:
+    labels:
+      - 'type: breaking'
+  minor:
+    labels:
+      - 'type: feature'
+  patch:
+    labels:
+      - 'type: improvement'
+      - 'type: automation'
+
+references:
+  - main
+
+exclude-labels:
+  - 'skip-changelog'
+
+change-template: '* $TITLE (#$NUMBER) @$AUTHOR'
+template: |
+  # What's Changed
+
+  $CHANGES
+
+  Contributors: $CONTRIBUTORS
+
+  **Full Changelog**: https://github.com/$OWNER/$REPOSITORY/compare/$PREVIOUS_TAG...v$RESOLVED_VERSION
