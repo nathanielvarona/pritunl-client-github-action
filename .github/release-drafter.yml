@@ -24,6 +24,7 @@ version-resolver:
   patch:
     labels:
       - 'type: improvement'
+      - 'type: automation'
 
 references:
   - main

@@ -7,3 +7,6 @@
 - name: 'type: improvement'
   description: Minor improvement of a feature.
   color: 8D7BE7
+- name: 'type: automation'
+  description: Continuous integration and deployment features and changes.
+  color: 20B2AA
