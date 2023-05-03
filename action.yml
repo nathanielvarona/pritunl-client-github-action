@@ -1,5 +1,10 @@
-name: 'Pritunl Client Github Action'
-description: 'Establish an Enterprise VPN Connection using the Pritunl Client that supports OpenVPN and Wireguard modes.'
+name: Pritunl Client Github Action
+description: Establish an Enterprise VPN Connection using the Pritunl Client that supports OpenVPN and Wireguard modes.
+
+branding:
+  icon: server
+  color: gray-dark
+
 inputs:
   profile-file-tar-base64:
     description: 'The corporate provided or self-obtained Pritunl Profile Key file.'
