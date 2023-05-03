@@ -32,21 +32,27 @@ Establish an Enterprise VPN Connection using the Pritunl Client that supports Op
     start-connection: ''
 ```
 
-## Working with a Pritunl File.
+## Working with Pritunl Profile File
 
-Pritunl Client CLI won't allow loading profiles from `.ovpn` file, and GitHub Actions don't have a feature to upload binary files such as `.tar` for the Secrets.
+Pritunl Client CLI won't allow loading profiles from the `.ovpn` file, and GitHub doesn't have a feature to upload binary files such as `.tar` for the GitHub Actions Secrets.
 
 To store Pritunl Profile to GitHub Secrets, maintaining the state of the `tar` binary file, we need to convert it to `base64` file format.
 
-_Here are the steps:_
+### Here are the steps
 
-### 1. Convert your Pritunl Profile File from `tar` binary to `base64` data format.
+#### 1. Download the Pritunl Profile File provided by your Pritunl User Profile Page
+
+```bash
+curl -s -L -o ./pritunl.profile.tar https://vpn.domain.tld/key/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.tar
+```
+
+#### 2. Convert your Pritunl Profile File from `tar` binary to `base64` data format.
 
 ```bash
 base64 ./pritunl.profile.tar > ./pritunl.profile.base64
 ```
 
-#### 2. Copy the Base64 data.
+#### 3. Copy the `base64` data.
 
 _For macOS:_
 ```bash
@@ -72,8 +78,8 @@ nano ./pritunl.profile.base64
 
 Then select the entire data and copy it to the clipboard.
 
-#### 3. Create a Secret and Paste the value from our clipboard.
-Such as Secret Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
+#### 4. Create a Secret and Paste the value from our clipboard.
+Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
 
 ## Examples
 
