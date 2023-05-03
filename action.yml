@@ -1,0 +1,100 @@
+name: Pritunl Client Github Action
+description: Establish an Enterprise VPN Connection using the Pritunl Client that supports OpenVPN and Wireguard modes.
+
+branding:
+  icon: server
+  color: gray-dark
+
+inputs:
+  profile-file-tar-base64:
+    description: 'The corporate provided or self-obtained Pritunl Profile Key file.'
+    required: true
+    default:
+
+  profile-pin:
+    description: 'The Pritunl Profile PIN/Password if provided.'
+    required: false
+    default:
+
+  vpn-mode:
+    description: 'The VPN mode from the two choices is `ovpn` for OpenVPN or `wg` for WireGuard.'
+    required: false
+    default: ovpn
+
+  client-version:
+    description: 'The Version of Pritunl Client to use.'
+    required: false
+    default: prebuilt-apt-repo
+
+  start-connection:
+    description: 'Start the VPN Connection Automatically.'
+    required: false
+    default: true
+
+outputs:
+  client-id:
+    description: "Pritunl Client ID"
+    value: ${{ steps.pritunl-client.outputs.client-id }}
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Temporary Directory
+      run: |
+        echo "TEMPDIR=$(mktemp -d)" >> "$GITHUB_ENV"
+      shell: bash
+
+    - name: Install Pritunl Client from Prebuilt Apt Repo (for Latest Version)
+      if: ${{ inputs.client-version == 'prebuilt-apt-repo' }}
+      run: |
+        sudo tee /etc/apt/sources.list.d/pritunl.list << EOF
+        deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main
+        EOF
+        sudo apt-get --assume-yes install gnupg
+        gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 7568D9BB55FF9E5287D586017AE645C0CF8E292A
+        gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc
+        sudo apt-get update
+        sudo apt-get install pritunl-client
+      shell: bash
+
+    - name: Install Pritunl Client from Github Releases (for Version Specific)
+      if: ${{ inputs.client-version != 'prebuilt-apt-repo' }}
+      run: |
+        curl -s -L -o ${{ env.TEMPDIR }}/pritunl-client.deb https://github.com/pritunl/pritunl-client-electron/releases/download/${{ inputs.client-version }}/pritunl-client_${{ inputs.client-version }}-0ubuntu1.$(lsb_release -cs)_amd64.deb
+        sudo apt-get install -f ${{ env.TEMPDIR }}/pritunl-client.deb
+      shell: bash
+
+    - name: Install OpenVPN Dependencies for `ovpn` VPN Mode
+      if: ${{ inputs.vpn-mode == 'ovpn' }}
+      run: |
+        sudo apt-get install -y openvpn-systemd-resolved
+      shell: bash
+
+    - name: Install Wireguard Dependencies for `wg` VPN Mode
+      if: ${{ inputs.vpn-mode == 'wg' }}
+      run: |
+        sudo apt-get install -y wireguard-tools
+      shell: bash
+
+    - name: Add Pritunl Profile to Client
+      id: pritunl-client
+      run: |
+        echo "${{ inputs.profile-file-tar-base64 }}" > ${{ env.TEMPDIR }}/profile-file.base64
+        base64 --decode ${{ env.TEMPDIR }}/profile-file.base64 > ${{ env.TEMPDIR }}/profile-file.tar
+        pritunl-client add ${{ env.TEMPDIR }}/profile-file.tar
+        echo "client-id=$(pritunl-client list | awk -F'|' 'NR==4{print $2}' | sed -E 's/^[[:space:]]+//' | sed -E 's/[[:space:]]+$//')" >> $GITHUB_OUTPUT
+      shell: bash
+
+    - name: Starting a Connection
+      if: ${{ inputs.start-connection == 'true' }}
+      run: |
+        pritunl-client start ${{ steps.pritunl-client.outputs.client-id }} --mode ${{ inputs.vpn-mode }} $(pritunl_pin='${{ inputs.profile-pin }}'; if [[ "$pritunl_pin" ]]; then echo "--password $pritunl_pin"; else echo ""; fi)
+        echo "Waiting for Connection to Active "
+        until pritunl-client list | awk -F '|' 'NR==4{print $8}' | sed -E 's/^[[:space:]]+//' | sed -E 's/[[:space:]]+$//' | grep -E "^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$"; do printf '.'; sleep 2; done
+      shell: bash
+
+    - name: Show the Connection
+      if: ${{ inputs.start-connection == 'true' }}
+      run: |
+        pritunl-client list
+      shell: bash
