@@ -1,4 +1,4 @@
-# Pritunl Client Github Action
+# Pritunl Client GitHub Action
 
 Establish an Enterprise VPN Connection using the Pritunl Client that supports OpenVPN and Wireguard modes.
 
@@ -36,7 +36,7 @@ Establish an Enterprise VPN Connection using the Pritunl Client that supports Op
 
 Pritunl Client CLI won't allow loading profiles from `.ovpn,` and GitHub Actions don't have a feature to upload binary files such as `.tar` for the Secrets.
 
-To store Pritunl Profile to Github Secrets, maintaining the state of the `tar` file, we need to convert it to `base64`. Here are the steps.
+To store Pritunl Profile to GitHub Secrets, maintaining the state of the `tar` file, we need to convert it to `base64`. Here are the steps.
 
 ### 1. Convert your Pritunl Profile File form `tar` to `base64`.
 
@@ -44,7 +44,7 @@ To store Pritunl Profile to Github Secrets, maintaining the state of the `tar` f
 base64 ./pritunl.profile.tar > ./pritunl.profile.base64
 ```
 
-#### 2. Copy the Base64 Data.
+#### 2. Copy the Base64 data.
 
 _For macOS:_
 ```bash
@@ -60,6 +60,15 @@ cat ./pritunl.profile.base64 | xclip -selection clipboard
 cat ./pritunl.profile.base64 | xsel --clipboard --input
 ```
 
+_Or open it with your favorite code editor:_
+
+```bash
+code ./pritunl.profile.base64 # or,
+vi ./pritunl.profile.base64 # or,
+nano ./pritunl.profile.base64
+```
+
+Then select the entire data and copy it to the clipboard.
 
 #### 3. Create a Secret and Paste the value from our clipboard.
 Such as Secret Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
@@ -105,7 +114,8 @@ Such as Secret Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
 ### Controllable Connection
 
 ```yml
-- name: Setup Pritunl Profile and Start VPN Connection
+- name: Setup Pritunl Profile
+  id: pritunl-connection
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file-tar-base64: >
@@ -114,7 +124,14 @@ Such as Secret Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
 
 - name: Start VPN Connection
   run: |
-    pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} --mode wg --pin ${{ secrets.PRITUNL_PROFILE_PIN }}
+    pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
+      --mode wg \
+      --pin ${{ secrets.PRITUNL_PROFILE_PIN }}
+
+- name: Show VPN Connection Status
+  run: |
+    sleep 10
+    pritunl-client list
 
 - name: Your CI/CD Logic Here
   run: |
@@ -125,11 +142,19 @@ Such as Secret Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
     #   * And More
     ##
 
-    # My Simple Test
+    ##
+    # Below is my simple connectivity test.
+    ##
+
     # Install Tooling
     sudo apt-get install -y ipcalc
-    # Test VPN Gateway Reachability Test
-    ping -c 10 $(pritunl-client list | awk -F '|' 'NR==4{print $8}' | xargs ipcalc | awk 'NR==6{print $2}')
+
+    # VPN Gateway Reachability Test
+    ping -c 10 \
+      $(pritunl-client list | \
+      awk -F '|' 'NR==4{print $8}' | \
+      xargs ipcalc | \
+      awk 'NR==6{print $2}')
 
 - name: Stop VPN Connection
   if: ${{ always() }}

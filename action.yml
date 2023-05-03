@@ -1,4 +1,4 @@
-name: Pritunl Client Github Action
+name: Pritunl Client GitHub Action
 description: Establish an Enterprise VPN Connection using the Pritunl Client that supports OpenVPN and Wireguard modes.
 
 branding:
@@ -57,7 +57,7 @@ runs:
         sudo apt-get install pritunl-client
       shell: bash
 
-    - name: Install Pritunl Client from Github Releases (for Version Specific)
+    - name: Install Pritunl Client from GitHub Releases (for Version Specific)
       if: ${{ inputs.client-version != 'prebuilt-apt-repo' }}
       run: |
         curl -s -L -o ${{ env.TEMPDIR }}/pritunl-client.deb https://github.com/pritunl/pritunl-client-electron/releases/download/${{ inputs.client-version }}/pritunl-client_${{ inputs.client-version }}-0ubuntu1.$(lsb_release -cs)_amd64.deb
