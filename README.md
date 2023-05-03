@@ -43,7 +43,7 @@ To store Pritunl Profile to GitHub Secrets, maintaining the state of the `tar` b
 #### 1. Download the Pritunl Profile File provided by your Pritunl User Profile Page
 
 ```bash
-curl -s -L -o ./pritunl.profile.tar https://vpn.domain.tld/key/xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx.tar
+curl -s -L -o ./pritunl.profile.tar https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar
 ```
 
 #### 2. Convert your Pritunl Profile File from `tar` binary to `base64` data format.
@@ -128,7 +128,7 @@ Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
   with:
     profile-file-tar-base64: >
         ${{ secrets.PRITUNL_PROFILE_FILE }}
-    vpn-mode: 'wg'
+    vpn-mode: 'wg' # Property set to install WireGuard tools dependencies.
     start-connection: false
 
 - name: Start VPN Connection
@@ -144,15 +144,17 @@ Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
 
 - name: Your CI/CD Core Logic Here
   run: |
+
     ##
-    # EXAMPLE: 
+    # EXAMPLES:
     #   * Integration Test
     #   * End-to-End Test
+    #   * Endpoint Reachability Test
     #   * And More
     ##
 
     ##
-    # Below is our simple connectivity test script.
+    # Below is our simple example for VPN connectivity test.
     ##
 
     # Install Tooling
