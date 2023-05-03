@@ -1,0 +1,9 @@
+- name: 'type: breaking'
+  description: New feature is created.
+  color: 66ff66
+- name: 'type: feature'
+  description: New feature is created.
+  color: 7FFBC6C
+- name: 'type: improvement'
+  description: Minor improvement of a feature.
+  color: 8D7BE7

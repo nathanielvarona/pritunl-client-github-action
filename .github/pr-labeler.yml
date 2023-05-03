@@ -1,0 +1,5 @@
+'type: breaking': ['breaking/*']
+'type: feature': ['feature/*', 'features/*', 'feat/*']
+'type: improvement': ['improve/*', 'improvement/*', 'improvements/*', 'impr/*']
+
+skip-changelog: ['main']
