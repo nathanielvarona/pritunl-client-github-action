@@ -38,7 +38,7 @@ Pritunl Client CLI won't allow loading profiles from `.ovpn,` and GitHub Actions
 
 To store Pritunl Profile to GitHub Secrets, maintaining the state of the `tar` file, we need to convert it to `base64`. Here are the steps.
 
-### 1. Convert your Pritunl Profile File form `tar` to `base64`.
+### 1. Convert your Pritunl Profile File from `tar` binary to `base64` data format.
 
 ```bash
 base64 ./pritunl.profile.tar > ./pritunl.profile.base64
@@ -143,7 +143,7 @@ Such as Secret Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
     ##
 
     ##
-    # Below is my simple connectivity test.
+    # Below is our simple connectivity test script.
     ##
 
     # Install Tooling
