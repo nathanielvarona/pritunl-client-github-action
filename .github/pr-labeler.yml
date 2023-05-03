@@ -2,5 +2,6 @@
 'type: feature': ['feature/*', 'features/*', 'feat/*']
 'type: improvement': ['improve/*', 'improvement/*', 'improvements/*', 'impr/*']
 'type: automation': ['automation/*']
+'type: documentation': ['doc/*', 'docs/*', 'documentation/*', 'documentations/*']
 
 skip-changelog: ['main']
