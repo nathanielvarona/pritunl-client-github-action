@@ -1,6 +1,6 @@
 # Pritunl Client GitHub Action
 
-Establish an Enterprise VPN Connection using the Pritunl Client that supports OpenVPN and Wireguard modes.
+Establish an Enterprise VPN Connection using the Pritunl Client that supports OpenVPN and WireGuard modes.
 
 ## Usage
 
@@ -34,9 +34,11 @@ Establish an Enterprise VPN Connection using the Pritunl Client that supports Op
 
 ## Working with a Pritunl File.
 
-Pritunl Client CLI won't allow loading profiles from `.ovpn,` and GitHub Actions don't have a feature to upload binary files such as `.tar` for the Secrets.
+Pritunl Client CLI won't allow loading profiles from `.ovpn` file, and GitHub Actions don't have a feature to upload binary files such as `.tar` for the Secrets.
 
-To store Pritunl Profile to GitHub Secrets, maintaining the state of the `tar` file, we need to convert it to `base64`. Here are the steps.
+To store Pritunl Profile to GitHub Secrets, maintaining the state of the `tar` binary file, we need to convert it to `base64` file format.
+
+_Here are the steps:_
 
 ### 1. Convert your Pritunl Profile File from `tar` binary to `base64` data format.
 
@@ -111,7 +113,7 @@ Such as Secret Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
 ```
 
 
-### Controllable Connection
+### Advanced Controllable Connection
 
 ```yml
 - name: Setup Pritunl Profile
@@ -120,23 +122,24 @@ Such as Secret Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
   with:
     profile-file-tar-base64: >
         ${{ secrets.PRITUNL_PROFILE_FILE }}
+    vpn-mode: 'wg'
     start-connection: false
 
 - name: Start VPN Connection
   run: |
     pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
-      --mode wg \
-      --pin ${{ secrets.PRITUNL_PROFILE_PIN }}
+      --password ${{ secrets.PRITUNL_PROFILE_PIN }} \
+      --mode wg
 
 - name: Show VPN Connection Status
   run: |
     sleep 10
     pritunl-client list
 
-- name: Your CI/CD Logic Here
+- name: Your CI/CD Core Logic Here
   run: |
     ##
-    # Example: 
+    # EXAMPLE: 
     #   * Integration Test
     #   * End-to-End Test
     #   * And More

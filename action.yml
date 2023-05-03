@@ -1,5 +1,5 @@
 name: Pritunl Client GitHub Action
-description: Establish an Enterprise VPN Connection using the Pritunl Client that supports OpenVPN and Wireguard modes.
+description: Establish an Enterprise VPN Connection using the Pritunl Client that supports OpenVPN and WireGuard modes.
 
 branding:
   icon: server
