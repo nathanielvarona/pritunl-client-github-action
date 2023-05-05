@@ -1,8 +1,10 @@
 # Pritunl Client GitHub Action
 
-Establish an Enterprise VPN Connection using the Pritunl Client that supports OpenVPN and WireGuard modes on GitHub Actions.
+[![Test Connection](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml)
 
-This utility helps you with tasks like automated testing, periodic backups, and anything that requires private access inside the corporate infrastructure using Pritunl Enterprise VPN Server.
+Establish a [Pritunl VPN](https://pritunl.com/) connection using the [Pritunl Client](https://client.pritunl.com/) that supports [OpenVPN](https://openvpn.net/) and [WireGuard](https://www.wireguard.com/) modes on [GitHub Actions](https://github.com/features/actions).
+
+This utility helps you with tasks like automated internal endpoint testing, periodic backups, and anything that requires private access inside the corporate infrastructure using Pritunl VPN Enterprise Servers.
 
 ## Usage
 
@@ -36,7 +38,21 @@ The configuration is declarative and relatively simple to use.
     # If not supplied, which defaults to `true`. 
     # If `true` the VPN connection starts within the setup step.
     start-connection: ''
+```
 
+> Kindly check the section [Working with Pritunl Profile File](#working-with-pritunl-profile-file) on converting `tar` binary to `base64` file format for the `profile-file` input.
+
+## Examples
+
+We have different example scenarios; any combination is possible as long the required `profile-file` input is supplied.
+
+### Minimum Working Configuration
+
+```yml
+- name: Setup Pritunl Profile and Start VPN Connection
+  uses: nathanielvarona/pritunl-client-github-action@v1
+  with:
+    profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
 
 ###
 # Then your other steps down below.
@@ -56,21 +72,6 @@ The configuration is declarative and relatively simple to use.
 - name: Example Cypress E2E Test
   uses: cypress-io/github-action@v5
     working-directory: e2e
-```
-
-> Kindly check the section [Working with Pritunl Profile File](#working-with-pritunl-profile-file) on converting `tar` binary to `base64` file format for the `profile-file` input.
-
-## Examples
-
-We have different example scenarios; any combination is possible as long the required `profile-file` input is supplied.
-
-### Minimum Working Configuration
-
-```yml
-- name: Setup Pritunl Profile and Start VPN Connection
-  uses: nathanielvarona/pritunl-client-github-action@v1
-  with:
-    profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
 ```
 
 ### The connection requires Pin or Password
