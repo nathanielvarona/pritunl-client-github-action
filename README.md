@@ -12,7 +12,7 @@ The configuration is declarative and relatively simple to use.
 - uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     # Pritunl Profile File (Required)
-    # Type: Multiline String (Base64 format)
+    # Type: Wrapping String (Base64 format)
     profile-file: ''
 
     # Profile Pin (Optional)
@@ -155,7 +155,7 @@ curl -s -L -o ./pritunl.profile.tar https://vpn.domain.tld/key/xxxxxxxxxxxxxx.ta
 #### 2. Convert your Pritunl Profile File from `tar` binary to `base64` data format.
 
 ```bash
-base64 ./pritunl.profile.tar > ./pritunl.profile.base64
+base64 -w 0 ./pritunl.profile.tar > ./pritunl.profile.base64
 ```
 
 #### 3. Copy the `base64` data.

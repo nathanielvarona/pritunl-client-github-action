@@ -80,7 +80,7 @@ runs:
       id: pritunl-client
       run: |
         # Save the `base64` file format and convert back to `tar` binary
-        echo "${{ inputs.profile-file }}" > ${{ env.TEMPDIR }}/profile-file.base64
+        echo "::add-mask::${{ inputs.profile-file }}" > ${{ env.TEMPDIR }}/profile-file.base64
         base64 --decode ${{ env.TEMPDIR }}/profile-file.base64 > ${{ env.TEMPDIR }}/profile-file.tar
 
         # Add the Profile File to Pritunl Client
