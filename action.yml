@@ -1,12 +1,12 @@
 name: Pritunl Client GitHub Action
-description: Establish an Enterprise VPN Connection using the Pritunl Client that supports OpenVPN and WireGuard modes.
+description: Establish an Enterprise VPN Connection using the Pritunl Client that supports OpenVPN and WireGuard modes on GitHub Actions Virtual Environment.
 
 branding:
   icon: server
   color: gray-dark
 
 inputs:
-  profile-file-tar-base64:
+  profile-file:
     description: 'The corporate provided or self-obtained Pritunl Profile Key file.'
     required: true
     default:
@@ -70,7 +70,7 @@ runs:
         sudo apt-get install -y openvpn-systemd-resolved
       shell: bash
 
-    - name: Install Wireguard Dependencies for `wg` VPN Mode
+    - name: Install WireGuard Dependencies for `wg` VPN Mode
       if: ${{ inputs.vpn-mode == 'wg' }}
       run: |
         sudo apt-get install -y wireguard-tools
@@ -79,7 +79,7 @@ runs:
     - name: Add Pritunl Profile to Client
       id: pritunl-client
       run: |
-        echo "${{ inputs.profile-file-tar-base64 }}" > ${{ env.TEMPDIR }}/profile-file.base64
+        echo "${{ inputs.profile-file }}" > ${{ env.TEMPDIR }}/profile-file.base64
         base64 --decode ${{ env.TEMPDIR }}/profile-file.base64 > ${{ env.TEMPDIR }}/profile-file.tar
         pritunl-client add ${{ env.TEMPDIR }}/profile-file.tar
         echo "client-id=$(pritunl-client list | awk -F'|' 'NR==4{print $2}' | sed -E 's/^[[:space:]]+//' | sed -E 's/[[:space:]]+$//')" >> $GITHUB_OUTPUT
