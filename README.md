@@ -11,29 +11,54 @@ The configuration is declarative and relatively simple to use.
 ```yaml
 - uses: nathanielvarona/pritunl-client-github-action@v1
   with:
-    # Pritunl Profile File in `base64` format.
+    # Pritunl Profile File (Required)
+    # Type: Multiline String (Base64 format)
     profile-file: ''
 
-    # The Profile Pin (Optional)
-    # If not supplied, which defaults no PIN
+    # Profile Pin (Optional)
+    # Type: String (Numerical value)
+    # If not supplied, which defaults no Pin.
     profile-pin: ''
 
     # VPN Connection Mode (Optional)
-    # The choices are `ovpn` or `wg`. If not supplied, which defaults to `ovpn`.
+    # Type: String (Choices ['ovpn' or 'wg'])
+    # If not supplied, which defaults to 'ovpn'.
     vpn-mode: ''
 
     # Pritunl Client Version (Optional)
+    # Type: String (Numerical dot separated identifiers)
     # For example, using the later version `1.3.3477.58`.
     # If not supplied, which defaults to the latest version from Prebuilt Apt Repository.
     client-version: ''
 
-    # Start the connection (Optional)
-    # Boolean Type. If not supplied, which defaults to `true`
-    # If `true,` the VPN connection starts within the setup step.
+    # Start the Connection (Optional)
+    # Type: Boolean
+    # If not supplied, which defaults to `true`. 
+    # If `true` the VPN connection starts within the setup step.
     start-connection: ''
+
+
+###
+# Then your other steps down below.
+###
+
+- name: Your CI/CD Core Logic
+  run: |
+    ##
+    # EXAMPLES:
+    #   * Integration Test,
+    #   * End-to-End Test,
+    #   * Endpoint Reachability Test,
+    #   * Backup Tasks,
+    #   * And more.
+    ##
+
+- name: Example Cypress E2E Test
+  uses: cypress-io/github-action@v5
+    working-directory: e2e
 ```
 
-> Kindly check the section [Working with Pritunl Profile File](#working-with-pritunl-profile-file) on converting `tar` binary to `base64` file format for the `pritunl-file` input.
+> Kindly check the section [Working with Pritunl Profile File](#working-with-pritunl-profile-file) on converting `tar` binary to `base64` file format for the `profile-file` input.
 
 ## Examples
 
@@ -46,17 +71,6 @@ We have different example scenarios; any combination is possible as long the req
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-
-- name: Your CI/CD Core Logic Here
-  run: |
-    ##
-    # EXAMPLES:
-    #   * Integration Test,
-    #   * End-to-End Test,
-    #   * Endpoint Reachability Test,
-    #   * Backup Tasks,
-    #   * And more.
-    ##
 ```
 
 ### The connection requires Pin or Password
@@ -102,7 +116,7 @@ We have different example scenarios; any combination is possible as long the req
     sleep 10
     pritunl-client list
 
-- name: Your CI/CD Core Logic Here
+- name: Your CI/CD Core Logic
   run: |
     ##
     # Below is our simple example for VPN connectivity test.
