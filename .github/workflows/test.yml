@@ -1,0 +1,87 @@
+name: Test Connection
+
+on:
+  workflow_dispatch:
+    inputs:
+      vpn_mode:
+        description: 'VPN Mode'
+        type: choice
+        options:
+        - ovpn
+        - wg
+
+      client_version:
+        description: 'Pritunl Client Version'
+        type: choice
+        options:
+        - prebuilt-apt-repo
+        - 1.3.3484.2
+        - 1.3.3477.58
+
+      start_connection:
+        description: 'Start Connection'
+        type: boolean
+        default: true
+
+jobs:
+  test-connection:
+    strategy:
+      matrix:
+        os: [ubuntu-22.04, ubuntu-20.04]
+    runs-on: ${{ matrix.os }}
+    name: Test Connection
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Pritunl Profile
+        id: pritunl-connection
+        uses: ./
+        with:
+          profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
+          profile-pin: ${{ secrets.PRITUNL_PROFILE_PIN }}
+          vpn-mode: ${{ github.event.inputs.vpn_mode }}
+          client-version: ${{ github.event.inputs.client_version }}
+          start-connection: ${{ github.event.inputs.start_connection }}
+
+      - name: Start VPN Connection
+        if: ${{ github.event.inputs.start_connection == 'false' }}
+        run: |
+          pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
+            --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }} \
+            --mode ${{ github.event.inputs.vpn_mode }}
+
+      - name: Show VPN Connection Status
+        if: ${{ github.event.inputs.start_connection == 'false' }}
+        run: |
+          echo "Waiting for your IP and connection to be fully active"
+          sec=0
+          until pritunl-client list | \
+            awk -F '|' 'NR==4{print $8}' | \
+            sed -E 's/^[[:space:]]+//' | \
+            sed -E 's/[[:space:]]+$//' | \
+            grep --color=never -E "^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$"
+          do
+            sec=$((sec+1))
+            echo "$sec sec."
+            sleep 1
+          done
+
+          pritunl-client list
+
+      - name: Install IP Tooling
+        run: |
+          sudo apt-get install --assume-yes ipcalc
+
+      - name: VPN Gateway Reachability Test
+        run: |
+          ping -c 10 \
+            $(pritunl-client list | \
+            awk -F '|' 'NR==4{print $8}' | \
+            xargs ipcalc | \
+            awk 'NR==6{print $2}')
+
+      - name: Stop VPN Connection
+        if: ${{ github.event.inputs.start_connection == 'false' }}
+        run: |
+          pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
