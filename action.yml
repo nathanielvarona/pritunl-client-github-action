@@ -60,7 +60,8 @@ runs:
     - name: Install Pritunl Client from GitHub Releases (for Version Specific)
       if: ${{ inputs.client-version != 'prebuilt-apt-repo' }}
       run: |
-        curl -s -L -o ${{ env.TEMPDIR }}/pritunl-client.deb https://github.com/pritunl/pritunl-client-electron/releases/download/${{ inputs.client-version }}/pritunl-client_${{ inputs.client-version }}-0ubuntu1.$(lsb_release -cs)_amd64.deb
+        curl -sL https://github.com/pritunl/pritunl-client-electron/releases/download/${{ inputs.client-version }}/pritunl-client_${{ inputs.client-version }}-0ubuntu1.$(lsb_release -cs)_amd64.deb \
+          -o ${{ env.TEMPDIR }}/pritunl-client.deb
         sudo apt-get --assume-yes install -f ${{ env.TEMPDIR }}/pritunl-client.deb
       shell: bash
 
@@ -87,7 +88,12 @@ runs:
         pritunl-client add ${{ env.TEMPDIR }}/profile-file.tar
 
         # Set `client-id` as step output
-        client_id=$(pritunl-client list | awk -F'|' 'NR==4{print $2}' | sed -E 's/^[[:space:]]+//' | sed -E 's/[[:space:]]+$//')
+        client_id=$(
+          pritunl-client list \
+          | awk -F'|' 'NR==4{print $2}' \
+          | sed -E 's/^[[:space:]]+//' \
+          | sed -E 's/[[:space:]]+$//'
+          )
         echo "client-id=$client_id" >> $GITHUB_OUTPUT
 
         # Disable autotart option
@@ -98,11 +104,32 @@ runs:
       if: ${{ inputs.start-connection == 'true' }}
       run: |
         # Start the Connection
-        pritunl-client start ${{ steps.pritunl-client.outputs.client-id }} --mode ${{ inputs.vpn-mode }} $(pritunl_pin='${{ inputs.profile-pin }}'; if [[ "$pritunl_pin" ]]; then echo "--password $pritunl_pin"; else echo ""; fi)
+        pritunl-client start \
+          ${{ steps.pritunl-client.outputs.client-id }} \
+          --mode ${{ inputs.vpn-mode }} \
+          $(
+            pritunl_pin='${{ inputs.profile-pin }}'
+            if [[ "$pritunl_pin" ]]
+            then
+              echo "--password $pritunl_pin"
+            else
+              echo ""
+            fi
+          )
 
         # Connection Probe
         echo "Waiting for your IP and connection to be fully active"
-        sec=0;until pritunl-client list | awk -F '|' 'NR==4{print $8}' | sed -E 's/^[[:space:]]+//' | sed -E 's/[[:space:]]+$//' | grep --color=never -E "^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$"; do sec=$((sec+1)); echo "$sec sec."; sleep 1; done
+        time_lapse=0
+        until pritunl-client list \
+          | awk -F '|' 'NR==4{print $8}' \
+          | sed -E 's/^[[:space:]]+//' \
+          | sed -E 's/[[:space:]]+$//' \
+          | grep --color=never -E "^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$"
+        do
+          time_lapse=$((time_lapse+1))
+          echo time lapse: $time_lapse sec.
+          sleep 1
+        done
 
         # Show the Connection
         pritunl-client list
