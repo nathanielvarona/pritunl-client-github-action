@@ -74,7 +74,7 @@ We have different example scenarios; any combination is possible as long the req
     working-directory: e2e
 ```
 
-### If the connection requires Pin or Password
+### If the connection requires a PIN or Password
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -85,7 +85,7 @@ We have different example scenarios; any combination is possible as long the req
 ```
 
 
-### If Using Specific a Version of Pritunl Client and using WireGuard for the VPN Mode
+### Or using a Specific Version of the Client and a WireGuard for the VPN Mode
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -97,7 +97,7 @@ We have different example scenarios; any combination is possible as long the req
     vpn-mode: 'wg'
 ```
 
-### Or Manually Control the Connection
+### And even Manually Controlling the Connection
 
 ```yml
 - name: Setup Pritunl Profile
@@ -143,9 +143,9 @@ We have different example scenarios; any combination is possible as long the req
 
 ## Working with Pritunl Profile File
 
-Pritunl Client CLI won't allow loading profiles from the `.ovpn` file, and GitHub doesn't have a feature to upload binary files such as `.tar` for the GitHub Actions Secrets.
+The Pritunl Client CLI won't allow us to load profiles from the plain `.ovpn` file, and GitHub doesn't have a feature to upload binary files such as `.tar` for the GitHub Actions Secrets.
 
-To store Pritunl Profile to GitHub Secrets, maintaining the state of the `tar` binary file, we need to convert it to `base64` file format.
+To store Pritunl Profile to GitHub Secrets, maintaining the raw state of the `tar` binary file, we need to convert it to `base64` file format.
 
 ### Here are the steps
 
