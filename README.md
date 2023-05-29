@@ -74,7 +74,7 @@ We have different example scenarios; any combination is possible as long the req
     working-directory: e2e
 ```
 
-### The connection requires Pin or Password
+### If the connection requires Pin or Password
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -85,7 +85,7 @@ We have different example scenarios; any combination is possible as long the req
 ```
 
 
-### Specific Version of Pritunl Client and use WireGuard for the VPN Mode
+### If Using Specific a Version of Pritunl Client and using WireGuard for the VPN Mode
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -97,7 +97,7 @@ We have different example scenarios; any combination is possible as long the req
     vpn-mode: 'wg'
 ```
 
-### Advanced Controllable Connection
+### Or Manually Control the Connection
 
 ```yml
 - name: Setup Pritunl Profile
@@ -128,10 +128,12 @@ We have different example scenarios; any combination is possible as long the req
 
     # VPN Gateway Reachability Test
     ping -c 10 \
-      $(pritunl-client list | \
-      awk -F '|' 'NR==4{print $8}' | \
-      xargs ipcalc | \
-      awk 'NR==6{print $2}')
+      $(
+        pritunl-client list \
+          | awk -F '|' 'NR==4{print $8}' \
+          | xargs ipcalc \
+          | awk 'NR==6{print $2}'
+      )
 
 - name: Stop VPN Connection
   if: ${{ always() }}
@@ -150,7 +152,8 @@ To store Pritunl Profile to GitHub Secrets, maintaining the state of the `tar` b
 #### 1. Download the Pritunl Profile File obtained from the Pritunl User Profile Page
 
 ```bash
-curl -s -L -o ./pritunl.profile.tar https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar
+curl -sL https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar \
+  -o ./pritunl.profile.tar
 ```
 
 #### 2. Convert your Pritunl Profile File from `tar` binary to `base64` data format.
