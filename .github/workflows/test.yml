@@ -29,7 +29,7 @@ jobs:
       matrix:
         os: [ubuntu-22.04, ubuntu-20.04]
     runs-on: ${{ matrix.os }}
-    name: Test Connection
+    name: "Test Connection (Start connection in the setup step: ${{ github.event.inputs.start_connection }})"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -44,29 +44,31 @@ jobs:
           client-version: ${{ github.event.inputs.client_version }}
           start-connection: ${{ github.event.inputs.start_connection }}
 
-      - name: Start VPN Connection
+      - name: Starting a VPN Connection Manually
         if: ${{ github.event.inputs.start_connection == 'false' }}
         run: |
           pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
             --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }} \
             --mode ${{ github.event.inputs.vpn_mode }}
 
-      - name: Show VPN Connection Status
+      - name: Show VPN Connection Status Manually
         if: ${{ github.event.inputs.start_connection == 'false' }}
         run: |
-          echo "Waiting for your IP and connection to be fully active"
-          time_lapse=0
+          # Check the Connection
+          echo "Waiting for your IP address and connection to be fully active"
+          check_connection_attemp=0
+          check_loading_indicator=""
           until pritunl-client list \
             | awk -F '|' 'NR==4{print $8}' \
-            | sed -E 's/^[[:space:]]+//' \
-            | sed -E 's/[[:space:]]+$//' \
-            | grep --color=never -E "^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$"
+            | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' \
+            | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$' --color=never
           do
-            time_lapse=$((time_lapse+1))
-            echo time lapse: $time_lapse sec.
+            check_connection_attemp=$((check_connection_attemp+1))
+            check_loading_indicator+="."
+            echo Check connection attemp: $check_connection_attemp $check_loading_indicator
             sleep 1
           done
-
+          # Show VPN Connection Status
           pritunl-client list
 
       - name: Install IP Tooling
@@ -83,7 +85,7 @@ jobs:
                 | awk 'NR==6{print $2}'
             )
 
-      - name: Stop VPN Connection
+      - name: Stop VPN Connection Manually
         if: ${{ github.event.inputs.start_connection == 'false' }}
         run: |
           pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
