@@ -1,9 +1,6 @@
 name: Pritunl Client GitHub Action
 description: Establish a Pritunl VPN connection using the Pritunl Client that supports OpenVPN and WireGuard modes on GitHub Actions.
 
-branding:
-  icon: server
-  color: gray-dark
 
 inputs:
   profile-file:
@@ -31,10 +28,12 @@ inputs:
     required: false
     default: true
 
+
 outputs:
   client-id:
     description: "Pritunl Client ID"
     value: ${{ steps.pritunl-client.outputs.client-id }}
+
 
 runs:
   using: "composite"
@@ -77,30 +76,26 @@ runs:
         sudo apt-get --assume-yes install wireguard-tools
       shell: bash
 
-    - name: Add Pritunl Profile to Client
+    - name: Load the Pritunl Profile to Client
       id: pritunl-client
       run: |
         # Save the `base64` file format and convert back to `tar` binary
         echo "${{ inputs.profile-file }}" > ${{ env.TEMPDIR }}/profile-file.base64
         base64 --decode ${{ env.TEMPDIR }}/profile-file.base64 > ${{ env.TEMPDIR }}/profile-file.tar
-
         # Add the Profile File to Pritunl Client
         pritunl-client add ${{ env.TEMPDIR }}/profile-file.tar
-
         # Set `client-id` as step output
         client_id=$(
           pritunl-client list \
           | awk -F'|' 'NR==4{print $2}' \
-          | sed -E 's/^[[:space:]]+//' \
-          | sed -E 's/[[:space:]]+$//'
+          | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//'
           )
         echo "client-id=$client_id" >> $GITHUB_OUTPUT
-
         # Disable autotart option
         pritunl-client disable $client_id
       shell: bash
 
-    - name: Starting a Connection
+    - name: Starting a VPN Connection
       if: ${{ inputs.start-connection == 'true' }}
       run: |
         # Start the Connection
@@ -109,28 +104,29 @@ runs:
           --mode ${{ inputs.vpn-mode }} \
           $(
             pritunl_pin='${{ inputs.profile-pin }}'
-            if [[ "$pritunl_pin" ]]
-            then
+            if [[ "$pritunl_pin" ]]; then
               echo "--password $pritunl_pin"
-            else
-              echo ""
             fi
           )
-
-        # Connection Probe
-        echo "Waiting for your IP and connection to be fully active"
-        time_lapse=0
+        # Check the Connection
+        echo "Waiting for your IP address and connection to be fully active"
+        check_connection_attemp=0
+        check_loading_indicator=""
         until pritunl-client list \
           | awk -F '|' 'NR==4{print $8}' \
-          | sed -E 's/^[[:space:]]+//' \
-          | sed -E 's/[[:space:]]+$//' \
-          | grep --color=never -E "^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$"
+          | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' \
+          | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$' --color=never
         do
-          time_lapse=$((time_lapse+1))
-          echo time lapse: $time_lapse sec.
+          check_connection_attemp=$((check_connection_attemp+1))
+          check_loading_indicator+="."
+          echo Check connection attemp: $check_connection_attemp $check_loading_indicator
           sleep 1
         done
-
-        # Show the Connection
+        # Show VPN Connection Status
         pritunl-client list
       shell: bash
+
+
+branding:
+  icon: server
+  color: gray-dark
