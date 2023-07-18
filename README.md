@@ -107,12 +107,12 @@ We have different example scenarios; any combination is possible as long the req
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
     start-connection: false
 
-- name: Start VPN Connection
+- name: Starting a VPN Connection Manually
   run: |
     pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
       --password ${{ secrets.PRITUNL_PROFILE_PIN }}
 
-- name: Show VPN Connection Status
+- name: Show VPN Connection Status Manually
   run: |
     sleep 10
     pritunl-client list
@@ -135,7 +135,7 @@ We have different example scenarios; any combination is possible as long the req
           | awk 'NR==6{print $2}'
       )
 
-- name: Stop VPN Connection
+- name: Stop VPN Connection Manually
   if: ${{ always() }}
   run: |
     pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}

@@ -76,10 +76,10 @@ runs:
         sudo apt-get --assume-yes install wireguard-tools
       shell: bash
 
-    - name: Load the Pritunl Profile to Client
+    - name: Load the Pritunl Profile to the Client
       id: pritunl-client
       run: |
-        # Save the `base64` file format and convert back to `tar` binary
+        # Save the `base64` file format and convert it back to `tar` binary.
         echo "${{ inputs.profile-file }}" > ${{ env.TEMPDIR }}/profile-file.base64
         base64 --decode ${{ env.TEMPDIR }}/profile-file.base64 > ${{ env.TEMPDIR }}/profile-file.tar
         # Add the Profile File to Pritunl Client
@@ -87,11 +87,11 @@ runs:
         # Set `client-id` as step output
         client_id=$(
           pritunl-client list \
-          | awk -F'|' 'NR==4{print $2}' \
-          | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//'
+            | awk -F'|' 'NR==4{print $2}' \
+            | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//'
           )
         echo "client-id=$client_id" >> $GITHUB_OUTPUT
-        # Disable autotart option
+        # Disable autostart option
         pritunl-client disable $client_id
       shell: bash
 
@@ -109,7 +109,7 @@ runs:
             fi
           )
         # Check the Connection
-        echo "Waiting for your IP address and connection to be fully active"
+        echo "Waiting for your IP address and connection to be fully active."
         check_connection_attemp=0
         check_loading_indicator=""
         until pritunl-client list \
@@ -119,7 +119,7 @@ runs:
         do
           check_connection_attemp=$((check_connection_attemp+1))
           check_loading_indicator+="."
-          echo Check connection attemp: $check_connection_attemp $check_loading_indicator
+          echo "Check connection attempt: $check_connection_attemp $check_loading_indicator"
           sleep 1
         done
         # Show VPN Connection Status
