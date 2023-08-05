@@ -8,38 +8,7 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 ## Diagram
 
-```mermaid
-flowchart LR
-    subgraph proj["Project"]
-        direction TB
-        src["Source Code"]
-        wf["GitHub Actions Workflow Configuration File"]
-        e2e["End-to-End Test Code"]
-        src --> wf
-        src --> e2e
-    end
-    subgraph gha["GitHub Actions"]
-        subgraph ghr["GitHub Runner (Job/Steps)"]
-            direction TB
-                pgha["Setup Pritunl Client"]
-                cr(["Connection Ready"])
-                exec["Execute Test"]
-        end
-    end
-    subgraph pi["Enterprise Infrastructure"]
-        subgraph ps["Pritunl Server"]
-            vpn[" OpenVPN/WireGuard"]
-        end
-        pc(["Peered Connection"])
-        subgraph pr["Private Resources"]
-            ie["Internal Endpoints"]
-        end
-    end
-    wf --> ghr
-    pgha <-- Established Connection --> vpn
-    e2e --> exec
-    exec <-- Testing Operations --> ie
-```
+![Diagram](./diagram.drawio.png)
 
 ## Usage
 
