@@ -8,7 +8,9 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 ## Diagram
 
-![Diagram](./diagram.drawio.png)
+![Diagram](./diagram.png)
+
+> _The image was **created** and set as **editable** using the [drawio](https://www.drawio.com/) app._
 
 ## Usage
 
