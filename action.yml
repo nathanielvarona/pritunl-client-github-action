@@ -36,9 +36,9 @@ runs:
   using: "composite"
   steps:
     - name: Pritunl Client GitHub Action
-      run: pritunl-client.sh
-      shell: bash
       id: pritunl-client
+      run: ./pritunl-client.sh
+      shell: bash
       env:
         PROFILE_FILE: ${{ inputs.profile-file }}
         PROFILE_PIN: ${{ inputs.profile-pin }}
