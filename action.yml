@@ -45,10 +45,10 @@ runs:
         START_CONNECTION: ${{ inputs.start-connection }}
       shell: bash
       run: |
-        if [ "${{ runner.os }}" == "Windows" ]; then
+        if [ "$RUNNER_OS" == "Windows" ]; then
           bash "$GITHUB_ACTION_PATH\pritunl-client.sh"
         else
-          bash "${{ github.workspace }}/pritunl-client.sh"
+          bash "$GITHUB_ACTION_PATH/pritunl-client.sh"
         fi
 
 branding:
