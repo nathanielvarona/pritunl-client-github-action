@@ -1,7 +1,7 @@
-'type: breaking': ['breaking/*']
+'type: breaking': ['breaking/*', 'breaking-*']
 'type: feature': ['feature/*', 'features/*', 'feat/*', 'feature-*']
-'type: improvement': ['improve/*', 'improvement/*', 'improvements/*', 'impr/*']
-'type: automation': ['automation/*']
-'type: documentation': ['doc/*', 'docs/*', 'documentation/*', 'documentations/*']
+'type: improvement': ['improve/*', 'improvement/*', 'improvements/*', 'impr/*', 'improvement-*']
+'type: automation': ['automation/*', 'automation-*']
+'type: documentation': ['doc/*', 'docs/*', 'documentation/*', 'documentations/*', 'documentation-*']
 
 skip-changelog: ['main']
