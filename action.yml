@@ -36,7 +36,7 @@ runs:
   using: "composite"
   steps:
     - name: Pritunl Client GitHub Action
-      run: ${{ github.action_path }}/pritunl-client.sh
+      run: pritunl-client.sh
       shell: bash
       id: pritunl-client
       env:
