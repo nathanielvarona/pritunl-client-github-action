@@ -36,8 +36,6 @@ runs:
   using: "composite"
   steps:
     - name: Pritunl Client GitHub Action
-      run: ${{ github.action_path }}/pritunl-client.sh
-      shell: bash
       id: pritunl-client
       env:
         PROFILE_FILE: ${{ inputs.profile-file }}
@@ -45,6 +43,13 @@ runs:
         VPN_MODE: ${{ inputs.vpn-mode }}
         CLIENT_VERSION: ${{ inputs.client-version }}
         START_CONNECTION: ${{ inputs.start-connection }}
+      shell: bash
+      run: |
+        if [ "$RUNNER_OS" == "Windows" ]; then
+          bash "$GITHUB_ACTION_PATH\pritunl-client.sh"
+        else
+          bash "$GITHUB_ACTION_PATH/pritunl-client.sh"
+        fi
 
 branding:
   icon: server
