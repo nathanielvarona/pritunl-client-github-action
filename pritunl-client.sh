@@ -1,5 +1,3 @@
-#!/bin/bash
-
 ## GitHub Action Environment Variable Inputs
 PROFILE_FILE="${PROFILE_FILE:-}"
 PROFILE_PIN="${PROFILE_PIN:-}"
