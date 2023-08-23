@@ -149,9 +149,9 @@ We have different example scenarios; any combination is possible as long the req
 
 ## Working with Pritunl Profile File
 
-The Pritunl Client CLI won't allow us to load profiles from the plain `.ovpn` file, and GitHub doesn't have a feature to upload binary files such as `.tar` for the GitHub Actions Secrets.
+The Pritunl Client CLI won't allow us to load profiles from the plain `.ovpn` file, and GitHub doesn't have a feature to upload binary files such as the `.tar` archive file for the GitHub Actions Secrets.
 
-To store Pritunl Profile to GitHub Secrets, maintaining the raw state of the `tar` binary file, we need to convert it to `base64` file format.
+To store Pritunl Profile to GitHub Secrets, maintaining the raw state of the `tar` archive file format, we need to convert it to `base64` text file format.
 
 ### Here are the steps
 
