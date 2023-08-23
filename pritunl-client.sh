@@ -29,9 +29,20 @@ if [ -z "$VPN_MODE_FAMILY" ]; then
   done
 fi
 
+validate_version() {
+    local version_pattern="^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$"
+    if [[ $1 =~ $version_pattern ]]; then
+        echo "Valid version: $1"
+    else
+        echo "Invalid version: $1"
+        exit 1
+    fi
+}
+
 ## Installation Process
 if [ "$RUNNER_OS" == "Linux" ]; then
-  if [ -n "$CLIENT_VERSION" ]; then
+  if [[ "$CLIENT_VERSION" -ne 'package-manager' ]]; then
+    validate_version "$CLIENT_VERSION"
     echo "Installing the Version Specific from GitHub Releases"
     curl -sL https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/pritunl-client_$CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb \
       -o $RUNNER_TEMP/pritunl-client.deb
@@ -53,7 +64,8 @@ if [ "$RUNNER_OS" == "Linux" ]; then
   fi
 
 elif [ "$RUNNER_OS" == "macOS" ]; then
-  if [ -n "$CLIENT_VERSION" ]; then
+  if [[ "$CLIENT_VERSION" -ne 'package-manager' ]]; then
+    validate_version "$CLIENT_VERSION"
     curl -sL https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.pkg.zip \
       -o $RUNNER_TEMP/Pritunl.pkg.zip
     unzip -qq -o $RUNNER_TEMP/Pritunl.pkg.zip -d $RUNNER_TEMP
@@ -68,7 +80,8 @@ elif [ "$RUNNER_OS" == "macOS" ]; then
   fi
 
 elif [ "$RUNNER_OS" == "Windows" ]; then
-  if [ -n "$CLIENT_VERSION" ]; then
+  if [[ "$CLIENT_VERSION" -ne 'package-manager' ]]; then
+    validate_version "$CLIENT_VERSION"
     echo "Downloading Pritunl installation file..."
     curl -sL https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.exe \
       -o $RUNNER_TEMP/Pritunl.exe
