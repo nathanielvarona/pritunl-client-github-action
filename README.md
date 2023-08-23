@@ -195,3 +195,14 @@ Then select the entire data and copy it to the clipboard.
 
 #### 4. Create a Secret and Paste the value from our clipboard.
 Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
+
+## Compatible VPN Modes and Common Issues
+
+Runner | OpenVPN | WireGuard
+---------|----------|---------
+ ubuntu-22.04 | :white_check_mark: yes | :white_check_mark: yes
+ ubuntu-20.04 | :white_check_mark: yes | :white_check_mark: yes
+ macos-12 | :white_check_mark: yes | :white_check_mark: yes
+ macos-13 | :white_check_mark: yes | :white_check_mark: yes
+ windows-2022 | :white_check_mark: yes | :x: no ([Issue #25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25))
+ windows-2019 | :white_check_mark: yes | :x: no ([Issue #25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25))
