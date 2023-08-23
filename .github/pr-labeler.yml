@@ -1,5 +1,5 @@
 'type: breaking': ['breaking/*']
-'type: feature': ['feature/*', 'features/*', 'feat/*']
+'type: feature': ['feature/*', 'features/*', 'feat/*', 'feature-*']
 'type: improvement': ['improve/*', 'improvement/*', 'improvements/*', 'impr/*']
 'type: automation': ['automation/*']
 'type: documentation': ['doc/*', 'docs/*', 'documentation/*', 'documentations/*']
