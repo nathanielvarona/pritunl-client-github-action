@@ -14,6 +14,9 @@ categories:
   - title: '🧩 Improvements'
     label: 'type: improvement'
 
+  - title: '⚙️ Automation'
+    label: 'type: automation'
+
   - title: '📜 Documentations'
     label: 'type: documentation'
 
@@ -28,6 +31,7 @@ version-resolver:
     labels:
       - 'type: improvement'
       - 'type: automation'
+      - 'type: documentation'
 
 references:
   - main
