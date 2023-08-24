@@ -21,7 +21,7 @@ Runner | OpenVPN | WireGuard
  `ubuntu-22.04` | :white_check_mark: passing | :white_check_mark: passing
  `ubuntu-20.04` | :white_check_mark: passing | :white_check_mark: passing
  `macos-12` | :white_check_mark: passing | :white_check_mark: passing
- `macos-13` | :white_check_mark: passing | :white_check_mark: passing
+ `macos-11` | :white_check_mark: passing | :white_check_mark: passing
  `windows-2022` | :white_check_mark: passing | :x: failing [[Issue #25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
  `windows-2019` | :white_check_mark: passing | :x: failing [[Issue #25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
 
