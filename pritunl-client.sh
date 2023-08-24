@@ -117,7 +117,7 @@ echo "client-id=$client_id" >> $GITHUB_OUTPUT
 # Disable autostart option
 pritunl-client disable $client_id
 
-if [[ -n "$START_CONNECTION" ]]; then
+if [[ -n "$START_CONNECTION" && "$START_CONNECTION" == "true" ]]; then
   # Start the Connection
   pritunl-client start $client_id \
     $(
