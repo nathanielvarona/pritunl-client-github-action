@@ -14,16 +14,16 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 [![Test Connection](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml)
 
-Compatibility and common issues between runners and VPN mode.
+Compatibility and Common Issues between the Runners and VPN Mode.
 
 Runner | OpenVPN | WireGuard
 ---------|----------|---------
- `ubuntu-22.04` | :white_check_mark: passing | :white_check_mark: passing
- `ubuntu-20.04` | :white_check_mark: passing | :white_check_mark: passing
- `macos-12` | :white_check_mark: passing | :white_check_mark: passing
- `macos-11` | :white_check_mark: passing | :white_check_mark: passing
- `windows-2022` | :white_check_mark: passing | :x: failing [[Issue #25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
- `windows-2019` | :white_check_mark: passing | :x: failing [[Issue #25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
+ `ubuntu-22.04` | :white_check_mark: yes | :white_check_mark: yes
+ `ubuntu-20.04` | :white_check_mark: yes | :white_check_mark: yes
+ `macos-12` | :white_check_mark: yes | :white_check_mark: yes
+ `macos-11` | :white_check_mark: yes | :white_check_mark: yes
+ `windows-2022` | :white_check_mark: yes | :x: no [[#25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
+ `windows-2019` | :white_check_mark: yes | :x: no [[#25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
 
 ## Usage
 
@@ -59,7 +59,7 @@ The configuration is declarative and relatively simple to use.
     start-connection: ''
 ```
 
-> Kindly check the section [Working with Pritunl Profile File](#working-with-pritunl-profile-file) on converting `tar` binary to `base64` file format for the `profile-file` input.
+> Kindly check the section [Working with Pritunl Profile File](#working-with-pritunl-profile-file) on converting `tar` archive file format to `base64` text file format for the `profile-file` input.
 
 ## Examples
 
@@ -175,13 +175,13 @@ curl -sL https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar \
   -o ./pritunl.profile.tar
 ```
 
-#### 2. Convert your Pritunl Profile File from `tar` binary to `base64` data format.
+#### 2. Convert your Pritunl Profile File from `tar` archive file format to `base64` text file format.
 
 ```bash
 base64 -w 0 ./pritunl.profile.tar > ./pritunl.profile.base64
 ```
 
-#### 3. Copy the `base64` data.
+#### 3. Copy the data from `base64` text file format.
 
 _For macOS:_
 ```bash
@@ -204,7 +204,7 @@ code ./pritunl.profile.base64 # or,
 vim ./pritunl.profile.base64
 ```
 
-Then select the entire data and copy it to the clipboard.
+Then, select the entire data and copy it to the clipboard.
 
 #### 4. Create a Secret and Paste the value from our clipboard.
 Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
