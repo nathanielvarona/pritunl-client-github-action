@@ -4,6 +4,12 @@ Establish a [Pritunl VPN](https://pritunl.com/) connection using the [Pritunl Cl
 
 This utility helps you with tasks like automated internal endpoint testing, periodic backups, and anything that requires private access inside the corporate infrastructure using Pritunl VPN Enterprise Servers.
 
+## Diagram
+
+![Diagram](./diagram.png)
+
+> _I used the [drawio](https://www.drawio.com/) app to create and set an image that can be edited._
+
 ## Actions Test
 
 [![Test Connection](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml)
@@ -12,18 +18,12 @@ Compatibility and common issues between runners and VPN mode.
 
 Runner | OpenVPN | WireGuard
 ---------|----------|---------
- **ubuntu-22.04** | :white_check_mark: passing | :white_check_mark: passing
- **ubuntu-20.04** | :white_check_mark: passing | :white_check_mark: passing
- **macos-12** | :white_check_mark: passing | :white_check_mark: passing
- **macos-13** | :white_check_mark: passing | :white_check_mark: passing
- **windows-2022** | :white_check_mark: passing | :x: failing [[Issue #25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
- **windows-2019** | :white_check_mark: passing | :x: failing [[Issue #25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
-
-## Diagram
-
-![Diagram](./diagram.png)
-
-> _I used the [drawio](https://www.drawio.com/) app to create and set an image that can be edited._
+ `ubuntu-22.04` | :white_check_mark: passing | :white_check_mark: passing
+ `ubuntu-20.04` | :white_check_mark: passing | :white_check_mark: passing
+ `macos-12` | :white_check_mark: passing | :white_check_mark: passing
+ `macos-13` | :white_check_mark: passing | :white_check_mark: passing
+ `windows-2022` | :white_check_mark: passing | :x: failing [[Issue #25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
+ `windows-2019` | :white_check_mark: passing | :x: failing [[Issue #25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
 
 ## Usage
 
