@@ -1,16 +1,19 @@
 # Pritunl Client GitHub Action
 
-[![Test Connection](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml)
-
 Establish a [Pritunl VPN](https://pritunl.com/) connection using the [Pritunl Client](https://client.pritunl.com/) that supports [OpenVPN](https://openvpn.net/) and [WireGuard](https://www.wireguard.com/) modes on [GitHub Actions](https://github.com/features/actions).
 
 This utility helps you with tasks like automated internal endpoint testing, periodic backups, and anything that requires private access inside the corporate infrastructure using Pritunl VPN Enterprise Servers.
+
+## Actions Test
+
+[![Test Connection](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml) 
+_Be sure to also review the [Runners and VPN Mode Compatibly and Common Issues](#runners-and-vpn-mode-compatibly-and-common-issues)_
 
 ## Diagram
 
 ![Diagram](./diagram.png)
 
-> _The image was **created** and set as **editable** using the [drawio](https://www.drawio.com/) app._
+> _I used the [drawio](https://www.drawio.com/) app to create and set an image that can be edited._
 
 ## Usage
 
@@ -196,7 +199,7 @@ Then select the entire data and copy it to the clipboard.
 #### 4. Create a Secret and Paste the value from our clipboard.
 Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
 
-## Compatible VPN Modes and Common Issues
+## Runners and VPN Mode Compatibly and Common Issues
 
 Runner | OpenVPN | WireGuard
 ---------|----------|---------
