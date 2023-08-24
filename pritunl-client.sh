@@ -154,6 +154,6 @@ if [[ -n "$START_CONNECTION" && "$START_CONNECTION" == "true" ]]; then
   done
 
   # Show VPN Connection Status
-  pritunl-client list | sed -E 's/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/###.###.###.###/g'
+  pritunl-client list | sed -E 's/([0-9]+\.[0-9]+\.[0-9]+\.[0-9]+)|[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/###.###.###.###/g'
 
 fi
