@@ -45,11 +45,9 @@ runs:
         START_CONNECTION: ${{ inputs.start-connection }}
       shell: bash
       run: |
-        if [ "$RUNNER_OS" == "Windows" ]; then
-          bash "$GITHUB_ACTION_PATH\pritunl-client.sh"
-        else
-          bash "$GITHUB_ACTION_PATH/pritunl-client.sh"
-        fi
+        # Execute `pritunl-client.sh`
+        [[ "$RUNNER_OS" == "Windows" ]] && separator="\\" || separator="/"
+        bash "$GITHUB_ACTION_PATH${separator}pritunl-client.sh"
 
 branding:
   icon: server

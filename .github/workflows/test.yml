@@ -3,13 +3,6 @@ name: Test Connection
 on:
   workflow_dispatch:
     inputs:
-      vpn_mode:
-        description: 'VPN Mode'
-        type: choice
-        options:
-        - ovpn
-        - wg
-
       client_version:
         description: 'Pritunl Client Version'
         type: choice
@@ -26,6 +19,7 @@ on:
 jobs:
   test-connection:
     strategy:
+      fail-fast: false
       matrix:
         os:
           - ubuntu-22.04
@@ -34,8 +28,18 @@ jobs:
           - macos-11
           - windows-2022
           - windows-2019
+        vpn:
+          - ovpn
+          - wg
+        exclude:
+          ## Issue: Windows and WireGuard
+          ## Link: https://github.com/nathanielvarona/pritunl-client-github-action/issues/25
+          - os: windows-2022
+            vpn: wg
+          - os: windows-2019
+            vpn: wg
     runs-on: ${{ matrix.os }}
-    name: Runs on ${{ matrix.os }}
+    name: "run:${{ matrix.os }}, vpn:${{ matrix.vpn }}, cv:${{ github.event.inputs.client_version }}, sc:${{ github.event.inputs.start_connection }}"
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -46,7 +50,7 @@ jobs:
         with:
           profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
           profile-pin: ${{ secrets.PRITUNL_PROFILE_PIN }}
-          vpn-mode: ${{ github.event.inputs.vpn_mode }}
+          vpn-mode: ${{ matrix.vpn }}
           client-version: ${{ github.event.inputs.client_version }}
           start-connection: ${{ github.event.inputs.start_connection }}
 
@@ -56,7 +60,7 @@ jobs:
         run: |
           pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
             --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }} \
-            --mode ${{ github.event.inputs.vpn_mode }}
+            --mode ${{ matrix.vpn }}
 
       - name: Show VPN Connection Status Manually
         if: ${{ github.event.inputs.start_connection == 'false' }}
@@ -77,7 +81,7 @@ jobs:
             sleep 1
           done
           # Show VPN Connection Status
-          pritunl-client list
+          pritunl-client list | sed -E 's/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/###.###.###.###/g'
 
       - name: Install IP Tooling
         shell: bash
