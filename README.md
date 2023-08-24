@@ -6,8 +6,18 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 ## Actions Test
 
-[![Test Connection](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml) 
-_Be sure to also review the [Runners and VPN Mode Compatibly and Common Issues](#runners-and-vpn-mode-compatibly-and-common-issues)_
+[![Test Connection](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml)
+
+Compatibility and common issues between runners and VPN mode.
+
+Runner | OpenVPN | WireGuard
+---------|----------|---------
+ **ubuntu-22.04** | :white_check_mark: passing | :white_check_mark: passing
+ **ubuntu-20.04** | :white_check_mark: passing | :white_check_mark: passing
+ **macos-12** | :white_check_mark: passing | :white_check_mark: passing
+ **macos-13** | :white_check_mark: passing | :white_check_mark: passing
+ **windows-2022** | :white_check_mark: passing | :x: failing [[Issue #25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
+ **windows-2019** | :white_check_mark: passing | :x: failing [[Issue #25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
 
 ## Diagram
 
@@ -198,14 +208,3 @@ Then select the entire data and copy it to the clipboard.
 
 #### 4. Create a Secret and Paste the value from our clipboard.
 Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
-
-## Runners and VPN Mode Compatibly and Common Issues
-
-Runner | OpenVPN | WireGuard
----------|----------|---------
- ubuntu-22.04 | :white_check_mark: yes | :white_check_mark: yes
- ubuntu-20.04 | :white_check_mark: yes | :white_check_mark: yes
- macos-12 | :white_check_mark: yes | :white_check_mark: yes
- macos-13 | :white_check_mark: yes | :white_check_mark: yes
- windows-2022 | :white_check_mark: yes | :x: no ([Issue #25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25))
- windows-2019 | :white_check_mark: yes | :x: no ([Issue #25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25))
