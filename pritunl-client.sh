@@ -20,7 +20,7 @@ for member in "${!OPENVPN_FAMILY[@]}"; do
     break
   fi
 done
-if [ -z "$VPN_MODE_FAMILY" ]; then
+if [[ -z "$VPN_MODE_FAMILY" ]]; then
   for member in "${!WIREGUARD_FAMILY[@]}"; do
     if [[ "${WIREGUARD_FAMILY[$member]}" == "$VPN_MODE" ]]; then
       VPN_MODE_FAMILY="wg"
@@ -40,8 +40,8 @@ validate_version() {
 }
 
 ## Installation Process
-if [ "$RUNNER_OS" == "Linux" ]; then
-  if [[ "$CLIENT_VERSION" -ne 'package-manager' ]]; then
+if [[ "$RUNNER_OS" == "Linux" ]]; then
+  if [[ "$CLIENT_VERSION" != 'package-manager' ]]; then
     validate_version "$CLIENT_VERSION"
     echo "Installing the Version Specific from GitHub Releases"
     curl -sL https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/pritunl-client_$CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb \
@@ -63,8 +63,8 @@ if [ "$RUNNER_OS" == "Linux" ]; then
     sudo apt-get --assume-yes install openvpn-systemd-resolved
   fi
 
-elif [ "$RUNNER_OS" == "macOS" ]; then
-  if [[ "$CLIENT_VERSION" -ne 'package-manager' ]]; then
+elif [[ "$RUNNER_OS" == "macOS" ]]; then
+  if [[ "$CLIENT_VERSION" != 'package-manager' ]]; then
     validate_version "$CLIENT_VERSION"
     curl -sL https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.pkg.zip \
       -o $RUNNER_TEMP/Pritunl.pkg.zip
@@ -79,8 +79,8 @@ elif [ "$RUNNER_OS" == "macOS" ]; then
     brew install wireguard-tools
   fi
 
-elif [ "$RUNNER_OS" == "Windows" ]; then
-  if [[ "$CLIENT_VERSION" -ne 'package-manager' ]]; then
+elif [[ "$RUNNER_OS" == "Windows" ]]; then
+  if [[ "$CLIENT_VERSION" != 'package-manager' ]]; then
     validate_version "$CLIENT_VERSION"
     echo "Downloading Pritunl installation file..."
     curl -sL https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.exe \
@@ -132,7 +132,7 @@ if [[ -n "$START_CONNECTION" ]]; then
     )
 
   # Check the Connection
-  while [ "${CONNECTION_TIMEOUT}" -gt 0 ] ; do
+  while [[ "${CONNECTION_TIMEOUT}" -gt 0 ]] ; do
     if pritunl-client list \
       | awk -F '|' 'NR==4{print $8}' \
       | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' \
@@ -145,7 +145,7 @@ if [[ -n "$START_CONNECTION" ]]; then
       if (( CONNECTION_TIMEOUT % 2 == 0 )); then
           echo "Connecting: $LOADING_INDICATOR"
       fi
-      if [ "$CONNECTION_TIMEOUT" -le 0 ]; then
+      if [[ "$CONNECTION_TIMEOUT" -le 0 ]]; then
           echo "Timeout reached! Exiting..."
           exit 1
       fi
