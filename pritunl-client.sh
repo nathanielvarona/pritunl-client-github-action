@@ -153,7 +153,10 @@ if [[ -n "$START_CONNECTION" && "$START_CONNECTION" == "true" ]]; then
     fi
   done
 
-  # Show VPN Connection Status
-  pritunl-client list | sed -E 's/[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+/###.###.###.###/g'
+  # Show the VPN Connection Status
+  pritunl_client_info=$(pritunl-client list)
+  profile_name=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $3}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+  profile_ip=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $8}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+  echo "You are connected as '$profile_name' with a private address of '$profile_ip'."
 
 fi
