@@ -57,15 +57,15 @@ install_linux() {
     echo "Installing Version Specific from GitHub Releases"
     deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/pritunl-client_$CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
     curl -sL "$deb_url" -o "$RUNNER_TEMP/pritunl-client.deb"
-    apt-get --assume-yes install -f "$RUNNER_TEMP/pritunl-client.deb"
+    sudo apt-get --assume-yes install -f "$RUNNER_TEMP/pritunl-client.deb"
   else
     echo "Installing latest from Prebuilt Apt Repository"
-    echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/pritunl.list
-    apt-get --assume-yes install gnupg
+    echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/pritunl.list
+    sudo apt-get --assume-yes install gnupg
     gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 7568D9BB55FF9E5287D586017AE645C0CF8E292A
-    gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | tee /etc/apt/trusted.gpg.d/pritunl.asc
-    apt-get --assume-yes update
-    apt-get --assume-yes install pritunl-client
+    gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc
+    sudo apt-get --assume-yes update
+    sudo apt-get --assume-yes install pritunl-client
   fi
 
   install_vpn_dependent_packages "Linux"
@@ -109,7 +109,7 @@ install_vpn_dependent_packages() {
   local os_type="$1"
   if [[ -n "$VPN_MODE_FAMILY" && "$VPN_MODE_FAMILY" == "wg" ]]; then
     if [[ "$os_type" == "Linux" ]]; then
-      apt-get --assume-yes install wireguard-tools
+      sudo apt-get --assume-yes install wireguard-tools
     elif [[ "$os_type" == "macOS" ]]; then
       brew install wireguard-tools
     elif [[ "$os_type" == "Windows" ]]; then
@@ -117,7 +117,7 @@ install_vpn_dependent_packages() {
     fi
   else
     if [[ "$os_type" == "Linux" ]]; then
-      apt-get --assume-yes install openvpn-systemd-resolved
+      sudo apt-get --assume-yes install openvpn-systemd-resolved
     fi
   fi
 }
@@ -180,7 +180,7 @@ decode_and_add_profile
 if [[ "$START_CONNECTION" == "true" ]]; then
   # Start VPN connection
   start_vpn_connection() {
-    local client_id="$1"
+    local profile_id="$1"
     local vpn_mode_flag=""
     local profile_pin_flag=""
 
@@ -192,7 +192,7 @@ if [[ "$START_CONNECTION" == "true" ]]; then
       profile_pin_flag="--password $PROFILE_PIN"
     fi
 
-    pritunl-client start "$client_id" "$vpn_mode_flag" "$profile_pin_flag"
+    pritunl-client start $profile_id $vpn_mode_flag $profile_pin_flag
   }
 
   # Start the VPN connection
