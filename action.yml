@@ -35,7 +35,7 @@ outputs:
 runs:
   using: "composite"
   steps:
-    - name: Pritunl Client GitHub Action
+    - name: Setup Pritunl Client
       id: pritunl-client
       env:
         PROFILE_FILE: ${{ inputs.profile-file }}
