@@ -15,18 +15,13 @@ CONNECTION_TIMEOUT=${CONNECTION_TIMEOUT:-30}
 LOADING_INDICATOR="."
 
 # Validate the VPN Mode
-declare -A MODE_MAPPING=(
-  ["ovpn"]="ovpn"
-  ["openvpn"]="ovpn"
-  ["OpenVPN"]="ovpn"
-  ["wg"]="wg"
-  ["wireguard"]="wg"
-  ["WireGuard"]="wg"
-)
+VPN_MODE_FAMILY=""
 
-VPN_MODE_FAMILY="${MODE_MAPPING[$VPN_MODE]}"
-
-if [[ -z "$VPN_MODE_FAMILY" ]]; then
+if [[ "$VPN_MODE" == "ovpn" || "$VPN_MODE" == "openvpn" || "$VPN_MODE" == "OpenVPN" ]]; then
+  VPN_MODE_FAMILY="ovpn"
+elif [[ "$VPN_MODE" == "wg" || "$VPN_MODE" == "wireguard" || "$VPN_MODE" == "WireGuard" ]]; then
+  VPN_MODE_FAMILY="wg"
+else
   echo "Invalid VPN mode: $VPN_MODE"
   exit 1
 fi
