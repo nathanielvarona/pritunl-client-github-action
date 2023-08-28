@@ -1,162 +1,228 @@
 #!/bin/bash
 
-## GitHub Action Environment Variable Inputs
+# Set up error handling
+set -euo pipefail
+
+# GitHub Action Environment Variable Inputs
 PROFILE_FILE="${PROFILE_FILE:-}"
 PROFILE_PIN="${PROFILE_PIN:-}"
 VPN_MODE="${VPN_MODE:-}"
 CLIENT_VERSION="${CLIENT_VERSION:-}"
 START_CONNECTION="${START_CONNECTION:-}"
 
+# Connections
 CONNECTION_TIMEOUT=${CONNECTION_TIMEOUT:-30}
+LOADING_INDICATOR="."
 
-## Validate the VPN Mode
-WIREGUARD_FAMILY=("wg" "wireguard" "WireGuard")
-OPENVPN_FAMILY=("ovpn" "openvpn" "OpenVPN")
-VPN_MODE_FAMILY=""
+# Validate the VPN Mode
+declare -A MODE_MAPPING=(
+  ["ovpn"]="ovpn"
+  ["openvpn"]="ovpn"
+  ["OpenVPN"]="ovpn"
+  ["wg"]="wg"
+  ["wireguard"]="wg"
+  ["WireGuard"]="wg"
+)
 
-for member in "${!OPENVPN_FAMILY[@]}"; do
-  if [[ "${OPENVPN_FAMILY[$member]}" == "$VPN_MODE" ]]; then
-    VPN_MODE_FAMILY="ovpn"
-    break
-  fi
-done
+VPN_MODE_FAMILY="${MODE_MAPPING[$VPN_MODE]}"
+
 if [[ -z "$VPN_MODE_FAMILY" ]]; then
-  for member in "${!WIREGUARD_FAMILY[@]}"; do
-    if [[ "${WIREGUARD_FAMILY[$member]}" == "$VPN_MODE" ]]; then
-      VPN_MODE_FAMILY="wg"
-      break
-    fi
-  done
+  echo "Invalid VPN mode: $VPN_MODE"
+  exit 1
 fi
 
+# Validate version pattern against GitHub API
 validate_version() {
-    local version_pattern="^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$"
-    if [[ $1 =~ $version_pattern ]]; then
-        echo "Valid version: $1"
-    else
-        echo "Invalid version: $1"
-        exit 1
-    fi
+  local version="$1"
+  local version_pattern="^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$"
+
+  if [[ ! "$version" =~ $version_pattern ]]; then
+    echo "Invalid version pattern for $version"
+    exit 1
+  fi
+
+  local api_response
+  api_response=$(curl -s "https://api.github.com/repos/pritunl/pritunl-client-electron/tags")
+
+  if ! echo "$api_response" | jq -r '.[].name' | grep -q --color=never "$version"; then
+    echo "Invalid version for $version"
+    exit 1
+  fi
 }
 
-## Installation Process
-if [[ "$RUNNER_OS" == "Linux" ]]; then
-  if [[ "$CLIENT_VERSION" != 'package-manager' ]]; then
+# Installation process for Linux
+install_linux() {
+  if [[ "$CLIENT_VERSION" != "package-manager" ]]; then
     validate_version "$CLIENT_VERSION"
-    echo "Installing the Version Specific from GitHub Releases"
-    curl -sL https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/pritunl-client_$CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb \
-      -o $RUNNER_TEMP/pritunl-client.deb
-    sudo apt-get --assume-yes install -f $RUNNER_TEMP/pritunl-client.deb
+    echo "Installing Version Specific from GitHub Releases"
+    deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/pritunl-client_$CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
+    curl -sL "$deb_url" -o "$RUNNER_TEMP/pritunl-client.deb"
+    apt-get --assume-yes install -f "$RUNNER_TEMP/pritunl-client.deb"
   else
-    echo "Installing latest from Prebuild Apt Repository"
-    echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/pritunl.list
-    sudo apt-get --assume-yes install gnupg
+    echo "Installing latest from Prebuilt Apt Repository"
+    echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/pritunl.list
+    apt-get --assume-yes install gnupg
     gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 7568D9BB55FF9E5287D586017AE645C0CF8E292A
-    gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc
-    sudo apt-get --assume-yes update
-    sudo apt-get --assume-yes install pritunl-client
+    gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | tee /etc/apt/trusted.gpg.d/pritunl.asc
+    apt-get --assume-yes update
+    apt-get --assume-yes install pritunl-client
   fi
 
-  if [[ -n "$VPN_MODE_FAMILY" && "$VPN_MODE_FAMILY" == "wg" ]]; then
-    sudo apt-get --assume-yes install wireguard-tools
-  else
-    sudo apt-get --assume-yes install openvpn-systemd-resolved
-  fi
+  install_vpn_dependent_packages "Linux"
+}
 
-elif [[ "$RUNNER_OS" == "macOS" ]]; then
-  if [[ "$CLIENT_VERSION" != 'package-manager' ]]; then
+# Installation process for macOS
+install_macos() {
+  if [[ "$CLIENT_VERSION" != "package-manager" ]]; then
     validate_version "$CLIENT_VERSION"
-    curl -sL https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.pkg.zip \
-      -o $RUNNER_TEMP/Pritunl.pkg.zip
-    unzip -qq -o $RUNNER_TEMP/Pritunl.pkg.zip -d $RUNNER_TEMP
-    sudo -E LOGNAME=$LOGNAME USER=$USER USERNAME=$USER -- installer -pkg $RUNNER_TEMP/Pritunl.pkg -target /
+    pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.pkg.zip"
+    curl -sL "$pkg_zip_url" -o "$RUNNER_TEMP/Pritunl.pkg.zip"
+    unzip -qq -o "$RUNNER_TEMP/Pritunl.pkg.zip" -d "$RUNNER_TEMP"
+    installer -pkg "$RUNNER_TEMP/Pritunl.pkg" -target /
   else
     brew install --cask pritunl
   fi
-  mkdir -p $HOME/bin && ln -s /Applications/Pritunl.app/Contents/Resources/pritunl-client $HOME/bin/pritunl-client
+  mkdir -p "$HOME/bin" && ln -s "/Applications/Pritunl.app/Contents/Resources/pritunl-client" "$HOME/bin/pritunl-client"
 
-  if [[ -n "$VPN_MODE_FAMILY" && "$VPN_MODE_FAMILY" == "wg" ]]; then
-    brew install wireguard-tools
-  fi
+  install_vpn_dependent_packages "macOS"
+}
 
-elif [[ "$RUNNER_OS" == "Windows" ]]; then
-  if [[ "$CLIENT_VERSION" != 'package-manager' ]]; then
+# Installation process for Windows
+install_windows() {
+  if [[ "$CLIENT_VERSION" != "package-manager" ]]; then
     validate_version "$CLIENT_VERSION"
-    echo "Downloading Pritunl installation file..."
-    curl -sL https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.exe \
-      -o $RUNNER_TEMP/Pritunl.exe
+    exe_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.exe"
+    curl -sL "$exe_url" -o "$RUNNER_TEMP/Pritunl.exe"
     echo "Starting Pritunl installation..."
     pwsh -ExecutionPolicy Bypass -Command "Start-Process -FilePath '$RUNNER_TEMP\Pritunl.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' -Wait"
     echo "Pritunl installation completed."
   else
     choco install --confirm --no-progress pritunl-client
   fi
-  mkdir -p $HOME/bin && ln -s "/c/Program Files (x86)/Pritunl/pritunl-client.exe" $HOME/bin/pritunl-client
+  mkdir -p "$HOME/bin" && ln -s "/c/Program Files (x86)/Pritunl/pritunl-client.exe" "$HOME/bin/pritunl-client"
 
+  install_vpn_dependent_packages "Windows"
+}
+
+# Install VPN dependent packages based on OS
+install_vpn_dependent_packages() {
+  local os_type="$1"
   if [[ -n "$VPN_MODE_FAMILY" && "$VPN_MODE_FAMILY" == "wg" ]]; then
-    choco install --confirm --no-progress wireguard
+    if [[ "$os_type" == "Linux" ]]; then
+      apt-get --assume-yes install wireguard-tools
+    elif [[ "$os_type" == "macOS" ]]; then
+      brew install wireguard-tools
+    elif [[ "$os_type" == "Windows" ]]; then
+      choco install --confirm --no-progress wireguard
+    fi
+  else
+    if [[ "$os_type" == "Linux" ]]; then
+      apt-get --assume-yes install openvpn-systemd-resolved
+    fi
   fi
+}
+
+# Main installation process based on OS
+install_platform() {
+  local os_type="$1"
+  case "$os_type" in
+    Linux)
+      install_linux
+      ;;
+    macOS)
+      install_macos
+      ;;
+    Windows)
+      install_windows
+      ;;
+    *)
+      echo "Unsupported OS: $os_type"
+      exit 1
+      ;;
+  esac
+}
+
+# Main script execution
+if [[ "$RUNNER_OS" == "Linux" || "$RUNNER_OS" == "macOS" || "$RUNNER_OS" == "Windows" ]]; then
+  install_platform "$RUNNER_OS"
+else
+  echo "Unsupported OS: $RUNNER_OS"
+  exit 1
 fi
 
-## Show Pritunl Client Version
+# Show Pritunl Client Version
 pritunl-client version
 
-## Load the Pritunl Profile File to the Client
-# Save the `base64` text file format and convert it back to `tar` archive file format.
-echo "$PROFILE_FILE" > $RUNNER_TEMP/profile-file.base64
-base64 --decode $RUNNER_TEMP/profile-file.base64 > $RUNNER_TEMP/profile-file.tar
-# Add the Profile File to Pritunl Client
-pritunl-client add $RUNNER_TEMP/profile-file.tar
-# Set `client-id` as step output
-client_id=$(
-  pritunl-client list \
-    | awk -F'|' 'NR==4{print $2}' \
-    | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//'
-  )
-echo "client-id=$client_id" >> $GITHUB_OUTPUT
-# Disable autostart option
-pritunl-client disable $client_id
+# Load Pritunl Profile File
+decode_and_add_profile() {
+  # Save the `base64` text file format and convert it back to `tar` archive file format.
+  echo "$PROFILE_FILE" > "$RUNNER_TEMP/profile-file.base64"
+  base64 --decode "$RUNNER_TEMP/profile-file.base64" > "$RUNNER_TEMP/profile-file.tar"
 
-if [[ -n "$START_CONNECTION" && "$START_CONNECTION" == "true" ]]; then
-  # Start the Connection
-  pritunl-client start $client_id \
-    $(
-      if [[ -n "$VPN_MODE_FAMILY" ]]; then
-        echo "--mode $VPN_MODE_FAMILY"
-      fi
-    ) \
-    $(
-      if [[ -n "$PROFILE_PIN" ]]; then
-        echo "--password $PROFILE_PIN"
-      fi
-    )
+  # Add the Profile File to Pritunl Client
+  pritunl-client add "$RUNNER_TEMP/profile-file.tar"
+
+  # Set `client-id` as step output
+  client_id=$(
+    pritunl-client list |
+    awk -F'|' 'NR==4{print $2}' |
+    sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//'
+  )
+  echo "client-id=$client_id" >> "$GITHUB_OUTPUT"
+
+  # Disable autostart option
+  pritunl-client disable "$client_id"
+}
+
+# Load the Pritunl Profile File
+decode_and_add_profile
+
+if [[ "$START_CONNECTION" == "true" ]]; then
+  # Start VPN connection
+  start_vpn_connection() {
+    local client_id="$1"
+    local vpn_mode_flag=""
+    local profile_pin_flag=""
+
+    if [[ -n "$VPN_MODE_FAMILY" ]]; then
+      vpn_mode_flag="--mode $VPN_MODE_FAMILY"
+    fi
+
+    if [[ -n "$PROFILE_PIN" ]]; then
+      profile_pin_flag="--password $PROFILE_PIN"
+    fi
+
+    pritunl-client start "$client_id" "$vpn_mode_flag" "$profile_pin_flag"
+  }
+
+  # Start the VPN connection
+  start_vpn_connection "$client_id"
 
   # Check the Connection
-  while [[ "${CONNECTION_TIMEOUT}" -gt 0 ]] ; do
-    if pritunl-client list \
-      | awk -F '|' 'NR==4{print $8}' \
-      | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' \
-      | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$' --quiet --color=never ; then
-        echo "Connection established..."
-        break
+  while [[ "${CONNECTION_TIMEOUT}" -gt 0 ]]; do
+    if pritunl-client list |
+      awk -F '|' 'NR==4{print $8}' |
+      sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' |
+      grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$' --quiet --color=never; then
+      echo "Connection established..."
+      break
     else
       CONNECTION_TIMEOUT=$((CONNECTION_TIMEOUT - 1))
-      LOADING_INDICATOR+="."
       if (( CONNECTION_TIMEOUT % 2 == 0 )); then
-          echo "Connecting: $LOADING_INDICATOR"
+        SHOW_LOADING_INDICATOR="${LOADING_INDICATOR}${LOADING_INDICATOR}"
+        echo -n "$SHOW_LOADING_INDICATOR"
       fi
       if [[ "$CONNECTION_TIMEOUT" -le 0 ]]; then
-          echo "Timeout reached! Exiting..."
-          exit 1
+        echo "Timeout reached! Exiting..."
+        exit 1
       fi
       sleep 1
     fi
   done
 
-  # Show the VPN Connection Status
+  # Display VPN Connection Status
   pritunl_client_info=$(pritunl-client list)
   profile_name=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $3}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
   profile_ip=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $8}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
-  echo "You are connected as '$profile_name' with a private address of '$profile_ip'."
-
+  echo "Connected as '$profile_name' with a private address of '$profile_ip'."
 fi
