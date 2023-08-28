@@ -73,7 +73,7 @@ install_macos() {
     pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.pkg.zip"
     curl -sL "$pkg_zip_url" -o "$RUNNER_TEMP/Pritunl.pkg.zip"
     unzip -qq -o "$RUNNER_TEMP/Pritunl.pkg.zip" -d "$RUNNER_TEMP"
-    installer -pkg "$RUNNER_TEMP/Pritunl.pkg" -target /
+    sudo installer -pkg "$RUNNER_TEMP/Pritunl.pkg" -target /
   else
     brew install --cask pritunl
   fi
