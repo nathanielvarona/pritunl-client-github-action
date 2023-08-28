@@ -36,10 +36,13 @@ validate_version() {
     exit 1
   fi
 
-  local api_response
-  api_response=$(curl -s "https://api.github.com/repos/pritunl/pritunl-client-electron/tags")
+  local version_listing
+  # To prevent rate limits for API calls from the `https://api.github.com/repos/pritunl/pritunl-client-electron/tags`.
+  # We will use the generated file `valid-version.txt` for now as our source.
+  # Use the script `valid-version.sh` to update the `valid-version.txt`
+  version_listing=$(cat "$(dirname "$0")/valid-version.txt")
 
-  if ! echo "$api_response" | jq -r '.[].name' | grep -q --color=never "$version"; then
+  if ! echo "$version_listing" | grep -v '^[#;]' | grep --quiet --color=never "$version"; then
     echo "Invalid version for $version"
     exit 1
   fi
