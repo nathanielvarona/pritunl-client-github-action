@@ -66,34 +66,35 @@ jobs:
         if: ${{ github.event.inputs.start_connection == 'false' }}
         shell: bash
         run: |
-          # Check the Connection
           CONNECTION_TIMEOUT=${CONNECTION_TIMEOUT:-30}
-          while [[ "${CONNECTION_TIMEOUT}" -gt 0 ]] ; do
-            if pritunl-client list \
-              | awk -F '|' 'NR==4{print $8}' \
-              | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' \
-              | grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$' --quiet --color=never ; then
-                echo "Connection established..."
-                break
+          LOADING_INDICATOR="."
+          # Check the Connection
+            while [[ "${CONNECTION_TIMEOUT}" -gt 0 ]]; do
+            if pritunl-client list |
+              awk -F '|' 'NR==4{print $8}' |
+              sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' |
+              grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$' --quiet --color=never; then
+              echo "Connection established..."
+              break
             else
               CONNECTION_TIMEOUT=$((CONNECTION_TIMEOUT - 1))
-              LOADING_INDICATOR+="."
               if (( CONNECTION_TIMEOUT % 2 == 0 )); then
-                  echo "Connecting: $LOADING_INDICATOR"
+                SHOW_LOADING_INDICATOR="${LOADING_INDICATOR}${LOADING_INDICATOR}"
+                echo -n "$SHOW_LOADING_INDICATOR"
               fi
               if [[ "$CONNECTION_TIMEOUT" -le 0 ]]; then
-                  echo "Timeout reached! Exiting..."
-                  exit 1
+                echo "Timeout reached! Exiting..."
+                exit 1
               fi
               sleep 1
             fi
           done
 
-          # Show the VPN Connection Status
+          # Display VPN Connection Status
           pritunl_client_info=$(pritunl-client list)
           profile_name=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $3}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
           profile_ip=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $8}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
-          echo "You are connected as '$profile_name' with a private address of '$profile_ip'."
+          echo "Connected as '$profile_name' with a private address of '$profile_ip'."
 
       - name: Install IP Tooling
         shell: bash
