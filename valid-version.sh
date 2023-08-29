@@ -11,7 +11,7 @@ header_info=$(cat <<EOF
 EOF
 )
 
-echo "$header_info" > valid-version.txt
+echo "$header_info" > $(dirname "$0")/valid-version.txt
 
 curl -s "https://api.github.com/repos/pritunl/pritunl-client-electron/tags" \
     | jq -r '.[].name' >> $(dirname "$0")/valid-version.txt
