@@ -1,17 +1,35 @@
 #!/bin/bash
 
-## Pritunl Client Valid Version Generator
-## Generates `valid-version.txt` file
+###
+## Pritunl Client Valid Version File Generator
+###
 
-header_info=$(cat <<EOF
+OUTPUT_FILE="valid-version.txt"
+CLIENT_REPO="pritunl/pritunl-client-electron"
+RELEASES_API_URL="https://api.github.com/repos/$CLIENT_REPO/releases"
+
+# File Information
+cat <<EOF > $OUTPUT_FILE
 ##
-## Pritunl client valid versions.
-## File generated using '$(basename "$0")' script.
+## Pritunl Client Valid Version File
+##
+## This file is generated using \`$(basename "$0")\` script,
+## and only applicable if GitHub action input \`client-version\` is used.
 ##
 EOF
-)
 
-echo "$header_info" > $(dirname "$0")/valid-version.txt
+# Fetch the releases data using the API endpoint
+PAGE=1
+while true; do
+  PAGE_URL="${RELEASES_API_URL}?page=${PAGE}"
+  RESPONSE=$(curl -s "$PAGE_URL" | jq -r '.[] | .tag_name')
 
-curl -s "https://api.github.com/repos/pritunl/pritunl-client-electron/tags" \
-    | jq -r '.[].name' >> $(dirname "$0")/valid-version.txt
+  # Break the loop if the response is empty
+  if [ -z "$RESPONSE" ]; then
+    break
+  fi
+
+  # Write the filtered response to the file
+  echo "$RESPONSE" >> "$(dirname "$0")/$OUTPUT_FILE"
+  PAGE=$((PAGE + 1))
+done
