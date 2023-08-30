@@ -178,19 +178,18 @@ decode_and_add_profile
 if [[ "$START_CONNECTION" == "true" ]]; then
   # Start VPN connection
   start_vpn_connection() {
-    local profile_id="$1"
-    local vpn_mode_flag=""
-    local profile_pin_flag=""
+    local client_id="$1"
+    local vpn_flags=()
 
     if [[ -n "$VPN_MODE_FAMILY" ]]; then
-      vpn_mode_flag="--mode $VPN_MODE_FAMILY"
+      vpn_flags+=( "--mode" "$VPN_MODE_FAMILY" )
     fi
 
     if [[ -n "$PROFILE_PIN" ]]; then
-      profile_pin_flag="--password $PROFILE_PIN"
+      vpn_flags+=( "--password" "$PROFILE_PIN" )
     fi
 
-    pritunl-client start $profile_id $vpn_mode_flag $profile_pin_flag
+    pritunl-client start "$client_id" "${vpn_flags[@]}"
   }
 
   # Start the VPN connection
