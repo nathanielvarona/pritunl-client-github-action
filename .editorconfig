@@ -1,0 +1,16 @@
+# Top-most EditorConfig file
+root = true
+
+[*]
+end_of_line = lf
+
+# YAML files
+[*.{yaml,yml}]
+indent_style = space
+indent_size = 2
+
+
+# Shell script files
+[*.{sh,bash}]
+indent_style = space
+indent_size = 2
