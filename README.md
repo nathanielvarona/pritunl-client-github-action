@@ -6,9 +6,9 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 ## Diagram
 
-![Diagram](./diagram.png)
+![Diagram](./diagram.drawio.svg)
 
-> _I used the [drawio](https://www.drawio.com/) app to create and set an image that can be edited._
+> _The diagram is an editable vector image using [drawio](https://www.drawio.com/) app._
 
 ## Actions Test
 
@@ -22,8 +22,8 @@ Runner | OpenVPN | WireGuard
  `ubuntu-20.04` | :white_check_mark: yes | :white_check_mark: yes
  `macos-12` | :white_check_mark: yes | :white_check_mark: yes
  `macos-11` | :white_check_mark: yes | :white_check_mark: yes
- `windows-2022` | :white_check_mark: yes | :white_check_mark: yes [resolves [#25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
- `windows-2019` | :white_check_mark: yes | :white_check_mark: yes [resolves [#25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
+ `windows-2022` | :white_check_mark: yes | :white_check_mark: yes [resolved [#25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
+ `windows-2019` | :white_check_mark: yes | :white_check_mark: yes [resolved [#25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
 
 ## Usage
 
