@@ -31,13 +31,6 @@ jobs:
         vpn:
           - ovpn
           - wg
-        exclude:
-          ## Reason: Pritunl Client Determination for WireGuard Windows Installation Issue
-          ## Link: https://github.com/nathanielvarona/pritunl-client-github-action/issues/25
-          - os: windows-2022
-            vpn: wg
-          - os: windows-2019
-            vpn: wg
     runs-on: ${{ matrix.os }}
     name: "run:${{ matrix.os }}, vpn:${{ matrix.vpn }}, cv:${{ github.event.inputs.client_version }}, sc:${{ github.event.inputs.start_connection }}"
     steps:

@@ -99,6 +99,12 @@ install_windows() {
   mkdir -p "$HOME/bin" && ln -s "/c/Program Files (x86)/Pritunl/pritunl-client.exe" "$HOME/bin/pritunl-client"
 
   install_vpn_dependent_packages "Windows"
+
+  if [[ "$VPN_MODE_FAMILY" == "wg" ]]; then
+    # Restarting the `pritunl` service to determine the latest changes of the `PATH` values
+    # from the `System Environment Variables` during the WireGuard installation is needed.
+    pwsh -ExecutionPolicy Bypass -Command "Invoke-Command -ScriptBlock { net stop 'pritunl' ; net start 'pritunl' }"
+  fi
 }
 
 # Install VPN dependent packages based on OS
