@@ -16,15 +16,17 @@ LOADING_INDICATOR="."
 
 # Validate the VPN Mode
 VPN_MODE_FAMILY=""
-
-if [[ "$VPN_MODE" == "ovpn" || "$VPN_MODE" == "openvpn" || "$VPN_MODE" == "OpenVPN" ]]; then
-  VPN_MODE_FAMILY="ovpn"
-elif [[ "$VPN_MODE" == "wg" || "$VPN_MODE" == "wireguard" || "$VPN_MODE" == "WireGuard" ]]; then
-  VPN_MODE_FAMILY="wg"
-else
-  echo "Invalid VPN mode: $VPN_MODE"
-  exit 1
-fi
+normalize_vpn_mode() {
+  if [[ "$VPN_MODE" == "ovpn" || "$VPN_MODE" == "openvpn" || "$VPN_MODE" == "OpenVPN" ]]; then
+    VPN_MODE_FAMILY="ovpn"
+  elif [[ "$VPN_MODE" == "wg" || "$VPN_MODE" == "wireguard" || "$VPN_MODE" == "WireGuard" ]]; then
+    VPN_MODE_FAMILY="wg"
+  else
+    echo "Invalid VPN mode: $VPN_MODE"
+    exit 1
+  fi
+}
+normalize_vpn_mode
 
 # Validate version pattern against GitHub API
 validate_version() {
