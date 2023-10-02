@@ -200,7 +200,10 @@ if [[ "$START_CONNECTION" == "true" ]]; then
     pritunl-client start "$client_id" "${vpn_flags[@]}"
   }
 
-  # Establishing Connection
+  # Start the VPN connection
+  start_vpn_connection "$client_id"
+
+  # Waiting for Established Connection
   wait_established_connection() {
     # Define the total number of steps
     local total_steps="${CONNECTION_TIMEOUT}"
@@ -247,7 +250,7 @@ if [[ "$START_CONNECTION" == "true" ]]; then
         echo -n -e "\r\033[K"
 
         # Print the timeout message and exit error
-        if [[ "$progress" -ge $total_steps ]]; then
+        if [[ "$progress" -ge "$total_steps" ]]; then
           echo "Timeout reached! Exiting..."
           exit 1
         fi
@@ -258,15 +261,17 @@ if [[ "$START_CONNECTION" == "true" ]]; then
     echo ""
   }
 
-  # Start the VPN connection
-  start_vpn_connection "$client_id"
-
-  # Establishing Connection
+  # Waiting for Established Connection
   wait_established_connection
 
   # Display VPN Connection Status
-  pritunl_client_info=$(pritunl-client list)
-  profile_name=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $3}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
-  profile_ip=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $8}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
-  echo "Connected as '$profile_name' with a private address of '$profile_ip'."
+  display_connection_status() {
+    local pritunl_client_info=$(pritunl-client list)
+    local profile_name=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $3}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+    local profile_ip=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $8}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+    echo "Connected as '$profile_name' with a private address of '$profile_ip'."
+  }
+
+  # Display VPN Connection Status
+  display_connection_status
 fi
