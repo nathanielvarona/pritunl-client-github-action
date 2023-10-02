@@ -10,9 +10,9 @@ VPN_MODE="${VPN_MODE:-}"
 CLIENT_VERSION="${CLIENT_VERSION:-}"
 START_CONNECTION="${START_CONNECTION:-}"
 
-# Connections
-CONNECTION_TIMEOUT=${CONNECTION_TIMEOUT:-30}
-LOADING_INDICATOR="."
+# Connections Parameters
+CONNECTION_TIMEOUT="${CONNECTION_TIMEOUT:-30}"
+
 
 # Validate the VPN Mode
 VPN_MODE_FAMILY=""
@@ -183,6 +183,7 @@ decode_and_add_profile() {
 decode_and_add_profile
 
 if [[ "$START_CONNECTION" == "true" ]]; then
+
   # Start VPN connection
   start_vpn_connection() {
     local client_id="$1"
@@ -199,30 +200,69 @@ if [[ "$START_CONNECTION" == "true" ]]; then
     pritunl-client start "$client_id" "${vpn_flags[@]}"
   }
 
+  # Establishing Connection
+  wait_established_connection() {
+    # Define the total number of steps
+    local total_steps="${CONNECTION_TIMEOUT}"
+
+    # Initialize the progress variable
+    local progress=1
+
+    # Clear the initial line
+    echo -n -e "\r\033[K"
+
+    # Loop until the progress reaches the total number of steps
+    while [[ "$progress" -le "$total_steps" ]]; do
+      if pritunl-client list |
+        awk -F '|' 'NR==4{print $8}' |
+        sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' |
+        grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$' --quiet --color=never; then
+        echo "Connection established..."
+        break
+      else
+        # Calculate the percentage progress
+        percentage=$((progress * 100 / total_steps))
+
+        # Calculate the number of completed and remaining characters for the progress bar
+        completed=$((percentage / 2))
+        remaining=$((50 - completed))
+
+        # Print the connection check progress on the same line
+        echo -n -e "Establishing connection: ["
+        for ((i = 0; i < completed; i++)); do
+            echo -n -e "#"
+        done
+        for ((i = 0; i < remaining; i++)); do
+            echo -n -e "-"
+        done
+        echo -n -e "] checking $progress out of $total_steps total connection timeout"
+
+        # Increment the progress
+        progress=$((progress + 1))
+
+        # Sleep for a moment (simulating work)
+        sleep 1
+
+        # Clear the line again for the next update
+        echo -n -e "\r\033[K"
+
+        # Print the timeout message and exit error
+        if [[ "$progress" -ge $total_steps ]]; then
+          echo "Timeout reached! Exiting..."
+          exit 1
+        fi
+      fi
+    done
+
+    # Print a newline to end the progress loader
+    echo ""
+  }
+
   # Start the VPN connection
   start_vpn_connection "$client_id"
 
-  # Check the Connection
-  while [[ "${CONNECTION_TIMEOUT}" -gt 0 ]]; do
-    if pritunl-client list |
-      awk -F '|' 'NR==4{print $8}' |
-      sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' |
-      grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$' --quiet --color=never; then
-      echo "Connection established..."
-      break
-    else
-      CONNECTION_TIMEOUT=$((CONNECTION_TIMEOUT - 1))
-      if (( CONNECTION_TIMEOUT % 2 == 0 )); then
-        SHOW_LOADING_INDICATOR="${LOADING_INDICATOR}${LOADING_INDICATOR}"
-        echo -n "$SHOW_LOADING_INDICATOR"
-      fi
-      if [[ "$CONNECTION_TIMEOUT" -le 0 ]]; then
-        echo "Timeout reached! Exiting..."
-        exit 1
-      fi
-      sleep 1
-    fi
-  done
+  # Establishing Connection
+  wait_established_connection
 
   # Display VPN Connection Status
   pritunl_client_info=$(pritunl-client list)
