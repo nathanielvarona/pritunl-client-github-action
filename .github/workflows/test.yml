@@ -119,10 +119,15 @@ jobs:
           wait_established_connection
 
           # Display VPN Connection Status
-          pritunl_client_info=$(pritunl-client list)
-          profile_name=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $3}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
-          profile_ip=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $8}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
-          echo "Connected as '$profile_name' with a private address of '$profile_ip'."
+          display_connection_status() {
+            local pritunl_client_info=$(pritunl-client list)
+            local profile_name=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $3}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+            local profile_ip=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $8}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+            echo "Connected as '$profile_name' with a private address of '$profile_ip'."
+          }
+
+          # Display VPN Connection Status
+          display_connection_status
 
       - name: Install IP Tooling and VPN Gateway Reachability Test
         shell: bash
