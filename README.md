@@ -16,14 +16,16 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 Compatibility and Common [Issues](https://github.com/nathanielvarona/pritunl-client-github-action/issues) between the Runners and VPN Mode.
 
-Runner | OpenVPN | WireGuard
----------|----------|---------
- `ubuntu-22.04` | :white_check_mark: yes | :white_check_mark: yes
- `ubuntu-20.04` | :white_check_mark: yes | :white_check_mark: yes
- `macos-12` | :white_check_mark: yes | :white_check_mark: yes
- `macos-11` | :white_check_mark: yes | :white_check_mark: yes
- `windows-2022` | :white_check_mark: yes | :white_check_mark: yes
- `windows-2019` | :white_check_mark: yes | :white_check_mark: yes
+Runner         | OpenVPN                | WireGuard
+---------------|------------------------|-----------------------
+`ubuntu-22.04` | :white_check_mark: yes | :white_check_mark: yes
+`ubuntu-20.04` | :white_check_mark: yes | :white_check_mark: yes
+`macos-12`     | :white_check_mark: yes | :white_check_mark: yes
+`macos-11`     | :white_check_mark: yes | :white_check_mark: yes
+`windows-2022` | :white_check_mark: yes | :white_check_mark: yes
+`windows-2019` | :white_check_mark: yes | :white_check_mark: yes
+
+_Tested working on **`Pritunl v1.32.3602.80`** Server._
 
 ## Usage
 
@@ -160,6 +162,18 @@ _Then your other steps down below._
     pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
 ```
 
+### Overriding default connection timeout
+
+```yml
+- name: Setup Pritunl Profile
+  id: pritunl-connection
+  uses: nathanielvarona/pritunl-client-github-action@v1
+  with:
+    profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
+  env:
+    CONNECTION_TIMEOUT: 60 # Example: Timeout in 60 seconds
+```
+
 ## Working with Pritunl Profile File
 
 The Pritunl Client CLI won't allow us to load profiles from the plain `ovpn` file, and GitHub doesn't have a feature to upload binary files such as the `tar` archive file for the GitHub Actions Secrets.
@@ -204,7 +218,7 @@ code ./pritunl.profile.base64 # or,
 vim ./pritunl.profile.base64
 ```
 
-Then, copy the entire `base64` text.
+Then, copy the entire `base64` text data.
 
-#### 4. Create a GitHub Action Secret and put the value from entire `base64` text.
+#### 4. Create a GitHub Action Secret and put the value from entire `base64` text data.
 Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
