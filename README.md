@@ -25,6 +25,8 @@ Runner         | OpenVPN                | WireGuard
 `windows-2022` | :white_check_mark: yes | :white_check_mark: yes
 `windows-2019` | :white_check_mark: yes | :white_check_mark: yes
 
+_Tested working on **`Pritunl v1.32.3602.80`** Server._
+
 ## Usage
 
 The configuration is declarative and relatively simple to use.
