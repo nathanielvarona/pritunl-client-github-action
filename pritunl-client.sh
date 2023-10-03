@@ -19,7 +19,8 @@ CONNECTION_TIMEOUT="${CONNECTION_TIMEOUT:-30}"
 # Normalize the VPN Mode
 VPN_MODE_FAMILY=""
 normalize_vpn_mode() {
-  case "${VPN_MODE,,}" in # Convert VPN_MODE to lowercase
+  VPN_MODE_LOWERCASE=$(echo "$VPN_MODE" | tr '[:upper:]' '[:lower:]')
+  case "$VPN_MODE_LOWERCASE" in
     ovpn|openvpn)
       VPN_MODE_FAMILY="ovpn"
       ;;
