@@ -10,11 +10,14 @@ VPN_MODE="${VPN_MODE:-}"
 CLIENT_VERSION="${CLIENT_VERSION:-}"
 START_CONNECTION="${START_CONNECTION:-}"
 
+## Other Advanced Environent Variables (Optional)
+# Validate Version
+GITHUB_ACCESS_TOKEN="${GITHUB_ACCESS_TOKEN:-}"
 # Connections Parameters
 CONNECTION_TIMEOUT="${CONNECTION_TIMEOUT:-30}"
 
 
-# Validate the VPN Mode
+# Normalized VPN Mode
 VPN_MODE_FAMILY=""
 normalize_vpn_mode() {
   if [[ "$VPN_MODE" == "ovpn" || "$VPN_MODE" == "openvpn" || "$VPN_MODE" == "OpenVPN" ]]; then
@@ -28,24 +31,21 @@ normalize_vpn_mode() {
 }
 normalize_vpn_mode
 
-# Validate version pattern against GitHub API
+# Validate version against raw source version file
 validate_version() {
   local version="$1"
-  local version_pattern="^[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+$"
+  local version_pattern="^[0-9]+(\.[0-9]+)+$"
+  local pritunl_client_repo="pritunl/pritunl-client-electron"
+  local version_file="https://raw.githubusercontent.com/$pritunl_client_repo/master/CHANGES"
 
   if [[ ! "$version" =~ $version_pattern ]]; then
     echo "Invalid version pattern for $version"
     exit 1
   fi
 
-  local version_listing
-  # To prevent rate limits for API calls from the `https://api.github.com/repos/pritunl/pritunl-client-electron/tags`.
-  # We will use the generated file `valid-version.txt` for now as our source.
-  # Use the script `valid-version.sh` to update the `valid-version.txt`
-  version_listing=$(cat "$(dirname "$0")/valid-version.txt")
-
-  if ! echo "$version_listing" | grep -v '^[#;]' | grep --quiet --color=never "$version"; then
-    echo "Invalid version for $version"
+  # Use curl to fetch the raw file and pipe it to grep
+  if ! [[ $(curl -sL $version_file | grep -c "$version") -ge 1 ]]; then
+    echo "Invalid Version: '$version' does not exist in the '$pritunl_client_repo' CHANGES file."
     exit 1
   fi
 }
