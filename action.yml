@@ -20,7 +20,7 @@ inputs:
   client-version:
     description: 'The Version of Pritunl Client to use.'
     required: false
-    default: 'package-manager'
+    default: 'from-package-manager'
 
   start-connection:
     description: 'Start the VPN Connection Automatically.'
