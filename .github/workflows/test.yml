@@ -129,10 +129,9 @@ jobs:
           # Display VPN Connection Status
           display_connection_status
 
-      - name: Install IP Tooling and VPN Gateway Reachability Test
+      - name: Install IP Tooling (IP Calculator)
         shell: bash
         run: |
-          # Install IP Tooling (IP Calculator)
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo apt-get install --assume-yes ipcalc
           elif [ "$RUNNER_OS" == "macOS" ]; then
@@ -142,11 +141,17 @@ jobs:
             chmod +x $HOME/bin/ipcalc
           fi
 
-          # VPN Gateway Reachability Test
-          HOST="$(pritunl-client list | awk -F '|' 'NR==4{print $8}' | xargs ipcalc | awk 'NR==6{print $2}')"
-          PING_FLAG="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
+          # Validate the IP Calculator Installation
+          echo "ipcalc version: $(ipcalc --version)"
 
-          ping $HOST $PING_FLAG
+      - name: VPN Gateway Reachability Test
+        shell: bash
+        run: |
+          PING_FLAG="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
+          HOST="$(pritunl-client list | awk -F '|' 'NR==4{print $8}' | xargs ipcalc | awk 'NR==6{print $2}')"
+
+          # Ping VPN Gateway
+          ping $PING_FLAG $HOST
 
       - name: Stop VPN Connection Manually
         shell: bash
