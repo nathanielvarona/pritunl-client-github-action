@@ -10,13 +10,11 @@ VPN_MODE="${VPN_MODE:-}"
 CLIENT_VERSION="${CLIENT_VERSION:-}"
 START_CONNECTION="${START_CONNECTION:-}"
 
-## Other Advanced Environent Variables (Optional)
-# Validate Version
-GITHUB_ACCESS_TOKEN="${GITHUB_ACCESS_TOKEN:-}"
-# Connections Parameters
+## Other Environent Variables (Optional)
+# Wait Established Connection Timeout
 CONNECTION_TIMEOUT="${CONNECTION_TIMEOUT:-30}"
 
-# Normalize the VPN Mode
+# Normalize the VPN mode
 VPN_MODE_FAMILY=""
 normalize_vpn_mode() {
   VPN_MODE_LOWERCASE=$(echo "$VPN_MODE" | tr '[:upper:]' '[:lower:]')
@@ -42,6 +40,7 @@ validate_version() {
   local pritunl_client_repo="pritunl/pritunl-client-electron"
   local version_file="https://raw.githubusercontent.com/$pritunl_client_repo/master/CHANGES"
 
+  # Validate Client Version Pattern
   if [[ ! "$version" =~ $version_pattern ]]; then
     echo "Invalid version pattern for $version"
     exit 1
@@ -174,8 +173,8 @@ decode_and_add_profile() {
   # Set `client-id` as step output
   client_id=$(
     pritunl-client list |
-    awk -F'|' 'NR==4{print $2}' |
-    sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//'
+      awk -F'|' 'NR==4{print $2}' |
+      sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//'
   )
   echo "client-id=$client_id" >> "$GITHUB_OUTPUT"
 
@@ -224,8 +223,8 @@ if [[ "$START_CONNECTION" == "true" ]]; then
         awk -F '|' 'NR==4{print $8}' |
         sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' |
         grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$' --quiet --color=never; then
-        echo "Connection established..."
-        break
+          echo "Connection established..."
+          break
       else
         # Calculate the percentage progress
         percentage=$((progress * 100 / total_steps))
