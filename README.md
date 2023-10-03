@@ -6,13 +6,13 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 ## Diagram
 
-![Diagram](./diagram.drawio.svg)
+![Diagram](./action.dio.svg)
 
 > _The diagram is an editable vector image using [drawio](https://www.drawio.com/) app._
 
-## Actions Test
+## Test
 
-[![Test Connection](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml/badge.svg?branch=main&event=workflow_dispatch)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml)
+[![Test Connection](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml)
 
 Compatibility and Common Issues between the Runners and VPN Mode.
 
@@ -22,8 +22,8 @@ Runner | OpenVPN | WireGuard
  `ubuntu-20.04` | :white_check_mark: yes | :white_check_mark: yes
  `macos-12` | :white_check_mark: yes | :white_check_mark: yes
  `macos-11` | :white_check_mark: yes | :white_check_mark: yes
- `windows-2022` | :white_check_mark: yes | :white_check_mark: yes [resolved [#25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
- `windows-2019` | :white_check_mark: yes | :white_check_mark: yes [resolved [#25](https://github.com/nathanielvarona/pritunl-client-github-action/issues/25)]
+ `windows-2022` | :white_check_mark: yes | :white_check_mark: yes
+ `windows-2019` | :white_check_mark: yes | :white_check_mark: yes
 
 ## Usage
 
@@ -72,11 +72,11 @@ We have different example scenarios; any combination is possible as long the req
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
+```
 
-###
-# Then your other steps down below.
-###
+_Then your other steps down below._
 
+```yml
 - name: Your CI/CD Core Logic
   run: |
     ##
@@ -112,7 +112,7 @@ We have different example scenarios; any combination is possible as long the req
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
     profile-pin: ${{ secrets.PRITUNL_PROFILE_PIN }}
-    client-version: '1.3.3477.58'
+    client-version: '1.3.3600.11'
     vpn-mode: 'wg'
 ```
 
@@ -148,10 +148,10 @@ We have different example scenarios; any combination is possible as long the req
     # VPN Gateway Reachability Test
     ping -c 10 \
       $(
-        pritunl-client list \
-          | awk -F '|' 'NR==4{print $8}' \
-          | xargs ipcalc \
-          | awk 'NR==6{print $2}'
+        pritunl-client list |
+          awk -F '|' 'NR==4{print $8}' |
+          xargs ipcalc |
+          awk 'NR==6{print $2}'
       )
 
 - name: Stop VPN Connection Manually
