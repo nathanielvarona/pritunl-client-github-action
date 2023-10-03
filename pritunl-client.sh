@@ -56,7 +56,7 @@ validate_version() {
 
 # Installation process for Linux
 install_linux() {
-  if [[ "$CLIENT_VERSION" != "package-manager" ]]; then
+  if [[ "$CLIENT_VERSION" != "from-package-manager" ]]; then
     validate_version "$CLIENT_VERSION"
     echo "Installing Version Specific from GitHub Releases"
     deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/pritunl-client_$CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
@@ -76,7 +76,7 @@ install_linux() {
 
 # Installation process for macOS
 install_macos() {
-  if [[ "$CLIENT_VERSION" != "package-manager" ]]; then
+  if [[ "$CLIENT_VERSION" != "from-package-manager" ]]; then
     validate_version "$CLIENT_VERSION"
     pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.pkg.zip"
     curl -sL "$pkg_zip_url" -o "$RUNNER_TEMP/Pritunl.pkg.zip"
@@ -92,7 +92,7 @@ install_macos() {
 
 # Installation process for Windows
 install_windows() {
-  if [[ "$CLIENT_VERSION" != "package-manager" ]]; then
+  if [[ "$CLIENT_VERSION" != "from-package-manager" ]]; then
     validate_version "$CLIENT_VERSION"
     exe_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.exe"
     curl -sL "$exe_url" -o "$RUNNER_TEMP/Pritunl.exe"
@@ -116,7 +116,7 @@ install_windows() {
 # Install VPN dependent packages based on OS
 install_vpn_dependent_packages() {
   local os_type="$1"
-  if [[ -n "$VPN_MODE_FAMILY" && "$VPN_MODE_FAMILY" == "wg" ]]; then
+  if [[ "$VPN_MODE_FAMILY" == "wg" ]]; then
     if [[ "$os_type" == "Linux" ]]; then
       sudo apt-get --assume-yes install wireguard-tools
     elif [[ "$os_type" == "macOS" ]]; then

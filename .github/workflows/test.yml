@@ -7,9 +7,9 @@ on:
         description: 'Pritunl Client Version'
         type: choice
         options:
-        - 'package-manager'
+        - 'from-package-manager'
+        - 1.3.3637.72
         - 1.3.3600.11
-        - 1.3.3596.68
 
       start_connection:
         description: 'Start Connection'
