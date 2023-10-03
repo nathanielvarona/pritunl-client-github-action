@@ -16,18 +16,22 @@ GITHUB_ACCESS_TOKEN="${GITHUB_ACCESS_TOKEN:-}"
 # Connections Parameters
 CONNECTION_TIMEOUT="${CONNECTION_TIMEOUT:-30}"
 
-
-# Normalized VPN Mode
+# Normalize the VPN Mode
 VPN_MODE_FAMILY=""
 normalize_vpn_mode() {
-  if [[ "$VPN_MODE" == "ovpn" || "$VPN_MODE" == "openvpn" || "$VPN_MODE" == "OpenVPN" ]]; then
-    VPN_MODE_FAMILY="ovpn"
-  elif [[ "$VPN_MODE" == "wg" || "$VPN_MODE" == "wireguard" || "$VPN_MODE" == "WireGuard" ]]; then
-    VPN_MODE_FAMILY="wg"
-  else
-    echo "Invalid VPN mode: $VPN_MODE"
-    exit 1
-  fi
+  VPN_MODE_LOWERCASE=$(echo "$VPN_MODE" | tr '[:upper:]' '[:lower:]')
+  case "$VPN_MODE_LOWERCASE" in
+    ovpn|openvpn)
+      VPN_MODE_FAMILY="ovpn"
+      ;;
+    wg|wireguard)
+      VPN_MODE_FAMILY="wg"
+      ;;
+    *)
+      echo "Invalid VPN mode: $VPN_MODE"
+      exit 1
+      ;;
+  esac
 }
 normalize_vpn_mode
 
