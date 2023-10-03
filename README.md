@@ -14,7 +14,7 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 [![Test Connection](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml)
 
-Compatibility and Common Issues between the Runners and VPN Mode.
+Compatibility and Common [Issues](https://github.com/nathanielvarona/pritunl-client-github-action/issues) between the Runners and VPN Mode.
 
 Runner | OpenVPN | WireGuard
 ---------|----------|---------
@@ -48,8 +48,8 @@ The configuration is declarative and relatively simple to use.
 
     # Pritunl Client Version (Optional)
     # Type: String (Numerical dot separated identifiers)
-    # For example, using the later version `1.3.3477.58`.
-    # If not supplied, which defaults to the latest version from Prebuilt Apt Repository.
+    # For example, using the later version `1.3.3637.72`.
+    # If not supplied, which defaults to the latest version from Packager Manager.
     client-version: ''
 
     # Start the Connection (Optional)
@@ -112,7 +112,7 @@ _Then your other steps down below._
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
     profile-pin: ${{ secrets.PRITUNL_PROFILE_PIN }}
-    client-version: '1.3.3600.11'
+    client-version: '1.3.3637.72'
     vpn-mode: 'wg'
 ```
 
@@ -162,7 +162,7 @@ _Then your other steps down below._
 
 ## Working with Pritunl Profile File
 
-The Pritunl Client CLI won't allow us to load profiles from the plain `.ovpn` file, and GitHub doesn't have a feature to upload binary files such as the `.tar` archive file for the GitHub Actions Secrets.
+The Pritunl Client CLI won't allow us to load profiles from the plain `ovpn` file, and GitHub doesn't have a feature to upload binary files such as the `tar` archive file for the GitHub Actions Secrets.
 
 To store Pritunl Profile to GitHub Secrets, maintaining the raw state of the `tar` archive file format, we need to convert it to `base64` text file format.
 
@@ -204,7 +204,7 @@ code ./pritunl.profile.base64 # or,
 vim ./pritunl.profile.base64
 ```
 
-Then, select the entire data and copy it to the clipboard.
+Then, copy the entire `base64` text.
 
-#### 4. Create a Secret and Paste the value from our clipboard.
+#### 4. Create a GitHub Action Secret and put the value from entire `base64` text.
 Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
