@@ -2,22 +2,10 @@ name: Test Connection
 
 on:
   workflow_dispatch:
-    inputs:
-      client_version:
-        description: 'Pritunl Client Version'
-        type: choice
-        options:
-        - 'from-package-manager'
-        - 1.3.3637.72
-        - 1.3.3600.11
-
-      start_connection:
-        description: 'Start Connection'
-        type: boolean
-        default: true
 
 jobs:
   test-connection:
+
     strategy:
       fail-fast: false
       matrix:
@@ -31,8 +19,16 @@ jobs:
         vpn:
           - ovpn
           - wg
+        client-version:
+          - 'from-package-manager'
+          - 1.3.3637.72
+        start-connection:
+          - 'true'
+          - 'false'
+
     runs-on: ${{ matrix.os }}
-    name: "run:${{ matrix.os }}, vpn:${{ matrix.vpn }}, cv:${{ github.event.inputs.client_version }}, sc:${{ github.event.inputs.start_connection }}"
+    name: "run:${{ matrix.os }}, vpn:${{ matrix.vpn }}, cv:${{ matrix.client-version }}, sc:${{ matrix.start-connection }}"
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -44,11 +40,11 @@ jobs:
           profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
           profile-pin: ${{ secrets.PRITUNL_PROFILE_PIN }}
           vpn-mode: ${{ matrix.vpn }}
-          client-version: ${{ github.event.inputs.client_version }}
-          start-connection: ${{ github.event.inputs.start_connection }}
+          client-version: ${{ matrix.client-version }}
+          start-connection: ${{ matrix.start-connection }}
 
-      - name: Starting a VPN Connection and Show Status Manually
-        if: ${{ github.event.inputs.start_connection == 'false' }}
+      - name: Starting a VPN Connection Manually
+        if: ${{ matrix.start-connection == 'false' }}
         shell: bash
         run: |
           # Start the VPN Connection Manually
@@ -56,8 +52,12 @@ jobs:
             --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }} \
             --mode ${{ matrix.vpn }}
 
-          CONNECTION_TIMEOUT=${CONNECTION_TIMEOUT:-30}
+      - name: Show VPN Connection Status Manually
+        if: ${{ matrix.start-connection == 'false' }}
+        shell: bash
+        run: |
           # Waiting for Established Connection
+          CONNECTION_TIMEOUT=${CONNECTION_TIMEOUT:-30}
           wait_established_connection() {
             # Define the total number of steps
             local total_steps="${CONNECTION_TIMEOUT}"
@@ -132,6 +132,7 @@ jobs:
       - name: Install IP Tooling (IP Calculator)
         shell: bash
         run: |
+          # Install IP Calculator
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo apt-get install --assume-yes ipcalc
           elif [ "$RUNNER_OS" == "macOS" ]; then
@@ -147,6 +148,7 @@ jobs:
       - name: VPN Gateway Reachability Test
         shell: bash
         run: |
+          # Ping VPN Gateway
           PING_FLAG="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
           HOST="$(pritunl-client list | awk -F '|' 'NR==4{print $8}' | xargs ipcalc | awk 'NR==6{print $2}')"
 
@@ -155,6 +157,7 @@ jobs:
 
       - name: Stop VPN Connection Manually
         shell: bash
-        if: ${{ github.event.inputs.start_connection == 'false' }}
+        if: ${{ matrix.start-connection == 'false' }}
         run: |
+          # Stop Connection Manually
           pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}

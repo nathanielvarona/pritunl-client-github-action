@@ -25,6 +25,71 @@ Runner         | OpenVPN                | WireGuard
 `windows-2022` | :white_check_mark: yes | :white_check_mark: yes
 `windows-2019` | :white_check_mark: yes | :white_check_mark: yes
 
+<details>
+  <summary>Check out the comprehensive test connection matrix available on our GitHub Actions.</summary>
+
+  Using the `gh` command:
+  ```sh
+  gh api --paginate repos/nathanielvarona/pritunl-client-github-action/actions/runs/${JOB_ID}/jobs |
+    jq -r '.jobs[] | [.name, .status] | @csv' |
+    sed 's/"//g' |
+    awk 'BEGIN{print "runner, vpn-mode, client-version, start-connection, status"} {gsub(/, /, ", ", $0); gsub(/,completed/, ", completed", $0); print}'
+  ```
+
+  Expected results:
+  ```
+    runner, vpn-mode, client-version, start-connection, status
+    run:ubuntu-22.04, vpn:ovpn, cv:from-package-manager, sc:true, completed
+    run:ubuntu-22.04, vpn:ovpn, cv:from-package-manager, sc:false, completed
+    run:ubuntu-22.04, vpn:ovpn, cv:1.3.3637.72, sc:true, completed
+    run:ubuntu-22.04, vpn:ovpn, cv:1.3.3637.72, sc:false, completed
+    run:ubuntu-22.04, vpn:wg, cv:from-package-manager, sc:true, completed
+    run:ubuntu-22.04, vpn:wg, cv:from-package-manager, sc:false, completed
+    run:ubuntu-22.04, vpn:wg, cv:1.3.3637.72, sc:true, completed
+    run:ubuntu-22.04, vpn:wg, cv:1.3.3637.72, sc:false, completed
+    run:ubuntu-20.04, vpn:ovpn, cv:from-package-manager, sc:true, completed
+    run:ubuntu-20.04, vpn:ovpn, cv:from-package-manager, sc:false, completed
+    run:ubuntu-20.04, vpn:ovpn, cv:1.3.3637.72, sc:true, completed
+    run:ubuntu-20.04, vpn:ovpn, cv:1.3.3637.72, sc:false, completed
+    run:ubuntu-20.04, vpn:wg, cv:from-package-manager, sc:true, completed
+    run:ubuntu-20.04, vpn:wg, cv:from-package-manager, sc:false, completed
+    run:ubuntu-20.04, vpn:wg, cv:1.3.3637.72, sc:true, completed
+    run:ubuntu-20.04, vpn:wg, cv:1.3.3637.72, sc:false, completed
+    run:macos-12, vpn:ovpn, cv:from-package-manager, sc:true, completed
+    run:macos-12, vpn:ovpn, cv:from-package-manager, sc:false, completed
+    run:macos-12, vpn:ovpn, cv:1.3.3637.72, sc:true, completed
+    run:macos-12, vpn:ovpn, cv:1.3.3637.72, sc:false, completed
+    run:macos-12, vpn:wg, cv:from-package-manager, sc:true, completed
+    run:macos-12, vpn:wg, cv:from-package-manager, sc:false, completed
+    run:macos-12, vpn:wg, cv:1.3.3637.72, sc:true, completed
+    run:macos-12, vpn:wg, cv:1.3.3637.72, sc:false, completed
+    run:macos-11, vpn:ovpn, cv:from-package-manager, sc:true, completed
+    run:macos-11, vpn:ovpn, cv:from-package-manager, sc:false, completed
+    run:macos-11, vpn:ovpn, cv:1.3.3637.72, sc:true, completed
+    run:macos-11, vpn:ovpn, cv:1.3.3637.72, sc:false, completed
+    run:macos-11, vpn:wg, cv:from-package-manager, sc:true, completed
+    run:macos-11, vpn:wg, cv:from-package-manager, sc:false, completed
+    run:macos-11, vpn:wg, cv:1.3.3637.72, sc:true, completed
+    run:macos-11, vpn:wg, cv:1.3.3637.72, sc:false, completed
+    run:windows-2022, vpn:ovpn, cv:from-package-manager, sc:true, completed
+    run:windows-2022, vpn:ovpn, cv:from-package-manager, sc:false, completed
+    run:windows-2022, vpn:ovpn, cv:1.3.3637.72, sc:true, completed
+    run:windows-2022, vpn:ovpn, cv:1.3.3637.72, sc:false, completed
+    run:windows-2022, vpn:wg, cv:from-package-manager, sc:true, completed
+    run:windows-2022, vpn:wg, cv:from-package-manager, sc:false, completed
+    run:windows-2022, vpn:wg, cv:1.3.3637.72, sc:true, completed
+    run:windows-2022, vpn:wg, cv:1.3.3637.72, sc:false, completed
+    run:windows-2019, vpn:ovpn, cv:from-package-manager, sc:true, completed
+    run:windows-2019, vpn:ovpn, cv:from-package-manager, sc:false, completed
+    run:windows-2019, vpn:ovpn, cv:1.3.3637.72, sc:true, completed
+    run:windows-2019, vpn:ovpn, cv:1.3.3637.72, sc:false, completed
+    run:windows-2019, vpn:wg, cv:from-package-manager, sc:true, completed
+    run:windows-2019, vpn:wg, cv:from-package-manager, sc:false, completed
+    run:windows-2019, vpn:wg, cv:1.3.3637.72, sc:true, completed
+    run:windows-2019, vpn:wg, cv:1.3.3637.72, sc:false, completed
+  ```
+</details>
+
 _Tested working on **`Pritunl v1.32.3602.80`** Server._
 
 ## Usage
