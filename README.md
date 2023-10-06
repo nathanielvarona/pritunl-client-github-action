@@ -8,7 +8,7 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 ![Diagram](./action.dio.svg)
 
-> _The diagram is an editable vector image using [drawio](https://www.drawio.com/) app._
+> _The [diagram](./action.dio.svg) is an editable vector image using [drawio](https://www.drawio.com/) app._
 
 ## Connection Tests
 
@@ -96,37 +96,55 @@ _Tested working on **`Pritunl v1.32.3602.80`** Server._
 
 The configuration is declarative and relatively simple to use.
 
+### Inputs
+
 ```yaml
 - uses: nathanielvarona/pritunl-client-github-action@v1
   with:
-    # Pritunl Profile File (Required)
-    # Type: Wrapping String (Base64 format)
+    # REQUIRED: Pritunl Profile File
+    # TYPE: Wrapping String (Base64 text format)
     profile-file: ''
 
-    # Profile Pin (Optional)
-    # Type: String (Numerical value)
+    # OPTIONAL: Profile Pin
+    # TYPE: String (Numerical values)
     # If not supplied, which defaults No Pin.
     profile-pin: ''
 
-    # VPN Connection Mode (Optional)
-    # Type: String (Choices are ['ovpn', 'openvpn', 'OpenVPN'] or ['wg', 'wireguard', 'WireGuard'])
+    # OPTIONAL: VPN Connection Mode
+    # TYPE: String
+    # CHOICES: ['ovpn', 'openvpn', 'OpenVPN'] or ['wg', 'wireguard', 'WireGuard']
     # If not supplied, which defaults to 'ovpn'.
     vpn-mode: ''
 
-    # Pritunl Client Version (Optional)
-    # Type: String (Numerical dot separated identifiers)
+    # OPTIONAL: Pritunl Client Version
+    # TYPE: String (Numerical dot separated identifiers)
     # For example, using the later version `1.3.3637.72`.
-    # If not supplied, which defaults to the latest version from the Packager Manager.
+    # If not supplied, which defaults to the latest version from the Package Manager.
     client-version: ''
 
-    # Start the Connection (Optional)
-    # Type: Boolean
+    # OPTIONAL: Start the Connection
+    # TYPE: Boolean
     # If not supplied, which defaults to `true`.
     # If `true` the VPN connection starts within the setup step.
     start-connection: ''
 ```
 
 > Kindly check the subsection [Working with Pritunl Profile File](#working-with-pritunl-profile-file) on converting `tar` archive file format to `base64` text file format for the `profile-file` input.
+
+### Outputs
+
+`client-id` - This is the randomly generated ID that appears on the Pritunl client after setting up a profile.
+
+_Output Parameter Retrieving Example:_
+
+```sh
+${{ steps.pritunl-connection.outputs.client-id }}
+```
+
+Where the `pritunl-connection` is the Step Setup ID.
+
+> Kindly check the subsection [Manually Controlling the Connection](#and-even-manually-controlling-the-connection) for example.
+
 
 ## Examples
 
