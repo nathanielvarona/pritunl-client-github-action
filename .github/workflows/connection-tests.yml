@@ -29,7 +29,7 @@ jobs:
     name: "run:${{ matrix.os }}, vpn:${{ matrix.vpn }}, cv:${{ matrix.client-version }}, sc:${{ matrix.start-connection }}"
 
     env:
-      CONNECTION_TIMEOUT: 15
+      CONNECTION_TIMEOUT: 15 # Example of overriding default wait established connection timeout
 
     steps:
       - name: Checkout
