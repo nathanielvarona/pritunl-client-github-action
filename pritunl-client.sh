@@ -3,27 +3,25 @@
 # Set up error handling
 set -euo pipefail
 
-# GitHub Action Environment Variable Inputs
+## GitHub Action Inputs as Environment Variables
 PROFILE_FILE="${PROFILE_FILE:-}"
 PROFILE_PIN="${PROFILE_PIN:-}"
 VPN_MODE="${VPN_MODE:-}"
 CLIENT_VERSION="${CLIENT_VERSION:-}"
 START_CONNECTION="${START_CONNECTION:-}"
 
-## Other Environent Variables (Optional)
+## Other Environent Variables
 # Wait Established Connection Timeout
 CONNECTION_TIMEOUT="${CONNECTION_TIMEOUT:-10}"
 
 # Normalize the VPN mode
-VPN_MODE_FAMILY=""
 normalize_vpn_mode() {
-  VPN_MODE_LOWERCASE=$(echo "$VPN_MODE" | tr '[:upper:]' '[:lower:]')
-  case "$VPN_MODE_LOWERCASE" in
+  case "$(echo "$VPN_MODE" | tr '[:upper:]' '[:lower:]')" in
     ovpn|openvpn)
-      VPN_MODE_FAMILY="ovpn"
+      VPN_MODE="ovpn"
       ;;
     wg|wireguard)
-      VPN_MODE_FAMILY="wg"
+      VPN_MODE="wg"
       ;;
     *)
       echo "Invalid VPN mode: $VPN_MODE"
@@ -119,7 +117,7 @@ install_windows() {
   install_vpn_dependent_packages "Windows"
   sleep 1
 
-  if [[ "$VPN_MODE_FAMILY" == "wg" ]]; then
+  if [[ "$VPN_MODE" == "wg" ]]; then
     # Restarting the `pritunl` service to determine the latest changes of the `PATH` values
     # from the `System Environment Variables` during the WireGuard installation is needed.
     pwsh -ExecutionPolicy Bypass -Command "Invoke-Command -ScriptBlock { net stop 'pritunl' ; net start 'pritunl' }"
@@ -130,7 +128,7 @@ install_windows() {
 install_vpn_dependent_packages() {
   echo "Installing VPN Dependent Pacakges..."
   local os_type="$1"
-  if [[ "$VPN_MODE_FAMILY" == "wg" ]]; then
+  if [[ "$VPN_MODE" == "wg" ]]; then
     if [[ "$os_type" == "Linux" ]]; then
       sudo apt-get --assume-yes install wireguard-tools
     elif [[ "$os_type" == "macOS" ]]; then
@@ -211,8 +209,8 @@ if [[ "$START_CONNECTION" == "true" ]]; then
     local client_id="$1"
     local vpn_flags=()
 
-    if [[ -n "$VPN_MODE_FAMILY" ]]; then
-      vpn_flags+=( "--mode" "$VPN_MODE_FAMILY" )
+    if [[ -n "$VPN_MODE" ]]; then
+      vpn_flags+=( "--mode" "$VPN_MODE" )
     fi
 
     if [[ -n "$PROFILE_PIN" ]]; then
