@@ -141,7 +141,8 @@ _Output Parameter Retrieving Example:_
 ${{ steps.pritunl-connection.outputs.client-id }}
 ```
 
-> Where the `pritunl-connection` is the Step Setup ID.
+Where the `pritunl-connection` is the Step Setup ID.
+
 > Kindly check the subsection [Manually Controlling the Connection](#and-even-manually-controlling-the-connection) for example.
 
 
