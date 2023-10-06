@@ -1,6 +1,6 @@
 # Pritunl Client GitHub Action
 
-Establish a [Pritunl VPN](https://pritunl.com/) connection using the [Pritunl Client](https://client.pritunl.com/) that supports [OpenVPN](https://openvpn.net/) and [WireGuard](https://www.wireguard.com/) modes on [GitHub Actions](https://github.com/features/actions).
+Establish a [Pritunl VPN](https://pritunl.com/) connection using the [Pritunl Client](https://client.pritunl.com/) that supports [OpenVPN](https://openvpn.net/) (ovpn) and [WireGuard](https://www.wireguard.com/) (wg) modes on [GitHub Actions](https://github.com/features/actions).
 
 This utility helps you with tasks like automated internal endpoint testing, periodic backups, and anything that requires private access inside the corporate infrastructure using Pritunl VPN Enterprise Servers.
 
@@ -14,7 +14,7 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 [![Connection Tests](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests.yml)
 
-Compatibility and Common [Issues](https://github.com/nathanielvarona/pritunl-client-github-action/issues) between the Runners and VPN Mode.
+Compatibility and Common [Issues](https://github.com/nathanielvarona/pritunl-client-github-action/issues?q=is:issue) between the Runners and VPN Mode.
 
 Runner         | OpenVPN                | WireGuard
 ---------------|------------------------|-----------------------
@@ -105,28 +105,28 @@ The configuration is declarative and relatively simple to use.
 
     # Profile Pin (Optional)
     # Type: String (Numerical value)
-    # If not supplied, which defaults no Pin.
+    # If not supplied, which defaults No Pin.
     profile-pin: ''
 
     # VPN Connection Mode (Optional)
-    # Type: String (Choices ['ovpn' or 'wg'])
+    # Type: String (Choices are ['ovpn', 'openvpn', 'OpenVPN'] or ['wg', 'wireguard', 'WireGuard'])
     # If not supplied, which defaults to 'ovpn'.
     vpn-mode: ''
 
     # Pritunl Client Version (Optional)
     # Type: String (Numerical dot separated identifiers)
     # For example, using the later version `1.3.3637.72`.
-    # If not supplied, which defaults to the latest version from Packager Manager.
+    # If not supplied, which defaults to the latest version from the Packager Manager.
     client-version: ''
 
     # Start the Connection (Optional)
     # Type: Boolean
-    # If not supplied, which defaults to `true`. 
+    # If not supplied, which defaults to `true`.
     # If `true` the VPN connection starts within the setup step.
     start-connection: ''
 ```
 
-> Kindly check the section [Working with Pritunl Profile File](#working-with-pritunl-profile-file) on converting `tar` archive file format to `base64` text file format for the `profile-file` input.
+> Kindly check the subsection [Working with Pritunl Profile File](#working-with-pritunl-profile-file) on converting `tar` archive file format to `base64` text file format for the `profile-file` input.
 
 ## Examples
 
@@ -160,7 +160,7 @@ _Then your other steps down below._
     working-directory: e2e
 ```
 
-### If the connection requires a PIN or Password
+### If the connection requires a Pin/Password
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -191,7 +191,7 @@ _Then your other steps down below._
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    start-connection: false
+    start-connection: false # Do not establish a connection in this step.
 
 - name: Starting a VPN Connection Manually
   run: |
@@ -236,8 +236,7 @@ _Then your other steps down below._
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
   env:
-    # Example of wait established connection timeout for 60 seconds.
-    CONNECTION_TIMEOUT: 60
+    CONNECTION_TIMEOUT: 60 # Example of wait established connection timeout for 60 seconds.
 ```
 
 ## Working with Pritunl Profile File
