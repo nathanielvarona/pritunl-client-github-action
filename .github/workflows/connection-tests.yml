@@ -1,11 +1,10 @@
-name: Test Connection
+name: Connection Tests
 
 on:
   workflow_dispatch:
 
 jobs:
-  test-connection:
-
+  connection-tests:
     strategy:
       fail-fast: false
       matrix:
@@ -28,6 +27,9 @@ jobs:
 
     runs-on: ${{ matrix.os }}
     name: "run:${{ matrix.os }}, vpn:${{ matrix.vpn }}, cv:${{ matrix.client-version }}, sc:${{ matrix.start-connection }}"
+
+    env:
+      CONNECTION_TIMEOUT: 15
 
     steps:
       - name: Checkout
@@ -57,16 +59,12 @@ jobs:
         shell: bash
         run: |
           # Waiting for Established Connection
-          CONNECTION_TIMEOUT=${CONNECTION_TIMEOUT:-30}
           wait_established_connection() {
             # Define the total number of steps
             local total_steps="${CONNECTION_TIMEOUT}"
 
             # Initialize the progress variable
-            local progress=1
-
-            # Clear the initial line
-            echo -n -e "\r\033[K"
+            local progress=0
 
             # Loop until the progress reaches the total number of steps
             while [[ "$progress" -le "$total_steps" ]]; do
@@ -77,6 +75,9 @@ jobs:
                   echo "Connection established..."
                   break
               else
+                # Increment the progress
+                progress=$((progress + 1))
+
                 # Calculate the percentage progress
                 percentage=$((progress * 100 / total_steps))
 
@@ -84,7 +85,7 @@ jobs:
                 completed=$((percentage / 2))
                 remaining=$((50 - completed))
 
-                # Print the connection check progress on the same line
+                # Print the connection check progress
                 echo -n -e "Establishing connection: ["
                 for ((i = 0; i < completed; i++)); do
                     echo -n -e "#"
@@ -94,14 +95,10 @@ jobs:
                 done
                 echo -n -e "] checking $progress out of $total_steps total connection timeout"
 
-                # Increment the progress
-                progress=$((progress + 1))
-
                 # Sleep for a moment (simulating work)
                 sleep 1
 
-                # Clear the line again for the next update
-                echo -n -e "\r\033[K"
+                echo -n -e "\n"
 
                 # Print the timeout message and exit error
                 if [[ "$progress" -ge "$total_steps" ]]; then
