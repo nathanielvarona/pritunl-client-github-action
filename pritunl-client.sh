@@ -41,13 +41,13 @@ validate_version() {
   local version_file="https://raw.githubusercontent.com/$pritunl_client_repo/master/CHANGES"
 
   # Validate Client Version Pattern
-  if [[ ! "$version" =~ $version_pattern ]]; then
+  if ! [[ "$version" =~ $version_pattern ]]; then
     echo "Invalid version pattern for $version"
     exit 1
   fi
 
   # Use curl to fetch the raw file and pipe it to grep
-  if ! [[ $(curl -sL $version_file | grep -c "$version") -ge 1 ]]; then
+  if ! [[ $(curl -sSL $version_file | grep -c "$version") -ge 1 ]]; then
     echo "Invalid Version: '$version' does not exist in the '$pritunl_client_repo' CHANGES file."
     exit 1
   fi
@@ -55,19 +55,20 @@ validate_version() {
 
 # Installation process for Linux
 install_linux() {
-  if [[ "$CLIENT_VERSION" != "from-package-manager" ]]; then
-    validate_version "$CLIENT_VERSION"
-    echo "Installing Version Specific from GitHub Releases"
-    deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/pritunl-client_$CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
-    curl -sL "$deb_url" -o "$RUNNER_TEMP/pritunl-client.deb"
-    sudo apt-get --assume-yes install -f "$RUNNER_TEMP/pritunl-client.deb"
-  else
+  if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
     echo "Installing latest from Prebuilt Apt Repository"
     echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/pritunl.list
     gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 7568D9BB55FF9E5287D586017AE645C0CF8E292A
     gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc
     sudo apt-get --assume-yes update
     sudo apt-get --assume-yes install pritunl-client
+  else
+    validate_version "$CLIENT_VERSION"
+    echo "Start installing version specific from GitHub Releases..."
+    deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/pritunl-client_$CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
+    curl -sSL "$deb_url" -o "$RUNNER_TEMP/pritunl-client.deb"
+    sudo apt-get --assume-yes install -f "$RUNNER_TEMP/pritunl-client.deb"
+    echo "Pritunl installation completed."
   fi
 
   install_vpn_dependent_packages "Linux"
@@ -75,35 +76,48 @@ install_linux() {
 
 # Installation process for macOS
 install_macos() {
-  if [[ "$CLIENT_VERSION" != "from-package-manager" ]]; then
+  if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
+    echo "Installing latest from Homebrew"
+    brew install --cask pritunl
+  else
     validate_version "$CLIENT_VERSION"
+    echo "Start installing version specific from GitHub Releases..."
     pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.pkg.zip"
-    curl -sL "$pkg_zip_url" -o "$RUNNER_TEMP/Pritunl.pkg.zip"
+    curl -sSL "$pkg_zip_url" -o "$RUNNER_TEMP/Pritunl.pkg.zip"
     unzip -qq -o "$RUNNER_TEMP/Pritunl.pkg.zip" -d "$RUNNER_TEMP"
     sudo installer -pkg "$RUNNER_TEMP/Pritunl.pkg" -target /
-  else
-    brew install --cask pritunl
+    echo "Pritunl installation completed."
   fi
-  mkdir -p "$HOME/bin" && ln -s "/Applications/Pritunl.app/Contents/Resources/pritunl-client" "$HOME/bin/pritunl-client"
+
+  if ! [[ -d "$HOME/bin" ]]; then
+    mkdir -p "$HOME/bin"
+  fi
+  ln -s "/Applications/Pritunl.app/Contents/Resources/pritunl-client" "$HOME/bin/pritunl-client"
 
   install_vpn_dependent_packages "macOS"
 }
 
 # Installation process for Windows
 install_windows() {
-  if [[ "$CLIENT_VERSION" != "from-package-manager" ]]; then
+  if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
+    echo "Installing latest from Choco"
+    choco install --confirm --no-progress pritunl-client
+  else
     validate_version "$CLIENT_VERSION"
+    echo "Start installing version specific from GitHub Releases..."
     exe_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.exe"
-    curl -sL "$exe_url" -o "$RUNNER_TEMP/Pritunl.exe"
-    echo "Starting Pritunl installation..."
+    curl -sSL "$exe_url" -o "$RUNNER_TEMP/Pritunl.exe"
     pwsh -ExecutionPolicy Bypass -Command "Start-Process -FilePath '$RUNNER_TEMP\Pritunl.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' -Wait"
     echo "Pritunl installation completed."
-  else
-    choco install --confirm --no-progress pritunl-client
   fi
-  mkdir -p "$HOME/bin" && ln -s "/c/Program Files (x86)/Pritunl/pritunl-client.exe" "$HOME/bin/pritunl-client"
+
+  if ! [[ -d "$HOME/bin" ]]; then
+    mkdir -p "$HOME/bin"
+  fi
+  ln -s "/c/Program Files (x86)/Pritunl/pritunl-client.exe" "$HOME/bin/pritunl-client"
 
   install_vpn_dependent_packages "Windows"
+  sleep 1
 
   if [[ "$VPN_MODE_FAMILY" == "wg" ]]; then
     # Restarting the `pritunl` service to determine the latest changes of the `PATH` values
@@ -114,6 +128,7 @@ install_windows() {
 
 # Install VPN dependent packages based on OS
 install_vpn_dependent_packages() {
+  echo "Installing VPN Dependent Pacakges..."
   local os_type="$1"
   if [[ "$VPN_MODE_FAMILY" == "wg" ]]; then
     if [[ "$os_type" == "Linux" ]]; then
@@ -128,6 +143,7 @@ install_vpn_dependent_packages() {
       sudo apt-get --assume-yes install openvpn-systemd-resolved
     fi
   fi
+  echo "VPN Dependent Pacakges Installed..."
 }
 
 # Main installation process based on OS
@@ -163,12 +179,14 @@ pritunl-client version
 
 # Load Pritunl Profile File
 decode_and_add_profile() {
+  echo "Adding profile to the client..."
   # Save the `base64` text file format and convert it back to `tar` archive file format.
   echo "$PROFILE_FILE" > "$RUNNER_TEMP/profile-file.base64"
   base64 --decode "$RUNNER_TEMP/profile-file.base64" > "$RUNNER_TEMP/profile-file.tar"
 
   # Add the Profile File to Pritunl Client
   pritunl-client add "$RUNNER_TEMP/profile-file.tar"
+  sleep 1
 
   # Set `client-id` as step output
   client_id=$(
@@ -180,6 +198,7 @@ decode_and_add_profile() {
 
   # Disable autostart option
   pritunl-client disable "$client_id"
+  echo "Profile is added to the client with an ID '$client_id'"
 }
 
 # Load the Pritunl Profile File
