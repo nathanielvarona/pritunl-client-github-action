@@ -4,15 +4,15 @@ Establish a [Pritunl VPN](https://pritunl.com/) connection using the [Pritunl Cl
 
 This utility helps you with tasks like automated internal endpoint testing, periodic backups, and anything that requires private access inside the corporate infrastructure using Pritunl VPN Enterprise Servers.
 
-## Diagram
+## Action Diagram
 
 ![Diagram](./action.dio.svg)
 
 > _The diagram is an editable vector image using [drawio](https://www.drawio.com/) app._
 
-## Test
+## Connection Tests
 
-[![Test Connection](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/test.yml)
+[![Connection Tests](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests.yml)
 
 Compatibility and Common [Issues](https://github.com/nathanielvarona/pritunl-client-github-action/issues) between the Runners and VPN Mode.
 
@@ -227,7 +227,7 @@ _Then your other steps down below._
     pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
 ```
 
-### Overriding default connection timeout
+### Overriding default wait established connection timeout
 
 ```yml
 - name: Setup Pritunl Profile
@@ -236,7 +236,8 @@ _Then your other steps down below._
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
   env:
-    CONNECTION_TIMEOUT: 60 # Example: Timeout in 60 seconds
+    # Example of wait established connection timeout for 60 seconds.
+    CONNECTION_TIMEOUT: 60
 ```
 
 ## Working with Pritunl Profile File
@@ -276,7 +277,7 @@ cat ./pritunl.profile.base64 | xclip -selection clipboard
 cat ./pritunl.profile.base64 | xsel --clipboard --input
 ```
 
-_Or open it with your favorite code editor:_
+_Or you can easily access the file data by opening it with your preferred code editor:_
 
 ```bash
 code ./pritunl.profile.base64 # or,

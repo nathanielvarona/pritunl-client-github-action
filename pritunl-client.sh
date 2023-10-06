@@ -12,7 +12,7 @@ START_CONNECTION="${START_CONNECTION:-}"
 
 ## Other Environent Variables (Optional)
 # Wait Established Connection Timeout
-CONNECTION_TIMEOUT="${CONNECTION_TIMEOUT:-30}"
+CONNECTION_TIMEOUT="${CONNECTION_TIMEOUT:-10}"
 
 # Normalize the VPN mode
 VPN_MODE_FAMILY=""
