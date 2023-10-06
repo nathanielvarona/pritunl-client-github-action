@@ -212,10 +212,7 @@ if [[ "$START_CONNECTION" == "true" ]]; then
     local total_steps="${CONNECTION_TIMEOUT}"
 
     # Initialize the progress variable
-    local progress=1
-
-    # Clear the initial line
-    echo -n -e "\r\033[K"
+    local progress=0
 
     # Loop until the progress reaches the total number of steps
     while [[ "$progress" -le "$total_steps" ]]; do
@@ -226,6 +223,9 @@ if [[ "$START_CONNECTION" == "true" ]]; then
           echo "Connection established..."
           break
       else
+        # Increment the progress
+        progress=$((progress + 1))
+
         # Calculate the percentage progress
         percentage=$((progress * 100 / total_steps))
 
@@ -233,7 +233,7 @@ if [[ "$START_CONNECTION" == "true" ]]; then
         completed=$((percentage / 2))
         remaining=$((50 - completed))
 
-        # Print the connection check progress on the same line
+        # Print the connection check progress
         echo -n -e "Establishing connection: ["
         for ((i = 0; i < completed; i++)); do
             echo -n -e "#"
@@ -243,14 +243,10 @@ if [[ "$START_CONNECTION" == "true" ]]; then
         done
         echo -n -e "] checking $progress out of $total_steps total connection timeout"
 
-        # Increment the progress
-        progress=$((progress + 1))
-
         # Sleep for a moment (simulating work)
         sleep 1
 
-        # Clear the line again for the next update
-        echo -n -e "\r\033[K"
+        echo -n -e "\n"
 
         # Print the timeout message and exit error
         if [[ "$progress" -ge "$total_steps" ]]; then
