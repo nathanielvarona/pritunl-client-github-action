@@ -72,14 +72,14 @@ jobs:
             local remaining=$((50 - completed))
 
             # Print the progress bar
-            echo -n -e "$message ["
+            echo -n -e "$message: ["
             for ((i = 0; i < completed; i++)); do
               echo -n -e "#"
             done
             for ((i = 0; i < remaining; i++)); do
               echo -n -e "-"
             done
-            echo -n -e "] checking $current_step out of $total_steps maximum total"
+            echo -n -e "] checking $current_step out of a maximum of $total_steps allowed attempts."
 
             # Print new line
             echo -n -e "\n"
