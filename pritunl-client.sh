@@ -47,7 +47,7 @@ validate_version() {
   fi
 
   # Use curl to fetch the raw file and pipe it to grep
-  if ! [[ $(curl -sSL $version_file | grep -c "$version") -ge 1 ]]; then
+  if ! [[ $(curl --silent --show-error --location $version_file | grep --count "$version") -ge 1 ]]; then
     echo "Invalid Version: '$version' does not exist in the '$pritunl_client_repo' CHANGES file."
     exit 1
   fi
@@ -60,14 +60,14 @@ install_linux() {
     echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/pritunl.list
     gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 7568D9BB55FF9E5287D586017AE645C0CF8E292A > /dev/null 2>&1
     gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc > /dev/null
-    sudo apt-get -qq --assume-yes update
-    sudo apt-get -qq --assume-yes install pritunl-client
+    sudo apt-get update -qq --assume-yes
+    sudo apt-get install -qq --assume-yes pritunl-client
   else
     # Install using Debian Package from Pritunl GitHub Releases for Version Specific
     validate_version "$CLIENT_VERSION"
     deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/pritunl-client_$CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
-    curl -sSL "$deb_url" -o "$RUNNER_TEMP/pritunl-client.deb"
-    sudo apt-get -qq --assume-yes install -f "$RUNNER_TEMP/pritunl-client.deb"
+    curl --silent --show-error --location "$deb_url" --output "$RUNNER_TEMP/pritunl-client.deb"
+    sudo apt-get install -qq --assume-yes --fix-broken "$RUNNER_TEMP/pritunl-client.deb"
   fi
 
   install_vpn_dependencies "Linux"
@@ -82,7 +82,7 @@ install_macos() {
     # Install using macOS Package from Pritunl GitHub Releases for Version Specific
     validate_version "$CLIENT_VERSION"
     pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.pkg.zip"
-    curl -sSL "$pkg_zip_url" -o "$RUNNER_TEMP/Pritunl.pkg.zip"
+    curl --silent --show-error --location "$pkg_zip_url" --output "$RUNNER_TEMP/Pritunl.pkg.zip"
     unzip -qq -o "$RUNNER_TEMP/Pritunl.pkg.zip" -d "$RUNNER_TEMP"
     sudo installer -pkg "$RUNNER_TEMP/Pritunl.pkg" -target /
   fi
@@ -99,19 +99,19 @@ install_macos() {
 install_windows() {
   if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
     # Install using Choco Windows Package Manager
-    choco install --yes --no-progress pritunl-client
+    choco install --no-progress --yes pritunl-client
   else
     # Install using Windows Package from Pritunl GitHub Releases for Version Specific
     validate_version "$CLIENT_VERSION"
     exe_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.exe"
-    curl -sSL "$exe_url" -o "$RUNNER_TEMP/Pritunl.exe"
+    curl --silent --show-error --location "$exe_url" --output "$RUNNER_TEMP/Pritunl.exe"
     pwsh -ExecutionPolicy Bypass -Command "Start-Process -FilePath '$RUNNER_TEMP\Pritunl.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' -Wait"
   fi
 
   if ! [[ -d "$HOME/bin" ]]; then
-    mkdir -p "$HOME/bin"
+    mkdir --parents "$HOME/bin"
   fi
-  ln -s "/c/Program Files (x86)/Pritunl/pritunl-client.exe" "$HOME/bin/pritunl-client"
+  ln --symbolic "/c/Program Files (x86)/Pritunl/pritunl-client.exe" "$HOME/bin/pritunl-client"
 
   install_vpn_dependencies "Windows"
   sleep 1
@@ -128,15 +128,15 @@ install_vpn_dependencies() {
   local os_type="$1"
   if [[ "$VPN_MODE" == "wg" ]]; then
     if [[ "$os_type" == "Linux" ]]; then
-      sudo apt-get -qq --assume-yes install wireguard-tools
+      sudo apt-get install -qq --assume-yes wireguard-tools
     elif [[ "$os_type" == "macOS" ]]; then
       brew install --quiet wireguard-tools
     elif [[ "$os_type" == "Windows" ]]; then
-      choco install --yes --no-progress wireguard
+      choco install --no-progress --yes wireguard
     fi
   else
     if [[ "$os_type" == "Linux" ]]; then
-      sudo apt-get -qq --assume-yes install openvpn-systemd-resolved
+      sudo apt-get install -qq --assume-yes openvpn-systemd-resolved
     fi
   fi
 }
@@ -219,7 +219,7 @@ load_profile_file() {
   while [[ "$current_step" -le "$total_steps" ]]; do
     client_id=$(
       pritunl-client list |
-        awk -F'|' 'NR==4{print $2}' |
+        awk -F '|' 'NR==4{print $2}' |
         sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//'
     )
 

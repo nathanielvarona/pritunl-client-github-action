@@ -144,13 +144,13 @@ jobs:
         run: |
           # Install IP Calculator
           if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt-get -qq --assume-yes install ipcalc
+            sudo apt-get install -qq --assume-yes ipcalc
           elif [ "$RUNNER_OS" == "macOS" ]; then
             brew install --quiet ipcalc
           elif [ "$RUNNER_OS" == "Windows" ]; then
             # Retry up to 3 times in case of failure
             for attempt in 1 2 3; do
-              if curl -sSL "https://raw.githubusercontent.com/kjokjo/ipcalc/0.51/ipcalc" -o $HOME/bin/ipcalc && chmod +x $HOME/bin/ipcalc; then
+              if curl --silent --show-error --location "https://raw.githubusercontent.com/kjokjo/ipcalc/0.51/ipcalc" --output $HOME/bin/ipcalc && chmod +x $HOME/bin/ipcalc; then
                 break
               else
                 echo "Attempt $attempt failed. Retrying..."

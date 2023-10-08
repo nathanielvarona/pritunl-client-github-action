@@ -268,8 +268,8 @@ To store Pritunl Profile to GitHub Secrets, maintaining the raw state of the `ta
 #### 1. Download the Pritunl Profile File obtained from the Pritunl User Profile Page
 
 ```bash
-curl -sL https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar \
-  -o ./pritunl.profile.tar
+curl --silent --show-error --location https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar \
+  --output ./pritunl.profile.tar
 ```
 
 #### 2. Convert your Pritunl Profile File from `tar` archive file format to `base64` text file format.
