@@ -68,18 +68,18 @@ install_linux() {
     echo "Start installing version specific from GitHub Releases..."
     deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/pritunl-client_$CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
     curl -sSL "$deb_url" -o "$RUNNER_TEMP/pritunl-client.deb"
-    sudo apt-get --assume-yes install -f "$RUNNER_TEMP/pritunl-client.deb"
+    sudo apt-get -qq --assume-yes install -f "$RUNNER_TEMP/pritunl-client.deb"
     echo "Pritunl installation completed."
   fi
 
-  install_vpn_dependent_packages "Linux"
+  install_vpn_dependencies "Linux"
 }
 
 # Installation process for macOS
 install_macos() {
   if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
     echo "Installing latest from Homebrew"
-    brew install --cask pritunl
+    brew install --quiet --cask pritunl
   else
     validate_version "$CLIENT_VERSION"
     echo "Start installing version specific from GitHub Releases..."
@@ -95,14 +95,14 @@ install_macos() {
   fi
   ln -s "/Applications/Pritunl.app/Contents/Resources/pritunl-client" "$HOME/bin/pritunl-client"
 
-  install_vpn_dependent_packages "macOS"
+  install_vpn_dependencies "macOS"
 }
 
 # Installation process for Windows
 install_windows() {
   if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
     echo "Installing latest from Choco"
-    choco install --confirm --no-progress pritunl-client
+    choco install --confirm --yes --no-progress pritunl-client
   else
     validate_version "$CLIENT_VERSION"
     echo "Start installing version specific from GitHub Releases..."
@@ -117,7 +117,7 @@ install_windows() {
   fi
   ln -s "/c/Program Files (x86)/Pritunl/pritunl-client.exe" "$HOME/bin/pritunl-client"
 
-  install_vpn_dependent_packages "Windows"
+  install_vpn_dependencies "Windows"
   sleep 1
 
   if [[ "$VPN_MODE" == "wg" ]]; then
@@ -128,24 +128,25 @@ install_windows() {
 }
 
 # Install VPN dependent packages based on OS
-install_vpn_dependent_packages() {
-  echo "Installing VPN Dependent Pacakges..."
+install_vpn_dependencies() {
+  echo "Installing VPN Dependent Packages..."
   local os_type="$1"
   if [[ "$VPN_MODE" == "wg" ]]; then
     if [[ "$os_type" == "Linux" ]]; then
-      sudo apt-get --assume-yes install wireguard-tools
+      sudo apt-get -qq --assume-yes install wireguard-tools
     elif [[ "$os_type" == "macOS" ]]; then
-      brew install wireguard-tools
+      brew install --quiet wireguard-tools
     elif [[ "$os_type" == "Windows" ]]; then
-      choco install --confirm --no-progress wireguard
+      choco install --confirm --yes --no-progress wireguard
     fi
   else
     if [[ "$os_type" == "Linux" ]]; then
       sudo apt-get -qq --assume-yes install openvpn-systemd-resolved
     fi
   fi
-  echo "VPN Dependent Pacakges Installed..."
+  echo "VPN Dependent Packages Installed..."
 }
+
 
 # Main installation process based on OS
 install_platform() {
@@ -206,7 +207,7 @@ print_progress_bar() {
 }
 
 # Function to decode and add a profile
-decode_secret_and_load_profile() {
+load_profile_file() {
   # Define the total number of steps
   local total_steps="${PROFILE_TIMEOUT}"
 
@@ -261,7 +262,7 @@ decode_secret_and_load_profile() {
 }
 
 # Load the Pritunl Profile File
-decode_secret_and_load_profile
+load_profile_file
 
 
 # Start VPN connection
@@ -283,7 +284,7 @@ start_vpn_connection() {
 }
 
 # Function to wait for an established connection
-wait_established_connection() {
+wait_connection() {
   # Define the total number of steps
   local total_steps="${CONNECTION_TIMEOUT}"
 
@@ -336,7 +337,7 @@ if [[ "$START_CONNECTION" == "true" ]]; then
   start_vpn_connection "$client_id"
 
   # Waiting for Established Connection
-  wait_established_connection
+  wait_connection
 
   # Display VPN Connection Status
   display_connection_status
