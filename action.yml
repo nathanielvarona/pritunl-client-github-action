@@ -45,9 +45,7 @@ runs:
         START_CONNECTION: ${{ inputs.start-connection }}
       shell: bash
       run: |
-        # Execute `pritunl-client.sh`
-        [[ "$RUNNER_OS" == "Windows" ]] && separator="\\" || separator="/"
-        bash "$GITHUB_ACTION_PATH${separator}pritunl-client.sh"
+        "$GITHUB_ACTION_PATH$([[ "$RUNNER_OS" == "Windows" ]] && echo '\\' || echo '/')pritunl-client.sh"
 
 branding:
   icon: server
