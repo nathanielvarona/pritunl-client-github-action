@@ -133,7 +133,7 @@ The configuration is declarative and relatively simple to use.
 
 ### Outputs
 
-`client-id` - This is the randomly generated ID that appears on the Pritunl client after setting up a profile.
+`client-id` — is the randomly generated identifier displayed on Pritunl's client after setting up a profile.
 
 _Output Parameter Retrieving Example:_
 
@@ -163,15 +163,18 @@ _Then your other steps down below._
 
 ```yml
 - name: Your CI/CD Core Logic
+  shell: bash
   run: |
-    ##
-    # EXAMPLES:
-    #   * Integration Test,
-    #   * End-to-End Test,
-    #   * Endpoint Reachability Test,
-    #   * Backup Tasks,
-    #   * And more.
-    ##
+    cat <<EOF
+      ##
+      # EXAMPLES:
+      #   * Integration Test,
+      #   * End-to-End Test,
+      #   * Endpoint Reachability Test,
+      #   * Backup Tasks,
+      #   * And more.
+      ##
+    EOF
 
 - name: Example Cypress E2E Test
   uses: cypress-io/github-action@v5
@@ -205,23 +208,26 @@ _Then your other steps down below._
 
 ```yml
 - name: Setup Pritunl Profile
-  id: pritunl-connection # A Setup Step ID is now included as an identifier for the output of other steps.
+  id: pritunl-connection # A Setup Step ID has been added as a reference identifier for the output `client-id`.
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
     start-connection: false # Do not establish a connection in this step.
 
 - name: Starting a VPN Connection Manually
+  shell: bash
   run: |
     pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
       --password ${{ secrets.PRITUNL_PROFILE_PIN }}
 
 - name: Show VPN Connection Status Manually
+  shell: bash
   run: |
     sleep 10
     pritunl-client list
 
 - name: Your CI/CD Core Logic
+  shell: bash
   run: |
     ##
     # Below is our simple example for VPN connectivity test.
@@ -267,6 +273,7 @@ _Then your other steps down below._
 
 - name: Stop VPN Connection Manually
   if: ${{ always() }}
+  shell: bash
   run: |
     pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
 ```
@@ -280,7 +287,7 @@ _Then your other steps down below._
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
   env:
-    CONNECTION_TIMEOUT: 20 # Example of wait established connection timeout for 20 attempts.
+    CONNECTION_TIMEOUT: 20 # Example of a connection timeout after 20 attempts while waiting for an established connection.
 ```
 
 > Kindly check the GitHub Action workflow file [connection-tests.yml](./.github/workflows/connection-tests.yml) for the complete working example.
