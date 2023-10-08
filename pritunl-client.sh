@@ -99,7 +99,7 @@ install_macos() {
 install_windows() {
   if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
     # Install using Choco Windows Package Manager
-    choco install --confirm --yes --no-progress pritunl-client
+    choco install --yes --no-progress pritunl-client
   else
     # Install using Windows Package from Pritunl GitHub Releases for Version Specific
     validate_version "$CLIENT_VERSION"
@@ -132,7 +132,7 @@ install_vpn_dependencies() {
     elif [[ "$os_type" == "macOS" ]]; then
       brew install --quiet wireguard-tools
     elif [[ "$os_type" == "Windows" ]]; then
-      choco install --confirm --yes --no-progress wireguard
+      choco install --yes --no-progress wireguard
     fi
   else
     if [[ "$os_type" == "Linux" ]]; then
