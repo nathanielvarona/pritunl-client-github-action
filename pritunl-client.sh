@@ -11,6 +11,8 @@ CLIENT_VERSION="${CLIENT_VERSION:-}"
 START_CONNECTION="${START_CONNECTION:-}"
 
 ## Other Environent Variables
+# Wait Profile Ready Timeout
+PROFILE_TIMEOUT="${PROFILE_TIMEOUT:-3}"
 # Wait Established Connection Timeout
 CONNECTION_TIMEOUT="${CONNECTION_TIMEOUT:-10}"
 
@@ -54,12 +56,13 @@ validate_version() {
 # Installation process for Linux
 install_linux() {
   if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
-    echo "Installing latest from Prebuilt Apt Repository"
+    echo "Start installing latest from Prebuilt Apt Repository"
     echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/pritunl.list
-    gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 7568D9BB55FF9E5287D586017AE645C0CF8E292A
-    gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc
-    sudo apt-get --assume-yes update
-    sudo apt-get --assume-yes install pritunl-client
+    gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 7568D9BB55FF9E5287D586017AE645C0CF8E292A > /dev/null 2>&1
+    gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc > /dev/null
+    sudo apt-get -qq --assume-yes update
+    sudo apt-get -qq --assume-yes install pritunl-client
+    echo "Pritunl installation completed."
   else
     validate_version "$CLIENT_VERSION"
     echo "Start installing version specific from GitHub Releases..."
@@ -138,7 +141,7 @@ install_vpn_dependent_packages() {
     fi
   else
     if [[ "$os_type" == "Linux" ]]; then
-      sudo apt-get --assume-yes install openvpn-systemd-resolved
+      sudo apt-get -qq --assume-yes install openvpn-systemd-resolved
     fi
   fi
   echo "VPN Dependent Pacakges Installed..."
@@ -175,118 +178,165 @@ fi
 # Show Pritunl Client Version
 pritunl-client version
 
-# Load Pritunl Profile File
-decode_and_add_profile() {
+# Function to print a progress bar
+print_progress_bar() {
+  local current_step="$1"   # Current step in the process
+  local total_steps="$2"    # Total steps in the process
+  local message="$3"        # Message to display with the progress bar
+
+  # Calculate the percentage progress
+  local percentage=$((current_step * 100 / total_steps))
+
+  # Calculate the number of completed and remaining characters for the progress bar
+  local completed=$((percentage / 2))
+  local remaining=$((50 - completed))
+
+  # Print the progress bar
+  echo -n -e "$message ["
+  for ((i = 0; i < completed; i++)); do
+    echo -n -e "#"
+  done
+  for ((i = 0; i < remaining; i++)); do
+    echo -n -e "-"
+  done
+  echo -n -e "] checking $current_step out of $total_steps maximum total"
+
+  # Print new line
+  echo -n -e "\n"
+}
+
+# Function to decode and add a profile
+decode_secret_and_load_profile() {
+  # Define the total number of steps
+  local total_steps="${PROFILE_TIMEOUT}"
+
+  # Initialize the current step variable
+  local current_step=0
+
   echo "Adding profile to the client..."
+
   # Save the `base64` text file format and convert it back to `tar` archive file format.
   echo "$PROFILE_FILE" > "$RUNNER_TEMP/profile-file.base64"
   base64 --decode "$RUNNER_TEMP/profile-file.base64" > "$RUNNER_TEMP/profile-file.tar"
 
   # Add the Profile File to Pritunl Client
   pritunl-client add "$RUNNER_TEMP/profile-file.tar"
-  sleep 1
 
-  # Set `client-id` as step output
-  client_id=$(
-    pritunl-client list |
-      awk -F'|' 'NR==4{print $2}' |
-      sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//'
-  )
-  echo "client-id=$client_id" >> "$GITHUB_OUTPUT"
+  echo "Waiting for Profile ready..."
+
+  # Loop until the current step reaches the total number of steps
+  while [[ "$current_step" -le "$total_steps" ]]; do
+    client_id=$(
+      pritunl-client list |
+        awk -F'|' 'NR==4{print $2}' |
+        sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//'
+    )
+
+    if [[ "$client_id" =~ ^[a-z0-9]{16}$ ]]; then
+      # Set `client-id` as step output and break the loop
+      echo "client-id=$client_id" >> "$GITHUB_OUTPUT"
+      break
+    else
+      # Increment the current step
+      current_step=$((current_step + 1))
+
+      # Print the attempt progress using the progress bar function
+      print_progress_bar "$current_step" "$total_steps" "Profile ready"
+
+      # Sleep for a moment (simulating work)
+      sleep 1
+
+      # Print the timeout message and exit error if needed
+      if [[ "$current_step" -eq "$total_steps" ]]; then
+        echo "Profile setup failed! Client ID not found..."
+        exit 1
+      fi
+    fi
+  done
 
   # Disable autostart option
   pritunl-client disable "$client_id"
-  echo "Profile is added to the client with an ID '$client_id'"
+  # Display Profile Client ID
+  echo "Profile is added with Client ID: '$client_id'"
 }
 
 # Load the Pritunl Profile File
-decode_and_add_profile
+decode_secret_and_load_profile
+
+
+# Start VPN connection
+start_vpn_connection() {
+  local client_id="$1"
+  local vpn_flags=()
+
+  if [[ -n "$VPN_MODE" ]]; then
+    vpn_flags+=( "--mode" "$VPN_MODE" )
+  fi
+
+  if [[ -n "$PROFILE_PIN" ]]; then
+    vpn_flags+=( "--password" "$PROFILE_PIN" )
+  fi
+
+  echo "Starting to Establish a Connection..."
+  pritunl-client start "$client_id" "${vpn_flags[@]}"
+  echo "Establish a Connection Started..."
+}
+
+# Function to wait for an established connection
+wait_established_connection() {
+  # Define the total number of steps
+  local total_steps="${CONNECTION_TIMEOUT}"
+
+  # Initialize the current step variable
+  local current_step=0
+
+  echo "Waiting for fully established connection..."
+
+  # Loop until the current step reaches the total number of steps
+  while [[ "$current_step" -le "$total_steps" ]]; do
+    active_network=$(
+      pritunl-client list |
+        awk -F '|' 'NR==4{print $8}' |
+        sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//'
+    )
+
+    if [[ "$active_network" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$ ]]; then
+      # "Break the loop if connection established"
+      break
+    else
+      # Increment the current step
+      current_step=$((current_step + 1))
+
+      # Print the connection check progress using the progress bar function
+      print_progress_bar "$current_step" "$total_steps" "Establishing connection"
+
+      # Sleep for a moment (simulating work)
+      sleep 1
+
+      # Print the timeout message and exit error if needed
+      if [[ "$current_step" -eq "$total_steps" ]]; then
+        echo "Timeout reached! Exiting..."
+        exit 1
+      fi
+    fi
+  done
+}
+
+# Display VPN Connection Status
+display_connection_status() {
+  local pritunl_client_info=$(pritunl-client list)
+  local profile_name=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $3}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+  local profile_ip=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $8}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
+  echo "Connected as '$profile_name' with a private address of '$profile_ip'."
+}
+
 
 if [[ "$START_CONNECTION" == "true" ]]; then
-
-  # Start VPN connection
-  start_vpn_connection() {
-    local client_id="$1"
-    local vpn_flags=()
-
-    if [[ -n "$VPN_MODE" ]]; then
-      vpn_flags+=( "--mode" "$VPN_MODE" )
-    fi
-
-    if [[ -n "$PROFILE_PIN" ]]; then
-      vpn_flags+=( "--password" "$PROFILE_PIN" )
-    fi
-
-    pritunl-client start "$client_id" "${vpn_flags[@]}"
-  }
-
   # Start the VPN connection
   start_vpn_connection "$client_id"
 
   # Waiting for Established Connection
-  wait_established_connection() {
-    # Define the total number of steps
-    local total_steps="${CONNECTION_TIMEOUT}"
-
-    # Initialize the progress variable
-    local progress=0
-
-    # Loop until the progress reaches the total number of steps
-    while [[ "$progress" -le "$total_steps" ]]; do
-      if pritunl-client list |
-        awk -F '|' 'NR==4{print $8}' |
-        sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//' |
-        grep -E '^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$' --quiet --color=never; then
-          echo "Connection established..."
-          break
-      else
-        # Increment the progress
-        progress=$((progress + 1))
-
-        # Calculate the percentage progress
-        percentage=$((progress * 100 / total_steps))
-
-        # Calculate the number of completed and remaining characters for the progress bar
-        completed=$((percentage / 2))
-        remaining=$((50 - completed))
-
-        # Print the connection check progress
-        echo -n -e "Establishing connection: ["
-        for ((i = 0; i < completed; i++)); do
-            echo -n -e "#"
-        done
-        for ((i = 0; i < remaining; i++)); do
-            echo -n -e "-"
-        done
-        echo -n -e "] checking $progress out of $total_steps total connection timeout"
-
-        # Sleep for a moment (simulating work)
-        sleep 1
-
-        echo -n -e "\n"
-
-        # Print the timeout message and exit error
-        if [[ "$progress" -ge "$total_steps" ]]; then
-          echo "Timeout reached! Exiting..."
-          exit 1
-        fi
-      fi
-    done
-
-    # Print a newline to end the progress loader
-    echo ""
-  }
-
-  # Waiting for Established Connection
   wait_established_connection
-
-  # Display VPN Connection Status
-  display_connection_status() {
-    local pritunl_client_info=$(pritunl-client list)
-    local profile_name=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $3}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
-    local profile_ip=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $8}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
-    echo "Connected as '$profile_name' with a private address of '$profile_ip'."
-  }
 
   # Display VPN Connection Status
   display_connection_status
