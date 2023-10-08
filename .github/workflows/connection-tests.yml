@@ -148,7 +148,7 @@ jobs:
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo apt-get -qq --assume-yes install ipcalc
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            brew install ipcalc
+            brew install --quiet ipcalc
           elif [ "$RUNNER_OS" == "Windows" ]; then
             # Retry up to 3 times in case of failure
             for attempt in 1 2 3; do
