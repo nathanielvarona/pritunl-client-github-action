@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 # Set up error handling
 set -euo pipefail
@@ -56,20 +56,18 @@ validate_version() {
 # Installation process for Linux
 install_linux() {
   if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
-    echo "Start installing latest from Prebuilt Apt Repository"
+    # Install using Pritunl Prebuilt Apt Repository
     echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/pritunl.list
     gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 7568D9BB55FF9E5287D586017AE645C0CF8E292A > /dev/null 2>&1
     gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc > /dev/null
     sudo apt-get -qq --assume-yes update
     sudo apt-get -qq --assume-yes install pritunl-client
-    echo "Pritunl installation completed."
   else
+    # Install using Debian Package from Pritunl GitHub Releases for Version Specific
     validate_version "$CLIENT_VERSION"
-    echo "Start installing version specific from GitHub Releases..."
     deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/pritunl-client_$CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
     curl -sSL "$deb_url" -o "$RUNNER_TEMP/pritunl-client.deb"
     sudo apt-get -qq --assume-yes install -f "$RUNNER_TEMP/pritunl-client.deb"
-    echo "Pritunl installation completed."
   fi
 
   install_vpn_dependencies "Linux"
@@ -78,16 +76,15 @@ install_linux() {
 # Installation process for macOS
 install_macos() {
   if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
-    echo "Installing latest from Homebrew"
+    # Install using Homebrew macOS Package Manager
     brew install --quiet --cask pritunl
   else
+    # Install using macOS Package from Pritunl GitHub Releases for Version Specific
     validate_version "$CLIENT_VERSION"
-    echo "Start installing version specific from GitHub Releases..."
     pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.pkg.zip"
     curl -sSL "$pkg_zip_url" -o "$RUNNER_TEMP/Pritunl.pkg.zip"
     unzip -qq -o "$RUNNER_TEMP/Pritunl.pkg.zip" -d "$RUNNER_TEMP"
     sudo installer -pkg "$RUNNER_TEMP/Pritunl.pkg" -target /
-    echo "Pritunl installation completed."
   fi
 
   if ! [[ -d "$HOME/bin" ]]; then
@@ -101,15 +98,14 @@ install_macos() {
 # Installation process for Windows
 install_windows() {
   if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
-    echo "Installing latest from Choco"
+    # Install using Choco Windows Package Manager
     choco install --confirm --yes --no-progress pritunl-client
   else
+    # Install using Windows Package from Pritunl GitHub Releases for Version Specific
     validate_version "$CLIENT_VERSION"
-    echo "Start installing version specific from GitHub Releases..."
     exe_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.exe"
     curl -sSL "$exe_url" -o "$RUNNER_TEMP/Pritunl.exe"
     pwsh -ExecutionPolicy Bypass -Command "Start-Process -FilePath '$RUNNER_TEMP\Pritunl.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' -Wait"
-    echo "Pritunl installation completed."
   fi
 
   if ! [[ -d "$HOME/bin" ]]; then
@@ -129,7 +125,6 @@ install_windows() {
 
 # Install VPN dependent packages based on OS
 install_vpn_dependencies() {
-  echo "Installing VPN Dependent Packages..."
   local os_type="$1"
   if [[ "$VPN_MODE" == "wg" ]]; then
     if [[ "$os_type" == "Linux" ]]; then
@@ -144,7 +139,6 @@ install_vpn_dependencies() {
       sudo apt-get -qq --assume-yes install openvpn-systemd-resolved
     fi
   fi
-  echo "VPN Dependent Packages Installed..."
 }
 
 
@@ -214,16 +208,12 @@ load_profile_file() {
   # Initialize the current step variable
   local current_step=0
 
-  echo "Adding profile to the client..."
-
   # Save the `base64` text file format and convert it back to `tar` archive file format.
   echo "$PROFILE_FILE" > "$RUNNER_TEMP/profile-file.base64"
   base64 --decode "$RUNNER_TEMP/profile-file.base64" > "$RUNNER_TEMP/profile-file.tar"
 
   # Add the Profile File to Pritunl Client
   pritunl-client add "$RUNNER_TEMP/profile-file.tar"
-
-  echo "Waiting for Profile ready..."
 
   # Loop until the current step reaches the total number of steps
   while [[ "$current_step" -le "$total_steps" ]]; do
@@ -278,9 +268,7 @@ start_vpn_connection() {
     vpn_flags+=( "--password" "$PROFILE_PIN" )
   fi
 
-  echo "Starting to Establish a Connection..."
   pritunl-client start "$client_id" "${vpn_flags[@]}"
-  echo "Establish a Connection Started..."
 }
 
 # Function to wait for an established connection
@@ -290,8 +278,6 @@ wait_connection() {
 
   # Initialize the current step variable
   local current_step=0
-
-  echo "Waiting for fully established connection..."
 
   # Loop until the current step reaches the total number of steps
   while [[ "$current_step" -le "$total_steps" ]]; do

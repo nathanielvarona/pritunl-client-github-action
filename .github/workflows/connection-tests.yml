@@ -93,8 +93,6 @@ jobs:
             # Initialize the current step variable
             local current_step=0
 
-            echo "Waiting for fully established connection..."
-
             # Loop until the current step reaches the total number of steps
             while [[ "$current_step" -le "$total_steps" ]]; do
               active_network=$(
