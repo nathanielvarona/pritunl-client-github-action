@@ -31,7 +31,7 @@ Runner         | OpenVPN                | WireGuard
   Using the `gh` command:
   ```sh
   gh api --paginate repos/nathanielvarona/pritunl-client-github-action/actions/runs/${JOB_ID}/jobs |
-    jq -r '.jobs[] | [.name, .status] | @csv' |
+    jq --raw-output '.jobs[] | [.name, .status] | @csv' |
     sed 's/"//g' |
     awk 'BEGIN{print "runner, vpn-mode, client-version, start-connection, status"} {gsub(/, /, ", ", $0); gsub(/,completed/, ", completed", $0); print}'
   ```
@@ -141,7 +141,7 @@ _Output Parameter Retrieving Example:_
 ${{ steps.pritunl-connection.outputs.client-id }}
 ```
 
-Where the `pritunl-connection` is the Step Setup ID.
+Where the `pritunl-connection` is the Setup Step ID.
 
 > Kindly check the subsection [Manually Controlling the Connection](#and-even-manually-controlling-the-connection) for example.
 
@@ -205,7 +205,7 @@ _Then your other steps down below._
 
 ```yml
 - name: Setup Pritunl Profile
-  id: pritunl-connection
+  id: pritunl-connection # A Setup Step ID is now included as an identifier for the output of other steps.
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
@@ -227,17 +227,43 @@ _Then your other steps down below._
     # Below is our simple example for VPN connectivity test.
     ##
 
-    # Install Tooling
-    sudo apt-get install -y ipcalc
+    # Install IP Calculator
+    if [ "$RUNNER_OS" == "Linux" ]; then
+      sudo apt-get install -qq --assume-yes ipcalc
+    elif [ "$RUNNER_OS" == "macOS" ]; then
+      brew install --quiet ipcalc
+    elif [ "$RUNNER_OS" == "Windows" ]; then
+      # Retry up to 3 times in case of failure
+      for attempt in $(seq 3); do
+        if curl --silent --show-error \
+          --location "https://raw.githubusercontent.com/kjokjo/ipcalc/0.51/ipcalc" \
+          --output $HOME/bin/ipcalc && chmod +x $HOME/bin/ipcalc; then
+          break
+        else
+          echo "Attempt $attempt failed. Retrying..."
+          sleep 5  # Sleep for 5 seconds before the next attempt
+        fi
+      done
+
+      # If all retries fail, exit with an error
+      if [ $attempt -eq 3 ]; then
+        echo "Failed to install ipcalc after 3 attempts."
+        exit 1
+      fi
+    else
+      echo "Unsupported OS: $RUNNER_OS"
+      exit 1
+    fi
+
+    # Validate the IP Calculator Installation
+    echo "ipcalc version $(ipcalc --version)"
 
     # VPN Gateway Reachability Test
-    ping -c 10 \
-      $(
-        pritunl-client list |
-          awk -F '|' 'NR==4{print $8}' |
-          xargs ipcalc |
-          awk 'NR==6{print $2}'
-      )
+    PING_FLAG="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
+    HOST="$(pritunl-client list | awk -F '|' 'NR==4{print $8}' | xargs ipcalc | awk 'NR==6{print $2}')"
+
+    # Ping VPN Gateway
+    ping $PING_FLAG $HOST
 
 - name: Stop VPN Connection Manually
   if: ${{ always() }}
@@ -254,8 +280,10 @@ _Then your other steps down below._
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
   env:
-    CONNECTION_TIMEOUT: 60 # Example of wait established connection timeout for 60 seconds.
+    CONNECTION_TIMEOUT: 20 # Example of wait established connection timeout for 20 attempts.
 ```
+
+> Kindly check the GitHub Action workflow file [connection-tests.yml](./.github/workflows/connection-tests.yml) for the complete working example.
 
 ## Working with Pritunl Profile File
 
@@ -268,14 +296,15 @@ To store Pritunl Profile to GitHub Secrets, maintaining the raw state of the `ta
 #### 1. Download the Pritunl Profile File obtained from the Pritunl User Profile Page
 
 ```bash
-curl --silent --show-error --location https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar \
+curl --silent --show-error \
+  --location https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar \
   --output ./pritunl.profile.tar
 ```
 
 #### 2. Convert your Pritunl Profile File from `tar` archive file format to `base64` text file format.
 
 ```bash
-base64 -w 0 ./pritunl.profile.tar > ./pritunl.profile.base64
+base64 --wrap 0 ./pritunl.profile.tar > ./pritunl.profile.base64
 ```
 
 #### 3. Copy the data from `base64` text file format.

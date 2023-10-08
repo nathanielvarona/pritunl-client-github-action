@@ -137,8 +137,6 @@ jobs:
           # Display VPN Connection Status
           display_connection_status
 
-
-
       - name: Install IP Tooling (IP Calculator)
         shell: bash
         run: |
@@ -149,8 +147,10 @@ jobs:
             brew install --quiet ipcalc
           elif [ "$RUNNER_OS" == "Windows" ]; then
             # Retry up to 3 times in case of failure
-            for attempt in 1 2 3; do
-              if curl --silent --show-error --location "https://raw.githubusercontent.com/kjokjo/ipcalc/0.51/ipcalc" --output $HOME/bin/ipcalc && chmod +x $HOME/bin/ipcalc; then
+            for attempt in $(seq 3); do
+              if curl --silent --show-error \
+                --location "https://raw.githubusercontent.com/kjokjo/ipcalc/0.51/ipcalc" \
+                --output $HOME/bin/ipcalc && chmod +x $HOME/bin/ipcalc; then
                 break
               else
                 echo "Attempt $attempt failed. Retrying..."
@@ -174,7 +174,7 @@ jobs:
       - name: VPN Gateway Reachability Test
         shell: bash
         run: |
-          # Ping VPN Gateway
+          # VPN Gateway Reachability Test
           PING_FLAG="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
           HOST="$(pritunl-client list | awk -F '|' 'NR==4{print $8}' | xargs ipcalc | awk 'NR==6{print $2}')"
 
