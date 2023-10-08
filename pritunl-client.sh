@@ -56,12 +56,14 @@ validate_version() {
 # Installation process for Linux
 install_linux() {
   if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
+    # Install using Pritunl Prebuilt Apt Repository
     echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/pritunl.list
     gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 7568D9BB55FF9E5287D586017AE645C0CF8E292A > /dev/null 2>&1
     gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc > /dev/null
     sudo apt-get -qq --assume-yes update
     sudo apt-get -qq --assume-yes install pritunl-client
   else
+    # Install using Debian Package from Pritunl GitHub Releases for Version Specific
     validate_version "$CLIENT_VERSION"
     deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/pritunl-client_$CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
     curl -sSL "$deb_url" -o "$RUNNER_TEMP/pritunl-client.deb"
@@ -74,8 +76,10 @@ install_linux() {
 # Installation process for macOS
 install_macos() {
   if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
+    # Install using Homebrew macOS Package Manager
     brew install --quiet --cask pritunl
   else
+    # Install using macOS Package from Pritunl GitHub Releases for Version Specific
     validate_version "$CLIENT_VERSION"
     pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.pkg.zip"
     curl -sSL "$pkg_zip_url" -o "$RUNNER_TEMP/Pritunl.pkg.zip"
@@ -94,8 +98,10 @@ install_macos() {
 # Installation process for Windows
 install_windows() {
   if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
+    # Install using Choco Windows Package Manager
     choco install --confirm --yes --no-progress pritunl-client
   else
+    # Install using Windows Package from Pritunl GitHub Releases for Version Specific
     validate_version "$CLIENT_VERSION"
     exe_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.exe"
     curl -sSL "$exe_url" -o "$RUNNER_TEMP/Pritunl.exe"
