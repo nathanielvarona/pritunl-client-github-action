@@ -3,23 +3,25 @@ name: Pritunl Client GitHub Actions Issue Template
 about: The issues that were encountered and the specific parameters that were used.
 ---
 
+<!-- Provide a general summary of your changes in the Title above -->
+
 ### Issue Description
-<!--- Provide a clear and concise description of the issue you encountered while testing the matrix. -->
+<!-- Provide a clear and concise description of the issue you encountered. -->
 
 
-<!--- ### Steps to Reproduce -->
-<!--- If applicable, provide the steps to reproduce the issue. -->
+<!-- ### Steps to Reproduce -->
+<!-- If applicable, provide the steps to reproduce the issue. -->
 
-<!--- ### Expected Behavior -->
-<!--- If applicable, describe what you expected to happen. -->
+<!-- ### Expected Behavior -->
+<!-- If applicable, describe what you expected to happen. -->
 
-<!--- ### Actual Behavior -->
-<!--- If applicable, describe what actually happened. -->
+<!-- ### Actual Behavior -->
+<!-- If applicable, describe what actually happened. -->
 
-<!--- ### Additional Information -->
-<!--- If applicable, any additional context or information that might be helpful in resolving the issue. -->
+<!-- ### Additional Information -->
+<!-- If applicable, any additional context or information that might be helpful in resolving the issue. -->
 
-<!---
+<!--
 #### The Logs:
 ```log
   # Only the setup step, or any related to Pritunl Client steps.
@@ -27,9 +29,9 @@ about: The issues that were encountered and the specific parameters that were us
 ```
 -->
 
-### Parameters Checklist:
-<!--- Go over all the following points, and put an `x` in all the boxes that apply. -->
-<!--- If you're unsure about any of these, don't hesitate to ask. We're here to help! -->
+### It has been used with the following parameters:
+<!-- Go over all the following points, and put an `x` in all the boxes that apply. -->
+<!-- If you're unsure about any of these, don't hesitate to ask. We're here to help! -->
 
 **Runner Virtual Environments:**
 - [ ] Linux
@@ -43,28 +45,28 @@ about: The issues that were encountered and the specific parameters that were us
   - [ ] Windows 2019
 
 **VPN Modes:**
-- [x] OpenVPN (ovpn) <!--- default -->
+- [x] OpenVPN (ovpn) <!-- default -->
 - [ ] WireGuard (wg)
 
 **Client Versions:**
-- [x] Installed from the package manager <!--- default -->
+- [x] Installed from the package manager <!-- default -->
 - [ ] Version specific
-  <!--- Please specify the versions of the Pritunl Client that you are currently using. -->
+  <!-- Please specify the versions of the Pritunl Client that you are currently using. -->
   - [ ] 1.3.3637.72
 
 **Start Connection:** *If the connection is started on the setup step.*
-- [x] True <!--- default -->
+- [x] True <!-- default -->
 - [ ] False
 
 **Runner Types:**
-- [x] Tested on GitHub-hosted runner <!--- only tested working -->
+- [x] Tested on GitHub-hosted runner <!-- only tested working -->
 - [ ] Tested on Self-Hosted runner
 
   *If it runs on a self-hosted runner:*
   - [ ] Manage Self-hosted
   - [ ] Action Runner Controller (ARC) (a Kubernetes Operator)
 
-<!---
+<!--
 #### The GitHub Action Setup
 ```yml
   - name: Setup Pritunl Profile
