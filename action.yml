@@ -27,6 +27,16 @@ inputs:
     required: false
     default: 'true'
 
+  ready-profile-timeout:
+    description: 'Wait for Ready Profile Timeout.'
+    required: false
+    default: '3'
+
+  established-connection-timeout:
+    description: 'Wait for Established Connection Timeout.'
+    required: false
+    default: '30'
+
 outputs:
   client-id:
     description: "Pritunl Client ID"
@@ -38,11 +48,13 @@ runs:
     - name: Setup Pritunl Client
       id: pritunl-client
       env:
-        PROFILE_FILE: ${{ inputs.profile-file }}
-        PROFILE_PIN: ${{ inputs.profile-pin }}
-        VPN_MODE: ${{ inputs.vpn-mode }}
-        CLIENT_VERSION: ${{ inputs.client-version }}
-        START_CONNECTION: ${{ inputs.start-connection }}
+        PRITUNL_PROFILE_FILE: ${{ inputs.profile-file }}
+        PRITUNL_PROFILE_PIN: ${{ inputs.profile-pin }}
+        PRITUNL_VPN_MODE: ${{ inputs.vpn-mode }}
+        PRITUNL_CLIENT_VERSION: ${{ inputs.client-version }}
+        PRITUNL_START_CONNECTION: ${{ inputs.start-connection }}
+        PRITUNL_READY_PROFILE_TIMEOUT: ${{ inputs.ready-profile-timeout }}
+        PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT: ${{ inputs.established-connection-timeout }}
       shell: bash
       run: |
         "$GITHUB_ACTION_PATH$([[ "$RUNNER_OS" == "Windows" ]] && echo '\\' || echo '/')pritunl-client.sh"

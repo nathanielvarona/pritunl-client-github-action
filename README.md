@@ -127,6 +127,16 @@ The configuration is declarative and relatively simple to use.
     # If not supplied, which defaults to `true`.
     # If `true` the VPN connection starts within the setup step.
     start-connection: ''
+
+    ready-profile-timeout: ''
+    # OPTIONAL: Ready Profile Timeout
+    # TYPE: Integer
+    # If not supplied, which defaults to `3`.
+
+    established-connection-timeout: ''
+    # OPTIONAL: Established Connection Timeout
+    # TYPE: Integer
+    # If not supplied, which defaults to `30`.
 ```
 
 > Kindly check the subsection [Working with Pritunl Profile File](#working-with-pritunl-profile-file) on converting `tar` archive file format to `base64` text file format for the `profile-file` input.
@@ -287,7 +297,7 @@ _Then your other steps down below._
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
   env:
-    CONNECTION_TIMEOUT: 20 # Example of a connection timeout after 20 attempts while waiting for an established connection.
+    PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT: 60 # Example of a connection timeout after 60 attempts while waiting for an established connection.
 ```
 
 > Kindly check the GitHub Action workflow file [connection-tests.yml](./.github/workflows/connection-tests.yml) for the complete working example.

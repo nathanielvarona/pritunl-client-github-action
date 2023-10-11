@@ -4,29 +4,27 @@
 set -euo pipefail
 
 ## GitHub Action Inputs as Environment Variables
-PROFILE_FILE="${PROFILE_FILE:-}"
-PROFILE_PIN="${PROFILE_PIN:-}"
-VPN_MODE="${VPN_MODE:-}"
-CLIENT_VERSION="${CLIENT_VERSION:-}"
-START_CONNECTION="${START_CONNECTION:-}"
+PRITUNL_PROFILE_FILE="${PRITUNL_PROFILE_FILE:-}"
+PRITUNL_PROFILE_PIN="${PRITUNL_PROFILE_PIN:-}"
+PRITUNL_VPN_MODE="${PRITUNL_VPN_MODE:-}"
+PRITUNL_CLIENT_VERSION="${PRITUNL_CLIENT_VERSION:-}"
+PRITUNL_START_CONNECTION="${PRITUNL_START_CONNECTION:-}"
 
-## Other Environent Variables
-# Wait Profile Ready Timeout
-PROFILE_TIMEOUT="${PROFILE_TIMEOUT:-3}"
-# Wait Established Connection Timeout
-CONNECTION_TIMEOUT="${CONNECTION_TIMEOUT:-10}"
+## GitHub Actions Setup and Checks Environent Variables
+PRITUNL_READY_PROFILE_TIMEOUT="${PRITUNL_READY_PROFILE_TIMEOUT:-}"
+PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT:-}"
 
 # Normalize the VPN mode
 normalize_vpn_mode() {
-  case "$(echo "$VPN_MODE" | tr '[:upper:]' '[:lower:]')" in
+  case "$(echo "$PRITUNL_VPN_MODE" | tr '[:upper:]' '[:lower:]')" in
     ovpn|openvpn)
-      VPN_MODE="ovpn"
+      PRITUNL_VPN_MODE="ovpn"
       ;;
     wg|wireguard)
-      VPN_MODE="wg"
+      PRITUNL_VPN_MODE="wg"
       ;;
     *)
-      echo "Invalid VPN mode: $VPN_MODE"
+      echo "Invalid VPN mode: $PRITUNL_VPN_MODE"
       exit 1
       ;;
   esac
@@ -55,7 +53,7 @@ validate_version() {
 
 # Installation process for Linux
 install_linux() {
-  if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
+  if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
     # Install using Pritunl Prebuilt Apt Repository
     echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/pritunl.list
     gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 7568D9BB55FF9E5287D586017AE645C0CF8E292A > /dev/null 2>&1
@@ -64,8 +62,8 @@ install_linux() {
     sudo apt-get install -qq --assume-yes pritunl-client
   else
     # Install using Debian Package from Pritunl GitHub Releases for Version Specific
-    validate_version "$CLIENT_VERSION"
-    deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/pritunl-client_$CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
+    validate_version "$PRITUNL_CLIENT_VERSION"
+    deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/pritunl-client_$PRITUNL_CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
     curl --silent --show-error --location "$deb_url" --output "$RUNNER_TEMP/pritunl-client.deb"
     sudo apt-get install -qq --assume-yes --fix-broken "$RUNNER_TEMP/pritunl-client.deb"
   fi
@@ -75,13 +73,13 @@ install_linux() {
 
 # Installation process for macOS
 install_macos() {
-  if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
+  if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
     # Install using Homebrew macOS Package Manager
     brew install --quiet --cask pritunl
   else
     # Install using macOS Package from Pritunl GitHub Releases for Version Specific
-    validate_version "$CLIENT_VERSION"
-    pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.pkg.zip"
+    validate_version "$PRITUNL_CLIENT_VERSION"
+    pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/Pritunl.pkg.zip"
     curl --silent --show-error --location "$pkg_zip_url" --output "$RUNNER_TEMP/Pritunl.pkg.zip"
     unzip -qq -o "$RUNNER_TEMP/Pritunl.pkg.zip" -d "$RUNNER_TEMP"
     sudo installer -pkg "$RUNNER_TEMP/Pritunl.pkg" -target /
@@ -97,13 +95,13 @@ install_macos() {
 
 # Installation process for Windows
 install_windows() {
-  if [[ "$CLIENT_VERSION" == "from-package-manager" ]]; then
+  if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
     # Install using Choco Windows Package Manager
     choco install --no-progress --yes pritunl-client
   else
     # Install using Windows Package from Pritunl GitHub Releases for Version Specific
-    validate_version "$CLIENT_VERSION"
-    exe_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$CLIENT_VERSION/Pritunl.exe"
+    validate_version "$PRITUNL_CLIENT_VERSION"
+    exe_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/Pritunl.exe"
     curl --silent --show-error --location "$exe_url" --output "$RUNNER_TEMP/Pritunl.exe"
     pwsh -ExecutionPolicy Bypass -Command "Start-Process -FilePath '$RUNNER_TEMP\Pritunl.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' -Wait"
   fi
@@ -116,7 +114,7 @@ install_windows() {
   install_vpn_dependencies "Windows"
   sleep 1
 
-  if [[ "$VPN_MODE" == "wg" ]]; then
+  if [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
     # Restarting the `pritunl` service to determine the latest changes of the `PATH` values
     # from the `System Environment Variables` during the WireGuard installation is needed.
     pwsh -ExecutionPolicy Bypass -Command "Invoke-Command -ScriptBlock { net stop 'pritunl' ; net start 'pritunl' }"
@@ -126,7 +124,7 @@ install_windows() {
 # Install VPN dependent packages based on OS
 install_vpn_dependencies() {
   local os_type="$1"
-  if [[ "$VPN_MODE" == "wg" ]]; then
+  if [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
     if [[ "$os_type" == "Linux" ]]; then
       sudo apt-get install -qq --assume-yes wireguard-tools
     elif [[ "$os_type" == "macOS" ]]; then
@@ -203,13 +201,13 @@ print_progress_bar() {
 # Function to decode and add a profile
 load_profile_file() {
   # Define the total number of steps
-  local total_steps="${PROFILE_TIMEOUT}"
+  local total_steps="${PRITUNL_READY_PROFILE_TIMEOUT}"
 
   # Initialize the current step variable
   local current_step=0
 
   # Save the `base64` text file format and convert it back to `tar` archive file format.
-  echo "$PROFILE_FILE" > "$RUNNER_TEMP/profile-file.base64"
+  echo "$PRITUNL_PROFILE_FILE" > "$RUNNER_TEMP/profile-file.base64"
   base64 --decode "$RUNNER_TEMP/profile-file.base64" > "$RUNNER_TEMP/profile-file.tar"
 
   # Add the Profile File to Pritunl Client
@@ -260,12 +258,12 @@ start_vpn_connection() {
   local client_id="$1"
   local vpn_flags=()
 
-  if [[ -n "$VPN_MODE" ]]; then
-    vpn_flags+=( "--mode" "$VPN_MODE" )
+  if [[ -n "$PRITUNL_VPN_MODE" ]]; then
+    vpn_flags+=( "--mode" "$PRITUNL_VPN_MODE" )
   fi
 
-  if [[ -n "$PROFILE_PIN" ]]; then
-    vpn_flags+=( "--password" "$PROFILE_PIN" )
+  if [[ -n "$PRITUNL_PROFILE_PIN" ]]; then
+    vpn_flags+=( "--password" "$PRITUNL_PROFILE_PIN" )
   fi
 
   pritunl-client start "$client_id" "${vpn_flags[@]}"
@@ -274,7 +272,7 @@ start_vpn_connection() {
 # Function to wait for an established connection
 wait_connection() {
   # Define the total number of steps
-  local total_steps="${CONNECTION_TIMEOUT}"
+  local total_steps="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT}"
 
   # Initialize the current step variable
   local current_step=0
@@ -318,11 +316,11 @@ display_connection_status() {
 }
 
 
-if [[ "$START_CONNECTION" == "true" ]]; then
+if [[ "$PRITUNL_START_CONNECTION" == "true" ]]; then
   # Start the VPN connection
   start_vpn_connection "$client_id"
 
-  # Waiting for Established Connection
+  # Waiting for an Established Connection
   wait_connection
 
   # Display VPN Connection Status
