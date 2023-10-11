@@ -1,8 +1,3 @@
----
-name: Pritunl Client GitHub Actions Issue Template
-about: The issues that were encountered and the specific parameters that were used.
----
-
 <!-- Provide a general summary of your changes in the Title above -->
 
 ### Issue Description
@@ -34,13 +29,13 @@ about: The issues that were encountered and the specific parameters that were us
 <!-- If you're unsure about any of these, don't hesitate to ask. We're here to help! -->
 
 **Runner Virtual Environments:**
-- [ ] Linux
+- Linux
   - [ ] Ubuntu 22.04
   - [ ] Ubuntu 20.04
-- [ ] macOS
+- macOS
   - [ ] macOS 12
   - [ ] macOS 11
-- [ ] Windows
+- Windows
   - [ ] Windows 2022
   - [ ] Windows 2019
 

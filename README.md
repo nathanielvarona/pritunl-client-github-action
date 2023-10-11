@@ -130,12 +130,12 @@ The configuration is declarative and relatively simple to use.
 
     ready-profile-timeout: ''
     # OPTIONAL: Ready Profile Timeout
-    # TYPE: Integer
+    # TYPE: Natural Numbers
     # If not supplied, which defaults to `3`.
 
     established-connection-timeout: ''
     # OPTIONAL: Established Connection Timeout
-    # TYPE: Integer
+    # TYPE: Natural Numbers
     # If not supplied, which defaults to `30`.
 ```
 
@@ -145,11 +145,7 @@ The configuration is declarative and relatively simple to use.
 
 `client-id` — is the randomly generated identifier displayed on Pritunl's client after setting up a profile.
 
-_Output Parameter Retrieving Example:_
-
-```sh
-${{ steps.pritunl-connection.outputs.client-id }}
-```
+_Output Parameter Retrieving Example:_ `${{ steps.pritunl-connection.outputs.client-id }}`
 
 Where the `pritunl-connection` is the Setup Step ID.
 
@@ -275,11 +271,11 @@ _Then your other steps down below._
     echo "ipcalc version $(ipcalc --version)"
 
     # VPN Gateway Reachability Test
-    PING_FLAG="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
-    HOST="$(pritunl-client list | awk -F '|' 'NR==4{print $8}' | xargs ipcalc | awk 'NR==6{print $2}')"
+    ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
+    vpn_gateway="$(pritunl-client list | awk -F '|' 'NR==4{print $8}' | xargs ipcalc | awk 'NR==6{print $2}')"
 
     # Ping VPN Gateway
-    ping $PING_FLAG $HOST
+    ping $ping_flags $vpn_gateway
 
 - name: Stop VPN Connection Manually
   if: ${{ always() }}
