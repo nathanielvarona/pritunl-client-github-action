@@ -101,32 +101,32 @@ The configuration is declarative and relatively simple to use.
 ```yaml
 - uses: nathanielvarona/pritunl-client-github-action@v1
   with:
+    profile-file: ''
     # REQUIRED: Pritunl Profile File
     # TYPE: Wrapping String (Base64 text format)
-    profile-file: ''
 
+    profile-pin: ''
     # OPTIONAL: Profile Pin
     # TYPE: String (Numerical values)
     # If not supplied, which defaults No Pin.
-    profile-pin: ''
 
+    vpn-mode: ''
     # OPTIONAL: VPN Connection Mode
     # TYPE: String
     # CHOICES: ['ovpn', 'openvpn', 'OpenVPN'] or ['wg', 'wireguard', 'WireGuard']
     # If not supplied, which defaults to 'ovpn'.
-    vpn-mode: ''
 
+    client-version: ''
     # OPTIONAL: Pritunl Client Version
     # TYPE: String (Numerical dot separated identifiers)
     # For example, using the later version `1.3.3637.72`.
     # If not supplied, which defaults to the latest version from the Package Manager.
-    client-version: ''
 
+    start-connection: ''
     # OPTIONAL: Start the Connection
     # TYPE: Boolean
     # If not supplied, which defaults to `true`.
     # If `true` the VPN connection starts within the setup step.
-    start-connection: ''
 
     ready-profile-timeout: ''
     # OPTIONAL: Ready Profile Timeout
