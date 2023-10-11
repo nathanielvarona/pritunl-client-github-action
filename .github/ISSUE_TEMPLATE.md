@@ -1,8 +1,3 @@
----
-name: Pritunl Client GitHub Actions Issue Template
-about: The issues that were encountered and the specific parameters that were used.
----
-
 <!-- Provide a general summary of your changes in the Title above -->
 
 ### Issue Description

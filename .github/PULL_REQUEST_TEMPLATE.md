@@ -1,8 +1,3 @@
----
-name: Pritunl Client GitHub Actions Pull Request Template
-about: The comprehensive details of the proposed changes to merge.
----
-
 <!-- Provide a general summary of your changes in the Title above -->
 
 ### Pull Request Description
