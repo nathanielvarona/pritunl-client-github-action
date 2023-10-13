@@ -83,7 +83,7 @@ jobs:
             for ((i = 0; i < remaining; i++)); do
               echo -n -e "-"
             done
-            echo -n -e "] checking $current_step out of a maximum of $total_steps allowed attempts."
+            echo -n -e "] checking $current_step out of $total_steps allowed checks."
 
             # Print new line
             echo -n -e "\n"

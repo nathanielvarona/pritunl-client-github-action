@@ -230,7 +230,7 @@ load_profile_file() {
       current_step=$((current_step + 1))
 
       # Print the attempt progress using the progress bar function
-      print_progress_bar "$current_step" "$total_steps" "Profile ready"
+      print_progress_bar "$current_step" "$total_steps" "Ready profile"
 
       # Sleep for a moment (simulating work)
       sleep 1
