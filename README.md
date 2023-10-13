@@ -296,7 +296,7 @@ _Then your other steps down below._
     PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT: 60 # Example of a connection timeout after 60 attempts while waiting for an established connection.
 ```
 
-> Kindly check the GitHub Action workflow file [connection-tests.yml](.github/workflows/connection-tests.yml) for the complete working example.
+> Kindly check the GitHub Action workflow file `./.github/workflows/connection-tests.yml` for the complete working example.
 
 ## Working with Pritunl Profile File
 
