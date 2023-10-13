@@ -1,0 +1,62 @@
+name: Connection Tests
+
+on:
+  workflow_dispatch:
+
+jobs:
+  connection-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+
+    runs-on: ${{ matrix.os }}
+    name: "run:${{ matrix.os }}"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Pritunl Profile
+        id: pritunl-connection
+        uses: ./
+        with:
+          profile-file: ${{ secrets.PRITUNL_PROFILE_FILE_BASIC }}
+
+      - name: Install IP Tooling (IP Calculator)
+        shell: bash
+        run: |
+          # Install IP Calculator
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get install -qq --assume-yes ipcalc
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            brew install --quiet ipcalc
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            # Retry up to 3 times in case of failure
+            for attempt in $(seq 3); do
+              if curl -sSL "https://raw.githubusercontent.com/kjokjo/ipcalc/0.51/ipcalc" \
+                -o $HOME/bin/ipcalc && chmod +x $HOME/bin/ipcalc; then
+                break
+              else
+                echo "Attempt $attempt failed. Retrying..." && sleep 1
+                # If all retries fail, exit with an error
+                if [ $attempt -eq 3 ]; then
+                  echo "Failed to install ipcalc after 3 attempts." && exit 1
+                fi
+              fi
+            done
+          fi
+          # Validate the IP Calculator Installation
+          echo "ipcalc version $(ipcalc --version)"
+
+      - name:  VPN Gateway Reachability Test
+        shell: bash
+        run: |
+          # VPN Gateway Reachability Test
+          profile_ip=$(pritunl-client list --json | jq ".[0]" | jq --raw-output ".client_address")
+          vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
+          ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
+          # Ping VPN Gateway
+          ping $vpn_gateway $ping_flags
