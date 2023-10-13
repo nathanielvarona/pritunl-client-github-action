@@ -45,7 +45,7 @@
 
 **Client Versions:**
 - [x] Installed from the package manager <!-- default -->
-- [ ] Version specific
+- Version specific
   <!-- Please specify the versions of the Pritunl Client that you are currently using. -->
   - [ ] 1.3.3637.72
 
@@ -55,7 +55,7 @@
 
 **Runner Types:**
 - [x] Tested on GitHub-hosted runner <!-- only tested working -->
-- [ ] Tested on Self-Hosted runner
+- Tested on Self-Hosted runner
 
   *If it runs on a self-hosted runner:*
   - [ ] Manage Self-hosted
