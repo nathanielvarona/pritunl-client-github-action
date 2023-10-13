@@ -28,8 +28,8 @@ jobs:
     runs-on: ${{ matrix.os }}
     name: "run:${{ matrix.os }}, vpn:${{ matrix.vpn }}, cv:${{ matrix.client-version }}, sc:${{ matrix.start-connection }}"
 
-    env:
-      PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT: 60 # Example of overriding default wait established connection timeout
+    # env:
+    #   PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT: 60 # Example of overriding default wait established connection timeout
 
     steps:
       - name: Checkout
@@ -45,7 +45,7 @@ jobs:
           client-version: ${{ matrix.client-version }}
           start-connection: ${{ matrix.start-connection }}
           ready-profile-timeout: '5'
-          established-connection-timeout: '35' # This will be overrided by `PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT` Global Environment Variable set above.
+          established-connection-timeout: '35' # This will be overrided by `PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT` in a global Environment Variable if set.
 
       - name: Starting a VPN Connection Manually
         if: ${{ matrix.start-connection == 'false' }}
@@ -58,6 +58,8 @@ jobs:
 
       - name: Show VPN Connection Status Manually
         if: ${{ matrix.start-connection == 'false' }}
+        env:
+          PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT: 40
         shell: bash
         run: |
           # Function to print a progress bar
