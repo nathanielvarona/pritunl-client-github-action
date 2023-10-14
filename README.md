@@ -222,7 +222,7 @@ _Then your other steps down below._
     echo "ipcalc version $(ipcalc --version)"
 
     # VPN Gateway Reachability Test
-    profile_ip=$(pritunl-client list --json | jq ".[0]" | jq --raw-output ".client_address")
+    profile_ip=$(pritunl-client list --json | jq ".[0]" | jq -r ".client_address")
     vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
     ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
 

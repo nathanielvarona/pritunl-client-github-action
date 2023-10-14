@@ -30,9 +30,9 @@ jobs:
         run: |
           # Install IP Calculator
           if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt-get install -qq --assume-yes ipcalc
+            sudo apt-get install -qq -y ipcalc
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            brew install --quiet ipcalc
+            brew install -q ipcalc
           elif [ "$RUNNER_OS" == "Windows" ]; then
             # Retry up to 3 times in case of failure
             for attempt in $(seq 3); do
@@ -55,7 +55,7 @@ jobs:
         shell: bash
         run: |
           # VPN Gateway Reachability Test
-          profile_ip=$(pritunl-client list --json | jq ".[0]" | jq --raw-output ".client_address")
+          profile_ip=$(pritunl-client list --json | jq ".[0]" | jq -r ".client_address")
           vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
           ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
           # Ping VPN Gateway
