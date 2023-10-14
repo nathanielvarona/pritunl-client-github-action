@@ -198,7 +198,6 @@ get_profile_server() {
   )
 
   if [[ -n "$PRITUNL_PROFILE_SERVER" ]]; then
-    echo "Using specific profile server..." >&2
     profile_server_json=$(
       echo "$profile_list_json" |
         jq ".[] | select(.name | contains(\"$PRITUNL_PROFILE_SERVER\"))"
@@ -211,7 +210,6 @@ get_profile_server() {
       exit 1
     fi
   else
-    echo "Using default profile server..." >&2
     echo "$profile_list_json" |
       jq ".[0]"
   fi

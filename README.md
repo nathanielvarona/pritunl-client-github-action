@@ -110,6 +110,11 @@ The configuration is declarative and relatively simple to use.
     # TYPE: String (Numerical values)
     # If not supplied, which defaults No Pin.
 
+    profile-server: ''
+    # OPTIONAL: Profile Server
+    # TYPE: String
+    # If not supplied, which defaults to first profile server.
+
     vpn-mode: ''
     # OPTIONAL: VPN Connection Mode
     # TYPE: String
@@ -197,6 +202,18 @@ _Then your other steps down below._
     profile-pin: ${{ secrets.PRITUNL_PROFILE_PIN }}
 ```
 
+### If the profile has multiple servers and want to specify one
+
+
+```yml
+- name: Setup Pritunl Profile and Start VPN Connection
+  uses: nathanielvarona/pritunl-client-github-action@v1
+  with:
+    profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
+    ...
+    profile-server: 'pritunl-dev-2'
+```
+
 
 ### Or using a Specific Version of the Client and a WireGuard for the VPN Mode
 
@@ -205,7 +222,7 @@ _Then your other steps down below._
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    profile-pin: ${{ secrets.PRITUNL_PROFILE_PIN }}
+    ...
     client-version: '1.3.3637.72'
     vpn-mode: 'wg'
 ```
@@ -218,23 +235,27 @@ _Then your other steps down below._
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
+    ...
     start-connection: false # Do not establish a connection in this step.
 
 - name: Starting a VPN Connection Manually
   shell: bash
   run: |
+
     pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
       --password ${{ secrets.PRITUNL_PROFILE_PIN }}
 
 - name: Show VPN Connection Status Manually
   shell: bash
   run: |
+
     sleep 10
     pritunl-client list
 
 - name: Your CI/CD Core Logic
   shell: bash
   run: |
+
     ##
     # Below is our simple example for VPN connectivity test.
     ##
@@ -274,19 +295,8 @@ _Then your other steps down below._
   if: ${{ always() }}
   shell: bash
   run: |
+
     pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
-```
-
-### Overriding default wait established connection timeout
-
-```yml
-- name: Setup Pritunl Profile
-  id: pritunl-connection
-  uses: nathanielvarona/pritunl-client-github-action@v1
-  with:
-    profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-  env:
-    PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT: 60 # Example of a connection timeout after 60 attempts while waiting for an established connection.
 ```
 
 > Kindly check the GitHub Action workflow file `./.github/workflows/connection-tests.yml` for the complete working example.
@@ -302,9 +312,7 @@ To store Pritunl Profile to GitHub Secrets, maintaining the raw state of the `ta
 #### 1. Download the Pritunl Profile File obtained from the Pritunl User Profile Page
 
 ```bash
-curl --silent --show-error \
-  --location https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar \
-  --output ./pritunl.profile.tar
+curl -sSL https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar -o ./pritunl.profile.tar
 ```
 
 #### 2. Convert your Pritunl Profile File from `tar` archive file format to `base64` text file format.

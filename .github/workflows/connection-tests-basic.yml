@@ -1,4 +1,4 @@
-name: Connection Tests
+name: Connection Tests - Basic
 
 on:
   workflow_dispatch:
