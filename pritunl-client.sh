@@ -42,7 +42,7 @@ validate_version() {
   fi
 
   # Use curl to fetch the raw file and pipe it to grep
-  if ! [[ $(curl --silent --show-error --location $version_file | grep --count "$version") -ge 1 ]]; then
+  if ! [[ $(curl -sSL $version_file | grep --count "$version") -ge 1 ]]; then
     echo "Version '$version' does not exist in the '$pritunl_client_repo' source!" && exit 1
   fi
 }
@@ -51,6 +51,7 @@ validate_version() {
 install_linux() {
   if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
     # Installing using Pritunl Prebuilt Apt Repository
+    # https://client.pritunl.com/#install
     echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/pritunl.list
     gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 7568D9BB55FF9E5287D586017AE645C0CF8E292A > /dev/null 2>&1
     gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc > /dev/null
