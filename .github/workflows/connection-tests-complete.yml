@@ -71,8 +71,8 @@ jobs:
               echo "$profile_list_json" | jq ".[0]"
             fi
           )
-          profile_name=$(echo "$profile_server" | jq --raw-output ".name")
-          profile_ip=$(echo "$profile_server" | jq --raw-output ".client_address")
+          profile_name=$(echo "$profile_server" | jq -r ".name")
+          profile_ip=$(echo "$profile_server" | jq -r ".client_address")
           echo "Connected as '$profile_name' with a private client address of '$profile_ip'."
 
       - name: Install IP Tooling (IP Calculator)
@@ -113,7 +113,7 @@ jobs:
               echo "$profile_list_json" | jq ".[0]"
             fi
           )
-          profile_ip=$(echo "$profile_server" | jq --raw-output ".client_address")
+          profile_ip=$(echo "$profile_server" | jq -r ".client_address")
           vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
           ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
 
