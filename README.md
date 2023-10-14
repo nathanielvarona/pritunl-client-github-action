@@ -6,13 +6,14 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 ## Action Diagram
 
-![Diagram](./action.dio.svg)
+![Diagram](action.dio.svg)
 
-> _The [diagram](./action.dio.svg) is an editable vector image using [drawio](https://www.drawio.com/) app._
+> _The [diagram](action.dio.svg) is an editable vector image using [drawio](https://www.drawio.com/) app._
 
 ## Connection Tests
 
-[![Connection Tests](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests.yml?query=branch:main)
+[![Connection Tests - Complete](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml/badge.svg?branch=v1)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml)
+[![Connection Tests - Basic](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml/badge.svg?branch=v1)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml)
 
 Compatibility and Common [Issues](https://github.com/nathanielvarona/pritunl-client-github-action/issues?q=is:issue) between the Runners and VPN Mode.
 
@@ -25,70 +26,7 @@ Runner         | OpenVPN                | WireGuard
 `windows-2022` | :white_check_mark: yes | :white_check_mark: yes
 `windows-2019` | :white_check_mark: yes | :white_check_mark: yes
 
-<details>
-  <summary>Check out the comprehensive test connection matrix available on our GitHub Actions.</summary>
-
-  Using the `gh` command:
-  ```sh
-  gh api --paginate repos/nathanielvarona/pritunl-client-github-action/actions/runs/${JOB_ID}/jobs |
-    jq --raw-output '.jobs[] | [.name, .status] | @csv' |
-    sed 's/"//g' |
-    awk 'BEGIN{print "runner, vpn-mode, client-version, start-connection, status"} {gsub(/, /, ", ", $0); gsub(/,completed/, ", completed", $0); print}'
-  ```
-
-  Expected results:
-  ```
-  runner, vpn-mode, client-version, start-connection, status
-  run:ubuntu-22.04, vpn:ovpn, cv:from-package-manager, sc:true, completed
-  run:ubuntu-22.04, vpn:ovpn, cv:from-package-manager, sc:false, completed
-  run:ubuntu-22.04, vpn:ovpn, cv:1.3.3637.72, sc:true, completed
-  run:ubuntu-22.04, vpn:ovpn, cv:1.3.3637.72, sc:false, completed
-  run:ubuntu-22.04, vpn:wg, cv:from-package-manager, sc:true, completed
-  run:ubuntu-22.04, vpn:wg, cv:from-package-manager, sc:false, completed
-  run:ubuntu-22.04, vpn:wg, cv:1.3.3637.72, sc:true, completed
-  run:ubuntu-22.04, vpn:wg, cv:1.3.3637.72, sc:false, completed
-  run:ubuntu-20.04, vpn:ovpn, cv:from-package-manager, sc:true, completed
-  run:ubuntu-20.04, vpn:ovpn, cv:from-package-manager, sc:false, completed
-  run:ubuntu-20.04, vpn:ovpn, cv:1.3.3637.72, sc:true, completed
-  run:ubuntu-20.04, vpn:ovpn, cv:1.3.3637.72, sc:false, completed
-  run:ubuntu-20.04, vpn:wg, cv:from-package-manager, sc:true, completed
-  run:ubuntu-20.04, vpn:wg, cv:from-package-manager, sc:false, completed
-  run:ubuntu-20.04, vpn:wg, cv:1.3.3637.72, sc:true, completed
-  run:ubuntu-20.04, vpn:wg, cv:1.3.3637.72, sc:false, completed
-  run:macos-12, vpn:ovpn, cv:from-package-manager, sc:true, completed
-  run:macos-12, vpn:ovpn, cv:from-package-manager, sc:false, completed
-  run:macos-12, vpn:ovpn, cv:1.3.3637.72, sc:true, completed
-  run:macos-12, vpn:ovpn, cv:1.3.3637.72, sc:false, completed
-  run:macos-12, vpn:wg, cv:from-package-manager, sc:true, completed
-  run:macos-12, vpn:wg, cv:from-package-manager, sc:false, completed
-  run:macos-12, vpn:wg, cv:1.3.3637.72, sc:true, completed
-  run:macos-12, vpn:wg, cv:1.3.3637.72, sc:false, completed
-  run:macos-11, vpn:ovpn, cv:from-package-manager, sc:true, completed
-  run:macos-11, vpn:ovpn, cv:from-package-manager, sc:false, completed
-  run:macos-11, vpn:ovpn, cv:1.3.3637.72, sc:true, completed
-  run:macos-11, vpn:ovpn, cv:1.3.3637.72, sc:false, completed
-  run:macos-11, vpn:wg, cv:from-package-manager, sc:true, completed
-  run:macos-11, vpn:wg, cv:from-package-manager, sc:false, completed
-  run:macos-11, vpn:wg, cv:1.3.3637.72, sc:true, completed
-  run:macos-11, vpn:wg, cv:1.3.3637.72, sc:false, completed
-  run:windows-2022, vpn:ovpn, cv:from-package-manager, sc:true, completed
-  run:windows-2022, vpn:ovpn, cv:from-package-manager, sc:false, completed
-  run:windows-2022, vpn:ovpn, cv:1.3.3637.72, sc:true, completed
-  run:windows-2022, vpn:ovpn, cv:1.3.3637.72, sc:false, completed
-  run:windows-2022, vpn:wg, cv:from-package-manager, sc:true, completed
-  run:windows-2022, vpn:wg, cv:from-package-manager, sc:false, completed
-  run:windows-2022, vpn:wg, cv:1.3.3637.72, sc:true, completed
-  run:windows-2022, vpn:wg, cv:1.3.3637.72, sc:false, completed
-  run:windows-2019, vpn:ovpn, cv:from-package-manager, sc:true, completed
-  run:windows-2019, vpn:ovpn, cv:from-package-manager, sc:false, completed
-  run:windows-2019, vpn:ovpn, cv:1.3.3637.72, sc:true, completed
-  run:windows-2019, vpn:ovpn, cv:1.3.3637.72, sc:false, completed
-  run:windows-2019, vpn:wg, cv:from-package-manager, sc:true, completed
-  run:windows-2019, vpn:wg, cv:from-package-manager, sc:false, completed
-  run:windows-2019, vpn:wg, cv:1.3.3637.72, sc:true, completed
-  run:windows-2019, vpn:wg, cv:1.3.3637.72, sc:false, completed
-  ```
-</details>
+> Kindly check out the comprehensive test connection matrix available on our GitHub Actions page.
 
 _Tested working on **`Pritunl v1.32.3602.80`** Server._
 
@@ -299,7 +237,7 @@ _Then your other steps down below._
     pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
 ```
 
-> Kindly check the GitHub Action workflow file `./.github/workflows/connection-tests.yml` for the complete working example.
+> Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-complete.yml` and `.github/workflows/connection-tests-basic.yml` for the complete working example.
 
 ## Working with Pritunl Profile File
 
