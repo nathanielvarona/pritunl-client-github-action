@@ -97,9 +97,9 @@ Where the `pritunl-connection` is the Setup Step ID.
 
 ## Examples
 
-We have different example scenarios; any combination is possible as long the required `profile-file` input is supplied.
+We can create various scenarios as long as `profile-file` is provided.
 
-### Minimum Working Configuration
+### Basic running configuration
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -107,6 +107,8 @@ We have different example scenarios; any combination is possible as long the req
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
 ```
+
+> Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-basic.yml` for the basic running example.
 
 _Then your other steps down below._
 
@@ -130,7 +132,7 @@ _Then your other steps down below._
     working-directory: e2e
 ```
 
-### If the connection requires a Pin/Password
+### If the connection requires a Pin or a Password
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -148,7 +150,6 @@ _Then your other steps down below._
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    ...
     profile-server: 'pritunl-dev-2'
 ```
 
@@ -160,7 +161,6 @@ _Then your other steps down below._
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    ...
     client-version: '1.3.3637.72'
     vpn-mode: 'wg'
 ```
@@ -173,36 +173,32 @@ _Then your other steps down below._
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    ...
     start-connection: false # Do not establish a connection in this step.
 
 - name: Starting a VPN Connection Manually
   shell: bash
   run: |
-
     pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
       --password ${{ secrets.PRITUNL_PROFILE_PIN }}
 
 - name: Show VPN Connection Status Manually
   shell: bash
   run: |
-
     sleep 10
     pritunl-client list
 
 - name: Your CI/CD Core Logic
   shell: bash
   run: |
-
     ##
     # Below is our simple example for VPN connectivity test.
     ##
 
     # Install IP Calculator
     if [ "$RUNNER_OS" == "Linux" ]; then
-      sudo apt-get install -qq --assume-yes ipcalc
+      sudo apt-get install -qq -y ipcalc
     elif [ "$RUNNER_OS" == "macOS" ]; then
-      brew install --quiet ipcalc
+      brew install -q ipcalc
     elif [ "$RUNNER_OS" == "Windows" ]; then
       # Retry up to 3 times in case of failure
       for attempt in $(seq 3); do
@@ -218,6 +214,7 @@ _Then your other steps down below._
         fi
       done
     fi
+
     # Validate the IP Calculator Installation
     echo "ipcalc version $(ipcalc --version)"
 
@@ -233,11 +230,10 @@ _Then your other steps down below._
   if: ${{ always() }}
   shell: bash
   run: |
-
     pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
 ```
 
-> Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-complete.yml` and `.github/workflows/connection-tests-basic.yml` for the complete working example.
+> Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-complete.yml` for the complete working example.
 
 ## Working with Pritunl Profile File
 

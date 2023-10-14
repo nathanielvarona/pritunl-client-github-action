@@ -37,7 +37,7 @@ jobs:
 
       - name: Setup Pritunl Profile
         id: pritunl-connection
-        uses: ./
+        uses: ./ # Use `nathanielvarona/pritunl-client-github-action@v1` for your GitHub Action workflow.
         with:
           profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
           profile-pin: ${{ secrets.PRITUNL_PROFILE_PIN }}
@@ -48,8 +48,8 @@ jobs:
           ready-profile-timeout: '5'
           established-connection-timeout: '35'
 
-      - if: matrix.start-connection == false
-        name: Starting a VPN Connection Manually
+      - name: Starting a VPN Connection Manually
+        if: matrix.start-connection == false
         shell: bash
         run: |
           # Start the VPN Connection Manually
@@ -57,8 +57,8 @@ jobs:
             --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }} \
             --mode ${{ matrix.vpn-mode }}
 
-      - if: matrix.start-connection == false
-        name: Show VPN Connection Status Manually
+      - name: Show VPN Connection Status Manually
+        if: matrix.start-connection == false
         shell: bash
         run: |
           # Show VPN Connection Status Manually
@@ -80,9 +80,9 @@ jobs:
         run: |
           # Install IP Calculator
           if [ "$RUNNER_OS" == "Linux" ]; then
-            sudo apt-get install -qq --assume-yes ipcalc
+            sudo apt-get install -qq -y ipcalc
           elif [ "$RUNNER_OS" == "macOS" ]; then
-            brew install --quiet ipcalc
+            brew install -q ipcalc
           elif [ "$RUNNER_OS" == "Windows" ]; then
             # Retry up to 3 times in case of failure
             for attempt in $(seq 3); do
@@ -120,8 +120,8 @@ jobs:
           # Ping VPN Gateway
           ping $vpn_gateway $ping_flags
 
-      - if: matrix.start-connection == false
-        name: Stop VPN Connection Manually
+      - name: Stop VPN Connection Manually
+        if: matrix.start-connection == false
         shell: bash
         run: |
           # Stop Connection Manually
