@@ -15,21 +15,21 @@ jobs:
           - macos-11
           - windows-2022
           - windows-2019
-        vpn:
+        profile-server:
+          - pritunl-dev-1
+          - pritunl-dev-2
+        vpn-mode:
           - ovpn
           - wg
         client-version:
-          - 'from-package-manager'
+          - from-package-manager
           - 1.3.3637.72
         start-connection:
-          - 'true'
-          - 'false'
+          - true
+          - false
 
     runs-on: ${{ matrix.os }}
-    name: "run:${{ matrix.os }}, vpn:${{ matrix.vpn }}, cv:${{ matrix.client-version }}, sc:${{ matrix.start-connection }}"
-
-    # env:
-    #   PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT: 60 # Example of overriding default wait established connection timeout
+    name: "run:${{ matrix.os }}, ps:${{ matrix.profile-server || 'pritunl-dev-1'  }}, vpn:${{ matrix.vpn-mode }}, cv:${{ matrix.client-version }}, sc:${{ matrix.start-connection }}"
 
     steps:
       - name: Checkout
@@ -41,105 +41,39 @@ jobs:
         with:
           profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
           profile-pin: ${{ secrets.PRITUNL_PROFILE_PIN }}
-          vpn-mode: ${{ matrix.vpn }}
+          profile-server: ${{ matrix.profile-server }}
+          vpn-mode: ${{ matrix.vpn-mode }}
           client-version: ${{ matrix.client-version }}
           start-connection: ${{ matrix.start-connection }}
           ready-profile-timeout: '5'
-          established-connection-timeout: '35' # This will be overrided by `PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT` in a global Environment Variable if set.
+          established-connection-timeout: '35'
 
-      - name: Starting a VPN Connection Manually
-        if: ${{ matrix.start-connection == 'false' }}
+      - if: matrix.start-connection == false
+        name: Starting a VPN Connection Manually
         shell: bash
         run: |
           # Start the VPN Connection Manually
           pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
             --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }} \
-            --mode ${{ matrix.vpn }}
+            --mode ${{ matrix.vpn-mode }}
 
-      - name: Show VPN Connection Status Manually
-        if: ${{ matrix.start-connection == 'false' }}
-        env:
-          PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT: 40
+      - if: matrix.start-connection == false
+        name: Show VPN Connection Status Manually
         shell: bash
         run: |
-          # Function to print a progress bar
-          print_progress_bar() {
-            local current_step="$1"   # Current step in the process
-            local total_steps="$2"    # Total steps in the process
-            local message="$3"        # Message to display with the progress bar
-
-            # Calculate the percentage progress
-            local percentage=$((current_step * 100 / total_steps))
-
-            # Calculate the number of completed and remaining characters for the progress bar
-            local completed=$((percentage / 2))
-            local remaining=$((50 - completed))
-
-            # Print the progress bar
-            echo -n -e "$message: ["
-            for ((i = 0; i < completed; i++)); do
-              echo -n -e "#"
-            done
-            for ((i = 0; i < remaining; i++)); do
-              echo -n -e "-"
-            done
-            echo -n -e "] checking $current_step out of $total_steps allowed checks."
-
-            # Print new line
-            echo -n -e "\n"
-          }
-
-          # Function to wait for an established connection
-          wait_established_connection() {
-            # Define the total number of steps
-            local total_steps="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT}"
-
-            # Initialize the current step variable
-            local current_step=0
-
-            # Loop until the current step reaches the total number of steps
-            while [[ "$current_step" -le "$total_steps" ]]; do
-              active_network=$(
-                pritunl-client list |
-                  awk -F '|' 'NR==4{print $8}' |
-                  sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//'
-              )
-
-              if [[ "$active_network" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$ ]]; then
-                # "Break the loop if connection established"
-                break
-              else
-                # Increment the current step
-                current_step=$((current_step + 1))
-
-                # Print the connection check progress using the progress bar function
-                print_progress_bar "$current_step" "$total_steps" "Establishing connection"
-
-                # Sleep for a moment (simulating work)
-                sleep 1
-
-                # Print the timeout message and exit error if needed
-                if [[ "$current_step" -eq "$total_steps" ]]; then
-                  echo "Timeout reached! Exiting..."
-                  exit 1
-                fi
-              fi
-            done
-          }
-
-          # Display VPN Connection Status
-          display_connection_status() {
-            local pritunl_client_info=$(pritunl-client list)
-            local profile_name=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $3}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
-            local profile_ip=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $8}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
-            echo "Connected as '$profile_name' with a private address of '$profile_ip'."
-          }
-
-          # Waiting for Established Connection
-          wait_established_connection
-
-          # Display VPN Connection Status
-          display_connection_status
+          # Show VPN Connection Status Manually
+          sleep 10
+          profile_server=$(
+            profile_list_json=$(pritunl-client list --json)
+            if [[ -n "${{ matrix.profile-server }}" ]]; then
+              echo "$profile_list_json" | jq ".[] | select(.name | contains(\"${{ matrix.profile-server }}\"))"
+            else
+              echo "$profile_list_json" | jq ".[0]"
+            fi
+          )
+          profile_name=$(echo "$profile_server" | jq --raw-output ".name")
+          profile_ip=$(echo "$profile_server" | jq --raw-output ".client_address")
+          echo "Connected as '$profile_name' with a private client address of '$profile_ip'."
 
       - name: Install IP Tooling (IP Calculator)
         shell: bash
@@ -152,26 +86,18 @@ jobs:
           elif [ "$RUNNER_OS" == "Windows" ]; then
             # Retry up to 3 times in case of failure
             for attempt in $(seq 3); do
-              if curl --silent --show-error \
-                --location "https://raw.githubusercontent.com/kjokjo/ipcalc/0.51/ipcalc" \
-                --output $HOME/bin/ipcalc && chmod +x $HOME/bin/ipcalc; then
+              if curl -sSL "https://raw.githubusercontent.com/kjokjo/ipcalc/0.51/ipcalc" \
+                -o $HOME/bin/ipcalc && chmod +x $HOME/bin/ipcalc; then
                 break
               else
-                echo "Attempt $attempt failed. Retrying..."
-                sleep 5  # Sleep for 5 seconds before the next attempt
+                echo "Attempt $attempt failed. Retrying..." && sleep 1
+                # If all retries fail, exit with an error
+                if [ $attempt -eq 3 ]; then
+                  echo "Failed to install ipcalc after 3 attempts." && exit 1
+                fi
               fi
             done
-
-            # If all retries fail, exit with an error
-            if [ $attempt -eq 3 ]; then
-              echo "Failed to install ipcalc after 3 attempts."
-              exit 1
-            fi
-          else
-            echo "Unsupported OS: $RUNNER_OS"
-            exit 1
           fi
-
           # Validate the IP Calculator Installation
           echo "ipcalc version $(ipcalc --version)"
 
@@ -179,15 +105,24 @@ jobs:
         shell: bash
         run: |
           # VPN Gateway Reachability Test
+          profile_server=$(
+            profile_list_json=$(pritunl-client list --json)
+            if [[ -n "${{ matrix.profile-server }}" ]]; then
+              echo "$profile_list_json" | jq ".[] | select(.name | contains(\"${{ matrix.profile-server }}\"))"
+            else
+              echo "$profile_list_json" | jq ".[0]"
+            fi
+          )
+          profile_ip=$(echo "$profile_server" | jq --raw-output ".client_address")
+          vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
           ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
-          vpn_gateway="$(pritunl-client list | awk -F '|' 'NR==4{print $8}' | xargs ipcalc | awk 'NR==6{print $2}')"
 
           # Ping VPN Gateway
-          ping $ping_flags $vpn_gateway
+          ping $vpn_gateway $ping_flags
 
-      - name: Stop VPN Connection Manually
+      - if: matrix.start-connection == false
+        name: Stop VPN Connection Manually
         shell: bash
-        if: ${{ matrix.start-connection == 'false' }}
         run: |
           # Stop Connection Manually
           pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}

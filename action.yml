@@ -12,6 +12,11 @@ inputs:
     required: false
     default: ''
 
+  profile-server:
+    description: 'The Pritunl Profile Server if provided, especially multiple servers in a profile.'
+    required: false
+    default: ''
+
   vpn-mode:
     description: 'The VPN mode from the two choices is `ovpn` for OpenVPN or `wg` for WireGuard.'
     required: false
@@ -50,6 +55,7 @@ runs:
       env:
         PRITUNL_PROFILE_FILE: ${{ inputs.profile-file }}
         PRITUNL_PROFILE_PIN: ${{ inputs.profile-pin }}
+        PRITUNL_PROFILE_SERVER: ${{ inputs.profile-server }}
         PRITUNL_VPN_MODE: ${{ inputs.vpn-mode }}
         PRITUNL_CLIENT_VERSION: ${{ inputs.client-version }}
         PRITUNL_START_CONNECTION: ${{ inputs.start-connection }}

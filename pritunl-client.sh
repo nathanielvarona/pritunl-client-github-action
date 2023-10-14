@@ -6,11 +6,12 @@ set -euo pipefail
 ## GitHub Action Inputs as Environment Variables
 PRITUNL_PROFILE_FILE="${PRITUNL_PROFILE_FILE:-}"
 PRITUNL_PROFILE_PIN="${PRITUNL_PROFILE_PIN:-}"
+PRITUNL_PROFILE_SERVER="${PRITUNL_PROFILE_SERVER:-}"
 PRITUNL_VPN_MODE="${PRITUNL_VPN_MODE:-}"
 PRITUNL_CLIENT_VERSION="${PRITUNL_CLIENT_VERSION:-}"
 PRITUNL_START_CONNECTION="${PRITUNL_START_CONNECTION:-}"
 
-## GitHub Actions Setup and Checks Environent Variables
+## GitHub Action Setup and Checks Environent Variables
 PRITUNL_READY_PROFILE_TIMEOUT="${PRITUNL_READY_PROFILE_TIMEOUT:-}"
 PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT:-}"
 
@@ -29,7 +30,6 @@ normalize_vpn_mode() {
       ;;
   esac
 }
-normalize_vpn_mode
 
 # Validate version against raw source version file
 validate_version() {
@@ -112,7 +112,6 @@ install_windows() {
   ln --symbolic "/c/Program Files (x86)/Pritunl/pritunl-client.exe" "$HOME/bin/pritunl-client"
 
   install_vpn_dependencies "Windows"
-  sleep 1
 
   if [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
     # Restarting the `pritunl` service to determine the latest changes of the `PATH` values
@@ -139,7 +138,6 @@ install_vpn_dependencies() {
   fi
 }
 
-
 # Main installation process based on OS
 install_platform() {
   local os_type="$1"
@@ -158,21 +156,13 @@ install_platform() {
       exit 1
       ;;
   esac
+
+  # Show the Pritunl Client version
+  pritunl-client version
 }
 
-# Main script execution
-if [[ "$RUNNER_OS" == "Linux" || "$RUNNER_OS" == "macOS" || "$RUNNER_OS" == "Windows" ]]; then
-  install_platform "$RUNNER_OS"
-else
-  echo "Unsupported OS: $RUNNER_OS"
-  exit 1
-fi
-
-# Show Pritunl Client Version
-pritunl-client version
-
 # Function to print a progress bar
-print_progress_bar() {
+display_progress_bar() {
   local current_step="$1"   # Current step in the process
   local total_steps="$2"    # Total steps in the process
   local message="$3"        # Message to display with the progress bar
@@ -198,13 +188,45 @@ print_progress_bar() {
   echo -n -e "\n"
 }
 
+# Get the Profile Server
+get_profile_server() {
+  local profile_list_json
+  local profile_server_json
+
+  profile_list_json=$(
+    pritunl-client list --json
+  )
+
+  if [[ -n "$PRITUNL_PROFILE_SERVER" ]]; then
+    echo "Using specific profile server..." >&2
+    profile_server_json=$(
+      echo "$profile_list_json" |
+        jq ".[] | select(.name | contains(\"$PRITUNL_PROFILE_SERVER\"))"
+    )
+
+    if [[ -n "$profile_server_json" ]]; then
+      echo "$profile_server_json"
+    else
+      echo "Profile not exist!"
+      exit 1
+    fi
+  else
+    echo "Using default profile server..." >&2
+    echo "$profile_list_json" |
+      jq ".[0]"
+  fi
+}
+
 # Function to decode and add a profile
-load_profile_file() {
+setup_profile_file() {
   # Define the total number of steps
   local total_steps="${PRITUNL_READY_PROFILE_TIMEOUT}"
 
   # Initialize the current step variable
   local current_step=0
+
+  local profile_server
+  local profile_name
 
   # Save the `base64` text file format and convert it back to `tar` archive file format.
   echo "$PRITUNL_PROFILE_FILE" > "$RUNNER_TEMP/profile-file.base64"
@@ -215,22 +237,24 @@ load_profile_file() {
 
   # Loop until the current step reaches the total number of steps
   while [[ "$current_step" -le "$total_steps" ]]; do
-    client_id=$(
-      pritunl-client list |
-        awk -F '|' 'NR==4{print $2}' |
-        sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//'
-    )
+
+    profile_server=$(get_profile_server)
+    profile_name=$(echo $profile_server | jq --raw-output ".name")
+    client_id=$(echo $profile_server | jq --raw-output ".id")
 
     if [[ "$client_id" =~ ^[a-z0-9]{16}$ ]]; then
-      # Set `client-id` as step output and break the loop
+      # Set `client-id` as step output
       echo "client-id=$client_id" >> "$GITHUB_OUTPUT"
+      # Display Profile client id.
+      echo "Profile '$profile_name' is set with Client ID '$client_id'."
+      # Break the loop
       break
     else
       # Increment the current step
       current_step=$((current_step + 1))
 
       # Print the attempt progress using the progress bar function
-      print_progress_bar "$current_step" "$total_steps" "Ready profile"
+      display_progress_bar "$current_step" "$total_steps" "Ready profile"
 
       # Sleep for a moment (simulating work)
       sleep 1
@@ -242,15 +266,7 @@ load_profile_file() {
       fi
     fi
   done
-
-  # Disable autostart option
-  pritunl-client disable "$client_id"
-  # Display Profile Client ID
-  echo "Profile is added with Client ID: '$client_id'"
 }
-
-# Load the Pritunl Profile File
-load_profile_file
 
 
 # Start VPN connection
@@ -270,30 +286,32 @@ start_vpn_connection() {
 }
 
 # Function to wait for an established connection
-wait_connection() {
+establish_vpn_connection() {
   # Define the total number of steps
   local total_steps="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT}"
 
   # Initialize the current step variable
   local current_step=0
 
+  local profile_server
+  local profile_name
+  local profile_ip
+
   # Loop until the current step reaches the total number of steps
   while [[ "$current_step" -le "$total_steps" ]]; do
-    active_network=$(
-      pritunl-client list |
-        awk -F '|' 'NR==4{print $8}' |
-        sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//'
-    )
+    profile_server=$(get_profile_server)
+    profile_name=$(echo "$profile_server" | jq --raw-output ".name")
+    profile_ip=$(echo "$profile_server" | jq --raw-output ".client_address")
 
-    if [[ "$active_network" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$ ]]; then
-      # "Break the loop if connection established"
+    if [[ "$profile_ip" =~ ^([0-9]{1,3}\.){3}[0-9]{1,3}(\/[0-9]{1,2})?$ ]]; then
+      echo "Connected as '$profile_name' with a private client address of '$profile_ip'."
       break
     else
       # Increment the current step
       current_step=$((current_step + 1))
 
       # Print the connection check progress using the progress bar function
-      print_progress_bar "$current_step" "$total_steps" "Establishing connection"
+      display_progress_bar "$current_step" "$total_steps" "Establishing connection"
 
       # Sleep for a moment (simulating work)
       sleep 1
@@ -307,22 +325,26 @@ wait_connection() {
   done
 }
 
-# Display VPN Connection Status
-display_connection_status() {
-  local pritunl_client_info=$(pritunl-client list)
-  local profile_name=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $3}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
-  local profile_ip=$(echo "$pritunl_client_info" | awk -F '|' 'NR==4{print $8}' | sed -E 's/^[[:space:]]+//; s/[[:space:]]+$//')
-  echo "Connected as '$profile_name' with a private address of '$profile_ip'."
-}
+# Main script execution
+if [[ "$RUNNER_OS" == "Linux" || "$RUNNER_OS" == "macOS" || "$RUNNER_OS" == "Windows" ]]; then
+  # Normalize the VPN mode
+  normalize_vpn_mode
 
+  # Main installation process based on OS
+  install_platform "$RUNNER_OS"
 
-if [[ "$PRITUNL_START_CONNECTION" == "true" ]]; then
-  # Start the VPN connection
-  start_vpn_connection "$client_id"
+  # Load the Pritunl Profile File
+  setup_profile_file
 
-  # Waiting for an Established Connection
-  wait_connection
+  if [[ "$PRITUNL_START_CONNECTION" == "true" ]]; then
+    # Start the VPN connection
+    start_vpn_connection "$client_id"
 
-  # Display VPN Connection Status
-  display_connection_status
+    # Established VPN Connection
+    establish_vpn_connection
+  fi
+
+else
+  echo "Unsupported OS: $RUNNER_OS"
+  exit 1
 fi

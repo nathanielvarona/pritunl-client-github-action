@@ -247,35 +247,28 @@ _Then your other steps down below._
     elif [ "$RUNNER_OS" == "Windows" ]; then
       # Retry up to 3 times in case of failure
       for attempt in $(seq 3); do
-        if curl --silent --show-error \
-          --location "https://raw.githubusercontent.com/kjokjo/ipcalc/0.51/ipcalc" \
-          --output $HOME/bin/ipcalc && chmod +x $HOME/bin/ipcalc; then
+        if curl -sSL "https://raw.githubusercontent.com/kjokjo/ipcalc/0.51/ipcalc" \
+          -o $HOME/bin/ipcalc && chmod +x $HOME/bin/ipcalc; then
           break
         else
-          echo "Attempt $attempt failed. Retrying..."
-          sleep 5  # Sleep for 5 seconds before the next attempt
+          echo "Attempt $attempt failed. Retrying..." && sleep 1
+          # If all retries fail, exit with an error
+          if [ $attempt -eq 3 ]; then
+            echo "Failed to install ipcalc after 3 attempts." && exit 1
+          fi
         fi
       done
-
-      # If all retries fail, exit with an error
-      if [ $attempt -eq 3 ]; then
-        echo "Failed to install ipcalc after 3 attempts."
-        exit 1
-      fi
-    else
-      echo "Unsupported OS: $RUNNER_OS"
-      exit 1
     fi
-
     # Validate the IP Calculator Installation
     echo "ipcalc version $(ipcalc --version)"
 
     # VPN Gateway Reachability Test
+    profile_ip=$(pritunl-client list --json | jq ".[0]" | jq --raw-output ".client_address")
+    vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
     ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
-    vpn_gateway="$(pritunl-client list | awk -F '|' 'NR==4{print $8}' | xargs ipcalc | awk 'NR==6{print $2}')"
 
     # Ping VPN Gateway
-    ping $ping_flags $vpn_gateway
+    ping $vpn_gateway $ping_flags
 
 - name: Stop VPN Connection Manually
   if: ${{ always() }}
