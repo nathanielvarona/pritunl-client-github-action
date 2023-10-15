@@ -33,7 +33,7 @@ normalize_vpn_mode() {
 # Validate version against raw source version file
 validate_version() {
   local version="$1"
-  local pritunl_client_repo="pritunl/pritunl-client-electron" # Link: https://github.com/pritunl/pritunl-client-electron
+  local pritunl_client_repo="pritunl/pritunl-client-electron" # GitHub Repository `https://github.com/pritunl/pritunl-client-electron`.
   local version_file="https://raw.githubusercontent.com/$pritunl_client_repo/master/CHANGES"
 
   # Validate Client Version Pattern
@@ -42,7 +42,7 @@ validate_version() {
   fi
 
   # Use curl to fetch the raw file and pipe it to grep
-  if ! [[ $(curl -sSL $version_file | grep --count "$version") -ge 1 ]]; then
+  if ! [[ $(curl -sSL $version_file | grep -c "$version") -ge 1 ]]; then
     echo "Version '$version' does not exist in the '$pritunl_client_repo' source!" && exit 1
   fi
 }
@@ -80,7 +80,7 @@ install_macos() {
     # Installing Version Specific using macOS Package from Pritunl GitHub Releases
     validate_version "$PRITUNL_CLIENT_VERSION"
     pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/Pritunl.pkg.zip"
-    curl -sSL "$pkg_zip_url" --output "$RUNNER_TEMP/Pritunl.pkg.zip"
+    curl -sSL "$pkg_zip_url" -o "$RUNNER_TEMP/Pritunl.pkg.zip"
     unzip -qq -o "$RUNNER_TEMP/Pritunl.pkg.zip" -d "$RUNNER_TEMP"
     sudo installer -pkg "$RUNNER_TEMP/Pritunl.pkg" -target /
   fi
@@ -88,7 +88,7 @@ install_macos() {
   pritunl_client_bin="/Applications/Pritunl.app/Contents/Resources/pritunl-client"
   user_bin_directory="$HOME/bin/"
 
-  if [ -e "$pritunl_client_bin" ]; then
+  if [[ -e "$pritunl_client_bin" ]]; then
     if ! [[ -d "$HOME/bin" ]]; then
       mkdir -p "$user_bin_directory"
     fi
@@ -112,14 +112,14 @@ install_windows() {
     # Install Version Specific using Windows Package from Pritunl GitHub Releases
     validate_version "$PRITUNL_CLIENT_VERSION"
     exe_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/Pritunl.exe"
-    curl -sSL "$exe_url" --output "$RUNNER_TEMP/Pritunl.exe"
+    curl -sSL "$exe_url" -o "$RUNNER_TEMP/Pritunl.exe"
     pwsh -ExecutionPolicy Bypass -Command "Start-Process -FilePath '$RUNNER_TEMP\Pritunl.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' -Wait"
   fi
 
   pritunl_client_bin="/c/Program Files (x86)/Pritunl/pritunl-client.exe"
   user_bin_directory="$HOME/bin/"
 
-  if [ -e "$pritunl_client_bin" ]; then
+  if [[ -e "$pritunl_client_bin" ]]; then
     if ! [[ -d "$HOME/bin" ]]; then
       mkdir -p "$user_bin_directory"
     fi
@@ -235,16 +235,38 @@ setup_profile_file() {
   local total_steps="${PRITUNL_READY_PROFILE_TIMEOUT}"
   local current_step=0
 
+  # Define Profile File Base64 Data
+  local profile_base64
+  local profile_file
+
   # Define Profile Server Information
   local profile_server
   local profile_name
 
-  # Save the `base64` text file format and convert it back to `tar` archive file format.
-  echo "$PRITUNL_PROFILE_FILE" > "$RUNNER_TEMP/profile-file.base64"
-  base64 --decode "$RUNNER_TEMP/profile-file.base64" > "$RUNNER_TEMP/profile-file.tar"
+  # Store the base64 data in a variable
+  profile_base64="$PRITUNL_PROFILE_FILE"
+  profile_file="$RUNNER_TEMP/profile-file.tar"
 
-  # Add the Profile File to Pritunl Client
-  pritunl-client add "$RUNNER_TEMP/profile-file.tar"
+  # Check if the base64 data is valid
+  if ! [[ $(base64 -d <<< "$profile_base64" 2>/dev/null | tr -d '\0') ]]; then
+    echo "Base64 data is not valid!" && exit 1
+  fi
+
+  # If the base64 data is valid, decode it and store it to tempotary file.
+  echo "$profile_base64" | base64 -d > "$profile_file"
+
+  if [[ -e "$profile_file" ]]; then
+    # Check if the file is a valid tar archive
+    if ! file "$profile_file" | grep -q 'tar archive'; then
+      echo "The file is not a valid tar archive!" && exit 1
+    fi
+  fi
+
+  if ! pritunl-client add "$profile_file"; then
+    echo "It appears that the profile file cannot be loaded!" && exit 1
+  else
+    rm -f "$profile_file"
+  fi
 
   # Loop until the current step reaches the total number of steps
   while [[ "$current_step" -le "$total_steps" ]]; do
@@ -254,9 +276,11 @@ setup_profile_file() {
     client_id=$(echo $profile_server | jq -r ".id")
 
     if [[ "$client_id" =~ ^[a-z0-9]{16}$ ]]; then
-      # Set `client-id` as step output
-      echo "client-id=$client_id" >> "$GITHUB_OUTPUT"
-      # Display the profile client id.
+      if [[ -n "$GITHUB_ACTIONS" ]]; then
+        # Setting output parameter `client-id`.
+        echo "client-id=$client_id" >> "$GITHUB_OUTPUT"
+      fi
+      # Display the profile name and client id.
       echo "Profile '$profile_name' is set with client id '$client_id'."
       # Break the loop
       break
@@ -277,7 +301,6 @@ setup_profile_file() {
     fi
   done
 }
-
 
 # Start VPN connection
 start_vpn_connection() {
