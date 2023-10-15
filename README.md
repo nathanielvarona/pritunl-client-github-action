@@ -26,7 +26,7 @@ Runner         | OpenVPN                | WireGuard
 `windows-2022` | :white_check_mark: yes | :white_check_mark: yes
 `windows-2019` | :white_check_mark: yes | :white_check_mark: yes
 
-> Kindly check out the comprehensive test connection matrix available on our GitHub Actions page.
+> Kindly check out the comprehensive connection tests matrix available on our GitHub Actions page.
 
 _Tested working on **`Pritunl v1.32.3602.80`** Server._
 
