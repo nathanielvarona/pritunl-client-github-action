@@ -31,7 +31,7 @@ normalize_vpn_mode() {
 }
 
 # Validate version against raw source version file
-validate_version() {
+validate_client_version() {
   local version="$1"
   local pritunl_client_repo="pritunl/pritunl-client-electron" # GitHub Repository `https://github.com/pritunl/pritunl-client-electron`.
   local version_file="https://raw.githubusercontent.com/$pritunl_client_repo/master/CHANGES"
@@ -47,8 +47,22 @@ validate_version() {
   fi
 }
 
+link_executable_to_bin() {
+  local executable_file="$1"
+  local bin_directory="$2"
+
+  if [[ -e "$executable_file" ]]; then
+    if ! [[ -d "$bin_directory" ]]; then
+      mkdir -p "$bin_directory"
+    fi
+    ln -s "$executable_file" "$bin_directory"
+  else
+    echo "Installation of the executable failed!" && exit 1
+  fi
+}
+
 # Installation process for Linux
-install_linux() {
+install_for_linux() {
   if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
     # Installing using Pritunl Prebuilt Apt Repository
     # https://client.pritunl.com/#install
@@ -59,7 +73,7 @@ install_linux() {
     sudo apt-get install -qq -y pritunl-client
   else
     # Installing Version Specific using Debian Package from Pritunl GitHub Releases
-    validate_version "$PRITUNL_CLIENT_VERSION"
+    validate_client_version "$PRITUNL_CLIENT_VERSION"
     deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/pritunl-client_$PRITUNL_CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
     curl -sSL "$deb_url" -o "$RUNNER_TEMP/pritunl-client.deb"
     sudo apt-get install -qq -y -f "$RUNNER_TEMP/pritunl-client.deb"
@@ -69,7 +83,7 @@ install_linux() {
 }
 
 # Installation process for macOS
-install_macos() {
+install_for_macos() {
   local pritunl_client_bin
   local user_bin_directory
 
@@ -78,7 +92,7 @@ install_macos() {
     brew install -q --cask pritunl
   else
     # Installing Version Specific using macOS Package from Pritunl GitHub Releases
-    validate_version "$PRITUNL_CLIENT_VERSION"
+    validate_client_version "$PRITUNL_CLIENT_VERSION"
     pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/Pritunl.pkg.zip"
     curl -sSL "$pkg_zip_url" -o "$RUNNER_TEMP/Pritunl.pkg.zip"
     unzip -qq -o "$RUNNER_TEMP/Pritunl.pkg.zip" -d "$RUNNER_TEMP"
@@ -87,21 +101,13 @@ install_macos() {
 
   pritunl_client_bin="/Applications/Pritunl.app/Contents/Resources/pritunl-client"
   user_bin_directory="$HOME/bin/"
-
-  if [[ -e "$pritunl_client_bin" ]]; then
-    if ! [[ -d "$HOME/bin" ]]; then
-      mkdir -p "$user_bin_directory"
-    fi
-    ln -s "$pritunl_client_bin" "$user_bin_directory"
-  else
-    echo "Pritunl client installation failed!" && exit 1
-  fi
+  link_executable_to_bin "$pritunl_client_bin" "$user_bin_directory"
 
   install_vpn_dependencies "macOS"
 }
 
 # Installation process for Windows
-install_windows() {
+install_for_windows() {
   local pritunl_client_bin
   local user_bin_directory
 
@@ -110,7 +116,7 @@ install_windows() {
     choco install --no-progress -y pritunl-client
   else
     # Install Version Specific using Windows Package from Pritunl GitHub Releases
-    validate_version "$PRITUNL_CLIENT_VERSION"
+    validate_client_version "$PRITUNL_CLIENT_VERSION"
     exe_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/Pritunl.exe"
     curl -sSL "$exe_url" -o "$RUNNER_TEMP/Pritunl.exe"
     pwsh -ExecutionPolicy Bypass -Command "Start-Process -FilePath '$RUNNER_TEMP\Pritunl.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' -Wait"
@@ -118,15 +124,7 @@ install_windows() {
 
   pritunl_client_bin="/c/Program Files (x86)/Pritunl/pritunl-client.exe"
   user_bin_directory="$HOME/bin/"
-
-  if [[ -e "$pritunl_client_bin" ]]; then
-    if ! [[ -d "$HOME/bin" ]]; then
-      mkdir -p "$user_bin_directory"
-    fi
-    ln -s "$pritunl_client_bin" "$user_bin_directory"
-  else
-    echo "Pritunl client installation failed!" && exit 1
-  fi
+  link_executable_to_bin "$pritunl_client_bin" "$user_bin_directory"
 
   install_vpn_dependencies "Windows"
 
@@ -155,17 +153,17 @@ install_vpn_dependencies() {
 }
 
 # Main installation process based on OS
-install_platform() {
+install_vpn_platform() {
   local os_type="$1"
   case "$os_type" in
     Linux)
-      install_linux
+      install_for_linux
       ;;
     macOS)
-      install_macos
+      install_for_macos
       ;;
     Windows)
-      install_windows
+      install_for_windows
       ;;
     *)
       echo "Unsupported OS: $os_type" && exit 1
@@ -177,7 +175,7 @@ install_platform() {
 }
 
 # Function to print a progress bar
-display_progress_bar() {
+display_progress_status() {
   local current_step="$1"   # Current step in the process
   local total_steps="$2"    # Total steps in the process
   local message="$3"        # Message to display with the progress bar
@@ -204,7 +202,7 @@ display_progress_bar() {
 }
 
 # Get the Profile Server
-get_profile_server() {
+fetch_profile_server() {
   local profile_list_json
   local profile_server_json
 
@@ -271,7 +269,7 @@ setup_profile_file() {
   # Loop until the current step reaches the total number of steps
   while [[ "$current_step" -le "$total_steps" ]]; do
 
-    profile_server=$(get_profile_server)
+    profile_server=$(fetch_profile_server)
     profile_name=$(echo $profile_server | jq -r ".name")
     client_id=$(echo $profile_server | jq -r ".id")
 
@@ -289,7 +287,7 @@ setup_profile_file() {
       current_step=$((current_step + 1))
 
       # Print the attempt progress using the progress bar function
-      display_progress_bar "$current_step" "$total_steps" "Ready profile"
+      display_progress_status "$current_step" "$total_steps" "Ready profile"
 
       # Sleep for a moment (simulating work)
       sleep 1
@@ -331,7 +329,7 @@ establish_vpn_connection() {
 
   # Loop until the current step reaches the total number of steps
   while [[ "$current_step" -le "$total_steps" ]]; do
-    profile_server=$(get_profile_server)
+    profile_server=$(fetch_profile_server)
     profile_name=$(echo "$profile_server" | jq -r ".name")
     profile_ip=$(echo "$profile_server" | jq -r ".client_address")
 
@@ -343,7 +341,7 @@ establish_vpn_connection() {
       current_step=$((current_step + 1))
 
       # Print the connection check progress using the progress bar function
-      display_progress_bar "$current_step" "$total_steps" "Establishing connection"
+      display_progress_status "$current_step" "$total_steps" "Establishing connection"
 
       # Sleep for a moment (simulating work)
       sleep 1
@@ -362,7 +360,7 @@ if [[ "$RUNNER_OS" == "Linux" || "$RUNNER_OS" == "macOS" || "$RUNNER_OS" == "Win
   normalize_vpn_mode
 
   # Main installation process based on OS
-  install_platform "$RUNNER_OS"
+  install_vpn_platform "$RUNNER_OS"
 
   # Load the Pritunl Profile File
   setup_profile_file
