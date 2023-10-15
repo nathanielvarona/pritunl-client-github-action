@@ -152,7 +152,7 @@ install_vpn_dependencies() {
   fi
 }
 
-# Main installation process based on OS
+# Installation process based on OS
 install_vpn_platform() {
   local os_type="$1"
   case "$os_type" in
@@ -164,9 +164,6 @@ install_vpn_platform() {
       ;;
     Windows)
       install_for_windows
-      ;;
-    *)
-      echo "Unsupported OS: $os_type" && exit 1
       ;;
   esac
 
@@ -355,23 +352,26 @@ establish_vpn_connection() {
 }
 
 # Main script execution
-if [[ "$RUNNER_OS" == "Linux" || "$RUNNER_OS" == "macOS" || "$RUNNER_OS" == "Windows" ]]; then
-  # Normalize the VPN mode
-  normalize_vpn_mode
+case "$RUNNER_OS" in
+  Linux|macOS|Windows)
+    # Normalize the VPN mode
+    normalize_vpn_mode
 
-  # Main installation process based on OS
-  install_vpn_platform "$RUNNER_OS"
+    # Main installation process based on OS
+    install_vpn_platform "$RUNNER_OS"
 
-  # Load the Pritunl Profile File
-  setup_profile_file
+    # Load the Pritunl Profile File
+    setup_profile_file
 
-  if [[ "$PRITUNL_START_CONNECTION" == "true" ]]; then
-    # Start the VPN connection
-    start_vpn_connection "$client_id"
+    if [[ "$PRITUNL_START_CONNECTION" == "true" ]]; then
+      # Start the VPN connection
+      start_vpn_connection "$client_id"
 
-    # Established VPN Connection
-    establish_vpn_connection
-  fi
-else
-  echo "Unsupported OS: $RUNNER_OS" && exit 1
-fi
+      # Established VPN Connection
+      establish_vpn_connection
+    fi
+    ;;
+  *)
+    echo "Unsupported OS: $RUNNER_OS" && exit 1
+    ;;
+esac
