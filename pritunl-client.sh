@@ -15,51 +15,6 @@ PRITUNL_START_CONNECTION="${PRITUNL_START_CONNECTION:-}"
 PRITUNL_READY_PROFILE_TIMEOUT="${PRITUNL_READY_PROFILE_TIMEOUT:-}"
 PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT:-}"
 
-# Normalize the VPN mode
-normalize_vpn_mode() {
-  case "$(echo "$PRITUNL_VPN_MODE" | tr '[:upper:]' '[:lower:]')" in
-    ovpn|openvpn)
-      PRITUNL_VPN_MODE="ovpn"
-      ;;
-    wg|wireguard)
-      PRITUNL_VPN_MODE="wg"
-      ;;
-    *)
-      echo "Invalid VPN mode for '$PRITUNL_VPN_MODE'!" && exit 1
-      ;;
-  esac
-}
-
-# Validate version against raw source version file
-validate_client_version() {
-  local version="$1"
-  local pritunl_client_repo="pritunl/pritunl-client-electron" # GitHub Repository `https://github.com/pritunl/pritunl-client-electron`.
-  local version_file="https://raw.githubusercontent.com/$pritunl_client_repo/master/CHANGES"
-
-  # Validate Client Version Pattern
-  if ! [[ "$version" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
-    echo "Invalid version pattern for '$version'!" && exit 1
-  fi
-
-  # Use curl to fetch the raw file and pipe it to grep
-  if ! [[ $(curl -sSL $version_file | grep -c "$version") -ge 1 ]]; then
-    echo "Version '$version' does not exist in the '$pritunl_client_repo' source!" && exit 1
-  fi
-}
-
-link_executable_to_bin() {
-  local executable_file="$1"
-  local bin_directory="$2"
-
-  if [[ -e "$executable_file" ]]; then
-    if ! [[ -d "$bin_directory" ]]; then
-      mkdir -p "$bin_directory"
-    fi
-    ln -s "$executable_file" "$bin_directory"
-  else
-    echo "Installation of the executable failed!" && exit 1
-  fi
-}
 
 # Installation process for Linux
 install_for_linux() {
@@ -134,6 +89,21 @@ install_for_windows() {
   fi
 }
 
+# Link Executable File to Binary Directory
+link_executable_to_bin() {
+  local executable_file="$1"
+  local bin_directory="$2"
+
+  if [[ -e "$executable_file" ]]; then
+    if ! [[ -d "$bin_directory" ]]; then
+      mkdir -p "$bin_directory"
+    fi
+    ln -s "$executable_file" "$bin_directory"
+  else
+    echo "Installation of the executable failed!" && exit 1
+  fi
+}
+
 # Install VPN dependent packages based on OS
 install_vpn_dependencies() {
   local os_type="$1"
@@ -149,78 +119,6 @@ install_vpn_dependencies() {
     if [[ "$os_type" == "Linux" ]]; then
       sudo apt-get install -qq -y openvpn-systemd-resolved
     fi
-  fi
-}
-
-# Installation process based on OS
-install_vpn_platform() {
-  local os_type="$1"
-  case "$os_type" in
-    Linux)
-      install_for_linux
-      ;;
-    macOS)
-      install_for_macos
-      ;;
-    Windows)
-      install_for_windows
-      ;;
-  esac
-
-  # Show the Pritunl Client version
-  pritunl-client version
-}
-
-# Function to print a progress bar
-display_progress_status() {
-  local current_step="$1"   # Current step in the process
-  local total_steps="$2"    # Total steps in the process
-  local message="$3"        # Message to display with the progress bar
-
-  # Calculate the percentage progress
-  local percentage=$((current_step * 100 / total_steps))
-
-  # Calculate the number of completed and remaining characters for the progress bar
-  local completed=$((percentage / 2))
-  local remaining=$((50 - completed))
-
-  # Print the progress bar
-  echo -n -e "$message: ["
-  for ((i = 0; i < completed; i++)); do
-    echo -n -e "#"
-  done
-  for ((i = 0; i < remaining; i++)); do
-    echo -n -e "-"
-  done
-  echo -n -e "] checking $current_step out of $total_steps allowed checks."
-
-  # Print new line
-  echo -n -e "\n"
-}
-
-# Get the Profile Server
-fetch_profile_server() {
-  local profile_list_json
-  local profile_server_json
-
-  profile_list_json=$(
-    pritunl-client list --json
-  )
-
-  if [[ -n "$PRITUNL_PROFILE_SERVER" ]]; then
-    profile_server_json=$(
-      echo "$profile_list_json" |
-        jq ".[] | select(.name | contains(\"$PRITUNL_PROFILE_SERVER\"))"
-    )
-
-    if [[ -n "$profile_server_json" ]]; then
-      echo "$profile_server_json"
-    else
-      echo "Profile not exist!" && exit 1
-    fi
-  else
-    echo "$profile_list_json" |
-      jq ".[0]"
   fi
 }
 
@@ -284,7 +182,7 @@ setup_profile_file() {
       current_step=$((current_step + 1))
 
       # Print the attempt progress using the progress bar function
-      display_progress_status "$current_step" "$total_steps" "Ready profile"
+      display_progress "$current_step" "$total_steps" "Ready profile"
 
       # Sleep for a moment (simulating work)
       sleep 1
@@ -338,7 +236,7 @@ establish_vpn_connection() {
       current_step=$((current_step + 1))
 
       # Print the connection check progress using the progress bar function
-      display_progress_status "$current_step" "$total_steps" "Establishing connection"
+      display_progress "$current_step" "$total_steps" "Establishing connection"
 
       # Sleep for a moment (simulating work)
       sleep 1
@@ -351,14 +249,119 @@ establish_vpn_connection() {
   done
 }
 
+
+# Get the Profile Server
+fetch_profile_server() {
+  local profile_list_json
+  local profile_server_json
+
+  profile_list_json=$(pritunl-client list -j)
+
+  if [[ -n "$PRITUNL_PROFILE_SERVER" ]]; then
+    profile_server_json=$(
+      echo "$profile_list_json" |
+        jq ".[] | select(.name | contains(\"$PRITUNL_PROFILE_SERVER\"))"
+    )
+
+    if [[ -n "$profile_server_json" ]]; then
+      echo "$profile_server_json"
+    else
+      echo "Profile not exist!" && exit 1
+    fi
+  else
+    echo "$profile_list_json" |
+      jq ".[0]"
+  fi
+}
+
+# Function to print a progress bar
+display_progress() {
+  local current_step="$1"   # Current step in the process
+  local total_steps="$2"    # Total steps in the process
+  local message="$3"        # Message to display with the progress bar
+
+  # Calculate the percentage progress
+  local percentage=$((current_step * 100 / total_steps))
+
+  # Calculate the number of completed and remaining characters for the progress bar
+  local completed=$((percentage / 2))
+  local remaining=$((50 - completed))
+
+  # Print the progress bar
+  echo -n -e "$message: ["
+  for ((i = 0; i < completed; i++)); do
+    echo -n -e "#"
+  done
+  for ((i = 0; i < remaining; i++)); do
+    echo -n -e "-"
+  done
+  echo -n -e "] checking $current_step out of $total_steps allowed checks."
+
+  # Print new line
+  echo -n -e "\n"
+}
+
+
+# Normalize the VPN mode
+normalize_vpn_mode() {
+  case "$(echo "$PRITUNL_VPN_MODE" | tr '[:upper:]' '[:lower:]')" in
+    ovpn|openvpn)
+      PRITUNL_VPN_MODE="ovpn"
+      ;;
+    wg|wireguard)
+      PRITUNL_VPN_MODE="wg"
+      ;;
+    *)
+      echo "Invalid VPN mode for '$PRITUNL_VPN_MODE'!" && exit 1
+      ;;
+  esac
+}
+
+# Validate version against raw source version file
+validate_client_version() {
+  local version="$1"
+  # GitHub Repository `https://github.com/pritunl/pritunl-client-electron`
+  local pritunl_client_repo="pritunl/pritunl-client-electron"
+  local version_file="https://raw.githubusercontent.com/$pritunl_client_repo/master/CHANGES"
+
+  # Validate Client Version Pattern
+  if ! [[ "$version" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
+    echo "Invalid version pattern for '$version'!" && exit 1
+  fi
+
+  # Use curl to fetch the raw file and pipe it to grep
+  if ! [[ $(curl -sSL $version_file | grep -c "$version") -ge 1 ]]; then
+    echo "Version '$version' does not exist in the '$pritunl_client_repo' source!" && exit 1
+  fi
+}
+
+# Installation process based on OS
+install_vpn_platform() {
+  local os_type="$1"
+  case "$os_type" in
+    Linux)
+      install_for_linux
+      ;;
+    macOS)
+      install_for_macos
+      ;;
+    Windows)
+      install_for_windows
+      ;;
+  esac
+}
+
 # Main script execution
 case "$RUNNER_OS" in
   Linux|macOS|Windows)
     # Normalize the VPN mode
     normalize_vpn_mode
 
-    # Main installation process based on OS
-    install_vpn_platform "$RUNNER_OS"
+    # Installation process based on OS
+    if [[ $(install_vpn_platform "$RUNNER_OS") ]]; then
+      # Show the Pritunl client version
+      pritunl-client version
+    fi
 
     # Load the Pritunl Profile File
     setup_profile_file
