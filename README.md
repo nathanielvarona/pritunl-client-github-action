@@ -51,7 +51,7 @@ The configuration is declarative and relatively simple to use.
     profile-server: ''
     # OPTIONAL: Profile Server
     # TYPE: String
-    # If not supplied, which defaults to first profile server.
+    # If not supplied, which defaults to the first or only server in the profile.
 
     vpn-mode: ''
     # OPTIONAL: VPN Connection Mode
