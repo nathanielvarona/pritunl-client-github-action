@@ -108,8 +108,6 @@ We can create various scenarios as long as `profile-file` is provided.
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
 ```
 
-> Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-basic.yml` for the basic running example.
-
 _Then your other steps down below._
 
 ```yml
@@ -131,6 +129,7 @@ _Then your other steps down below._
   uses: cypress-io/github-action@v5
     working-directory: e2e
 ```
+> Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-basic.yml` for the basic running example.
 
 ### If the connection requires a Pin or a Password
 
@@ -150,7 +149,7 @@ _Then your other steps down below._
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    profile-server: 'pritunl-dev-2'
+    profile-server: qa-team
 ```
 
 
@@ -161,8 +160,8 @@ _Then your other steps down below._
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    client-version: '1.3.3637.72'
-    vpn-mode: 'wg'
+    client-version: 1.3.3637.72
+    vpn-mode: wg
 ```
 
 ### And even Manually Controlling the Connection
@@ -185,7 +184,9 @@ _Then your other steps down below._
   shell: bash
   run: |
     sleep 10
-    pritunl-client list
+    pritunl-client list -j |
+      jq ". | sort_by(.name) | .[0] | { "Profile Name": .name, "Client Address": .client_address }"
+
 
 - name: Your CI/CD Core Logic
   shell: bash
@@ -219,7 +220,7 @@ _Then your other steps down below._
     echo "ipcalc version $(ipcalc --version)"
 
     # VPN Gateway Reachability Test
-    profile_ip=$(pritunl-client list --json | jq ".[0]" | jq -r ".client_address")
+    profile_ip=$(pritunl-client list -j | jq ". | sort_by(.name)" | jq ".[0]" | jq -r ".client_address")
     vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
     ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
 

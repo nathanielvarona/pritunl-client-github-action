@@ -45,8 +45,8 @@ jobs:
           vpn-mode: ${{ matrix.vpn-mode }}
           client-version: ${{ matrix.client-version }}
           start-connection: ${{ matrix.start-connection }}
-          ready-profile-timeout: '5'
-          established-connection-timeout: '35'
+          ready-profile-timeout: 5
+          established-connection-timeout: 35
 
       - name: Starting a VPN Connection Manually
         if: matrix.start-connection == false
@@ -64,7 +64,7 @@ jobs:
           # Show VPN Connection Status Manually
           sleep 10
           profile_server=$(
-            profile_list_json=$(pritunl-client list --json)
+            profile_list_json=$(pritunl-client list -j | jq ". | sort_by(.name)")
             if [[ -n "${{ matrix.profile-server }}" ]]; then
               echo "$profile_list_json" | jq ".[] | select(.name | contains(\"${{ matrix.profile-server }}\"))"
             else
@@ -106,7 +106,7 @@ jobs:
         run: |
           # VPN Gateway Reachability Test
           profile_server=$(
-            profile_list_json=$(pritunl-client list --json)
+            profile_list_json=$(pritunl-client list -j | jq ". | sort_by(.name)")
             if [[ -n "${{ matrix.profile-server }}" ]]; then
               echo "$profile_list_json" | jq ".[] | select(.name | contains(\"${{ matrix.profile-server }}\"))"
             else
