@@ -100,7 +100,7 @@ link_executable_to_bin() {
     fi
     ln -s "$executable_file" "$bin_directory"
   else
-    echo "Installation of the executable failed!" && exit 1
+    echo "Installation of the executable '$executable_file' failed!" && exit 1
   fi
 }
 
@@ -255,7 +255,7 @@ fetch_profile_server() {
   local profile_list_json
   local profile_server_json
 
-  profile_list_json=$(pritunl-client list -j)
+  profile_list_json=$(pritunl-client list -j | jq ". | sort_by(.name)")
 
   if [[ -n "$PRITUNL_PROFILE_SERVER" ]]; then
     profile_server_json=$(
@@ -266,7 +266,7 @@ fetch_profile_server() {
     if [[ -n "$profile_server_json" ]]; then
       echo "$profile_server_json"
     else
-      echo "Profile not exist!" && exit 1
+      echo "Profile server not exist!" && exit 1
     fi
   else
     echo "$profile_list_json" |
