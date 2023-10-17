@@ -15,26 +15,37 @@ PRITUNL_START_CONNECTION="${PRITUNL_START_CONNECTION:-}"
 PRITUNL_READY_PROFILE_TIMEOUT="${PRITUNL_READY_PROFILE_TIMEOUT:-}"
 PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT:-}"
 
+## For further information on `pritunl-client` package releases and distribution,
+## kindly refer to the links provided below.
+##
+## https://client.pritunl.com/#install
+## https://github.com/pritunl/pritunl-client-electron
+##
 
 # Installation process for Linux
 install_for_linux() {
+  install_vpn_dependencies "Linux"
+
   if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
     # Installing using Pritunl Prebuilt Apt Repository
-    # https://client.pritunl.com/#install
     echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/pritunl.list
     gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 7568D9BB55FF9E5287D586017AE645C0CF8E292A > /dev/null 2>&1
     gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc > /dev/null
-    sudo apt-get update -qq -y
-    sudo apt-get install -qq -y pritunl-client
+    sudo apt-get update -qq -y && sudo apt-get install -qq -y pritunl-client
   else
     # Installing Version Specific using Debian Package from Pritunl GitHub Releases
-    validate_client_version "$PRITUNL_CLIENT_VERSION"
-    deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/pritunl-client_$PRITUNL_CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
-    curl -sSL "$deb_url" -o "$RUNNER_TEMP/pritunl-client.deb"
-    sudo apt-get install -qq -y -f "$RUNNER_TEMP/pritunl-client.deb"
-  fi
+    local pritunl_install_file
 
-  install_vpn_dependencies "Linux"
+    validate_client_version "$PRITUNL_CLIENT_VERSION"
+
+    pritunl_install_file="$RUNNER_TEMP/pritunl-client.deb"
+    deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/pritunl-client_$PRITUNL_CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
+    curl -sSL "$deb_url" -o "$pritunl_install_file"
+
+    if sudo apt-get install -qq -y "$pritunl_install_file"; then
+      rm -f "$pritunl_install_file"
+    fi
+  fi
 }
 
 # Installation process for macOS
@@ -42,23 +53,31 @@ install_for_macos() {
   local pritunl_client_bin
   local user_bin_directory
 
+  install_vpn_dependencies "macOS"
+
   if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
     # Installing using Homebrew Package Manager for macOS
     brew install -q --cask pritunl
   else
     # Installing Version Specific using macOS Package from Pritunl GitHub Releases
+    local pritunl_install_file
+
     validate_client_version "$PRITUNL_CLIENT_VERSION"
+
+    pritunl_install_file="$RUNNER_TEMP/Pritunl.pkg.zip"
+
     pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/Pritunl.pkg.zip"
-    curl -sSL "$pkg_zip_url" -o "$RUNNER_TEMP/Pritunl.pkg.zip"
-    unzip -qq -o "$RUNNER_TEMP/Pritunl.pkg.zip" -d "$RUNNER_TEMP"
-    sudo installer -pkg "$RUNNER_TEMP/Pritunl.pkg" -target /
+    curl -sSL "$pkg_zip_url" -o "$pritunl_install_file"
+    unzip -qq -o "$pritunl_install_file" -d "$RUNNER_TEMP"
+
+    if sudo installer -pkg "$RUNNER_TEMP/Pritunl.pkg" -target /; then
+      rm -f "$pritunl_install_file"
+    fi
   fi
 
   pritunl_client_bin="/Applications/Pritunl.app/Contents/Resources/pritunl-client"
   user_bin_directory="$HOME/bin/"
   link_executable_to_bin "$pritunl_client_bin" "$user_bin_directory"
-
-  install_vpn_dependencies "macOS"
 }
 
 # Installation process for Windows
@@ -66,27 +85,30 @@ install_for_windows() {
   local pritunl_client_bin
   local user_bin_directory
 
+  install_vpn_dependencies "Windows"
+
   if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
     # Installing using Choco Package Manager for Windows
     choco install --no-progress -y pritunl-client
   else
     # Install Version Specific using Windows Package from Pritunl GitHub Releases
+    local pritunl_install_file
+
     validate_client_version "$PRITUNL_CLIENT_VERSION"
+
+    pritunl_install_file="$RUNNER_TEMP\Pritunl.exe"
+
     exe_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/Pritunl.exe"
-    curl -sSL "$exe_url" -o "$RUNNER_TEMP/Pritunl.exe"
-    pwsh -ExecutionPolicy Bypass -Command "Start-Process -FilePath '$RUNNER_TEMP\Pritunl.exe' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' -Wait"
+    curl -sSL "$exe_url" -o "$pritunl_install_file"
+
+    if pwsh -ExecutionPolicy Bypass -Command "Start-Process -FilePath '$pritunl_install_file' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' -Wait"; then
+      rm -f "$pritunl_install_file"
+    fi
   fi
 
   pritunl_client_bin="/c/Program Files (x86)/Pritunl/pritunl-client.exe"
   user_bin_directory="$HOME/bin/"
   link_executable_to_bin "$pritunl_client_bin" "$user_bin_directory"
-
-  install_vpn_dependencies "Windows"
-
-  if [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
-    # Restart the `pritunl` service to obtain the latest `PATH` values from the `System Environment Variables` during the WireGuard installation.
-    pwsh -ExecutionPolicy Bypass -Command "Invoke-Command -ScriptBlock { net stop 'pritunl' ; net start 'pritunl' }"
-  fi
 }
 
 # Link Executable File to Binary Directory
@@ -107,19 +129,28 @@ link_executable_to_bin() {
 # Install VPN dependent packages based on OS
 install_vpn_dependencies() {
   local os_type="$1"
-  if [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
-    if [[ "$os_type" == "Linux" ]]; then
-      sudo apt-get install -qq -y wireguard-tools
-    elif [[ "$os_type" == "macOS" ]]; then
-      brew install -q wireguard-tools
-    elif [[ "$os_type" == "Windows" ]]; then
-      choco install --no-progress -y wireguard
-    fi
-  else
-    if [[ "$os_type" == "Linux" ]]; then
-      sudo apt-get install -qq -y openvpn-systemd-resolved
-    fi
-  fi
+  case "$os_type" in
+    Linux)
+      # Install base dependent packages for `pritunl-client` on Linux
+      sudo apt-get update -qq -y
+      sudo apt-get install -qq -y net-tools iptables openvpn resolvconf
+      if [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
+        sudo apt-get install -qq -y wireguard-tools
+      elif [[ "$PRITUNL_VPN_MODE" == "ovpn" ]]; then
+        sudo apt-get install -qq -y openvpn-systemd-resolved
+      fi
+      ;;
+    macOS)
+      if [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
+        brew install -q wireguard-tools
+      fi
+      ;;
+    Windows)
+      if [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
+        choco install --no-progress -y wireguard
+      fi
+      ;;
+  esac
 }
 
 # Function to decode and add a profile
@@ -320,7 +351,6 @@ normalize_vpn_mode() {
 # Validate version against raw source version file
 validate_client_version() {
   local version="$1"
-  # GitHub Repository `https://github.com/pritunl/pritunl-client-electron`
   local pritunl_client_repo="pritunl/pritunl-client-electron"
   local version_file="https://raw.githubusercontent.com/$pritunl_client_repo/master/CHANGES"
 
@@ -358,7 +388,7 @@ case "$RUNNER_OS" in
     normalize_vpn_mode
 
     # Installation process based on OS
-    if [[ $(install_vpn_platform "$RUNNER_OS") ]]; then
+    if install_vpn_platform "$RUNNER_OS"; then
       # Show the Pritunl client version
       pritunl-client version
     fi
