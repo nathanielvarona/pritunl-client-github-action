@@ -1,4 +1,4 @@
-name: Connection Tests - Multi Profile Server
+name: Connection Tests - Multi Server Profile
 
 on:
   workflow_dispatch:
@@ -17,7 +17,7 @@ jobs:
           - pritunl-dev-1, pritunl-dev-2
 
     runs-on: ${{ matrix.os }}
-    name: "run:${{ matrix.os }}"
+    name: "run:${{ matrix.os }}, ps:'${{ matrix.profile-server }}'"
 
     steps:
       - name: Checkout
