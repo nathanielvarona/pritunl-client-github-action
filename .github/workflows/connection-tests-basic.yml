@@ -30,6 +30,7 @@ jobs:
         shell: bash
         run: |
           # Install IP Calculator
+
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo apt-get install -qq -y ipcalc
           elif [ "$RUNNER_OS" == "macOS" ]; then
@@ -49,6 +50,7 @@ jobs:
               fi
             done
           fi
+
           # Validate the IP Calculator Installation
           echo "ipcalc version $(ipcalc --version)"
 
@@ -56,8 +58,11 @@ jobs:
         shell: bash
         run: |
           # VPN Gateway Reachability Test
+
           profile_ip=$(pritunl-client list -j | jq ". | sort_by(.name)" | jq ".[0]" | jq -r ".client_address")
+
           vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
           ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
+
           # Ping VPN Gateway
           ping $vpn_gateway $ping_flags

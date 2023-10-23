@@ -53,6 +53,7 @@ jobs:
         shell: bash
         run: |
           # Start the VPN Connection Manually
+
           profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-id }}'
 
           while read -r line; do
@@ -76,10 +77,10 @@ jobs:
         shell: bash
         run: |
           # Show VPN Connection Status Manually
-          sleep 10
 
-          profile_server_ids_array=()
+          sleep 10
           profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-id }}'
+          profile_server_ids_array=()
 
           while read -r line; do
           profile_server_ids_array+=("$line")
@@ -123,6 +124,7 @@ jobs:
               fi
             done
           fi
+
           # Validate the IP Calculator Installation
           echo "ipcalc version $(ipcalc --version)"
 
@@ -130,9 +132,10 @@ jobs:
         shell: bash
         run: |
           # VPN Gateway Reachability Test
+
           ping_count_number=5
-          profile_server_ids_array=()
           profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-id }}'
+          profile_server_ids_array=()
 
           while read -r line; do
           profile_server_ids_array+=("$line")
