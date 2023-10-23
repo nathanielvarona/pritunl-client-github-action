@@ -14,6 +14,7 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 [![Connection Tests - Complete](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml?query=branch:main)
 [![Connection Tests - Basic](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml?query=branch:main)
+[![Connection Tests - Multi Server Profile](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml?query=branch:main)
 
 Compatibility and Common [Issues](https://github.com/nathanielvarona/pritunl-client-github-action/issues?q=is:issue) between the Runners and VPN Mode.
 
@@ -50,7 +51,7 @@ The configuration is declarative and relatively simple to use.
 
     profile-server: ''
     # OPTIONAL: Profile Server
-    # TYPE: String
+    # TYPE: String (Single string or Comma-separated for multiple names)
     # If not supplied, which defaults to the first or only server in the profile.
 
     vpn-mode: ''
@@ -141,8 +142,9 @@ _Then your other steps down below._
     profile-pin: ${{ secrets.PRITUNL_PROFILE_PIN }}
 ```
 
-### If the profile has multiple servers and want to specify one
+### If the profile has multiple servers and want to specify one or more
 
+You can connect to a specific server by specifying its name.
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -150,6 +152,16 @@ _Then your other steps down below._
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
     profile-server: qa-team
+```
+
+And the ability to connect to multiple servers by comma separations by its name.
+
+```yml
+- name: Setup Pritunl Profile and Start VPN Connection
+  uses: nathanielvarona/pritunl-client-github-action@v1
+  with:
+    profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
+    profile-server: qa-team, dev-team
 ```
 
 
