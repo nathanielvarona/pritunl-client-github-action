@@ -29,7 +29,7 @@ jobs:
           - false
 
     runs-on: ${{ matrix.os }}
-    name: "run:${{ matrix.os }}, ps:${{ matrix.profile-server }}, vpn:${{ matrix.vpn-mode }}, cv:${{ matrix.client-version }}, sc:${{ matrix.start-connection }}"
+    name: "run:${{ matrix.os }}, ps:'${{ matrix.profile-server }}', vpn:${{ matrix.vpn-mode }}, cv:${{ matrix.client-version }}, sc:${{ matrix.start-connection }}"
 
     steps:
       - name: Checkout

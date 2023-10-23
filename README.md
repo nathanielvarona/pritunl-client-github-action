@@ -154,7 +154,7 @@ You can connect to a specific server by specifying its name.
     profile-server: qa-team
 ```
 
-And the ability to connect to multiple servers by comma separations by its name.
+The feature allows us to connect to multiple servers by their names, separated by commas.
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -164,6 +164,17 @@ And the ability to connect to multiple servers by comma separations by its name.
     profile-server: qa-team, dev-team
 ```
 
+You can use the full profile name as well, it is also acceptable.
+
+```yml
+- name: Setup Pritunl Profile and Start VPN Connection
+  uses: nathanielvarona/pritunl-client-github-action@v1
+  with:
+    profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
+    profile-server: cicd.automation (qa-team), cicd.automation (dev-team)
+```
+
+> Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-multi-server-profile.yml` for the multi-server profile connections example.
 
 ### Or using a Specific Version of the Client and a WireGuard for the VPN Mode
 
