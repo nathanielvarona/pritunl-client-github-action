@@ -1,0 +1,79 @@
+name: Connection Tests - Multi Profile Server
+
+on:
+  workflow_dispatch:
+
+jobs:
+  connection-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+        profile-server:
+          - pritunl-dev-2
+          - pritunl-dev-1, pritunl-dev-2
+
+    runs-on: ${{ matrix.os }}
+    name: "run:${{ matrix.os }}"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Pritunl Profile
+        id: pritunl-connection
+        uses: ./ # Use `nathanielvarona/pritunl-client-github-action@v1` for your GitHub Action workflow.
+        with:
+          profile-file: ${{ secrets.PRITUNL_PROFILE_FILE_MULTI_SERVER }}
+          profile-server: ${{ matrix.profile-server }}
+
+      - name: Install IP Tooling (IP Calculator)
+        shell: bash
+        run: |
+          # Install IP Calculator
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get install -qq -y ipcalc
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            brew install -q ipcalc
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            # Retry up to 3 times in case of failure
+            for attempt in $(seq 3); do
+              if curl -sSL "https://raw.githubusercontent.com/kjokjo/ipcalc/0.51/ipcalc" \
+                -o $HOME/bin/ipcalc && chmod +x $HOME/bin/ipcalc; then
+                break
+              else
+                echo "Attempt $attempt failed. Retrying..." && sleep 1
+                # If all retries fail, exit with an error
+                if [ $attempt -eq 3 ]; then
+                  echo "Failed to install ipcalc after 3 attempts." && exit 1
+                fi
+              fi
+            done
+          fi
+          # Validate the IP Calculator Installation
+          echo "ipcalc version $(ipcalc --version)"
+
+      - name:  VPN Gateway Reachability Test
+        shell: bash
+        run: |
+          # VPN Gateway Reachability Test
+          ping_count_number=5
+          profile_server_array=()
+          profile_server='${{ steps.pritunl-connection.outputs.client-id }}'
+          while read -r line; do
+            profile_server_array+=("$line")
+          done < <(echo "$profile_server" | jq -c '.[]')
+          for profile_server_item in "${profile_server_array[@]}"; do
+            echo "Pinging '$(echo "$profile_server_item" | jq -r ".name")' Gateway."
+            profile_id="$(echo "$profile_server_item" | jq -r ".id")"
+            profile_ip="$(pritunl-client list -j | jq --arg profile_id "$profile_id" '.[] | select(.id == $profile_id)' | jq -r '.client_address')"
+            vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
+            ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n $ping_count_number" || echo "-c $ping_count_number")"
+            # Ping VPN Gateway
+            ping $vpn_gateway $ping_flags
+            # Print new line
+            echo -n -e "\n"
+          done
