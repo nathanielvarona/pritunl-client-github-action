@@ -16,8 +16,8 @@ jobs:
           - windows-2022
           - windows-2019
         profile-server:
-          - pritunl-dev-1
           - pritunl-dev-2
+          - pritunl-dev-1, pritunl-dev-2
         vpn-mode:
           - ovpn
           - wg
@@ -53,9 +53,23 @@ jobs:
         shell: bash
         run: |
           # Start the VPN Connection Manually
-          pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
-            --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }} \
-            --mode ${{ matrix.vpn-mode }}
+          profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-id }}'
+
+          while read -r line; do
+            profile_server_ids_array+=("$line")
+          done < <(echo "$profile_server_ids_json" | jq -c '.[]')
+
+          for profile_server_item in "${profile_server_ids_array[@]}"; do
+            echo "Starting connection for '$(echo "$profile_server_item" | jq -r ".name")' profile server."
+
+            profile_id="$(echo "$profile_server_item" | jq -r ".id")"
+
+            pritunl-client start $profile_id \
+              --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }} \
+              --mode ${{ matrix.vpn-mode }}
+
+            sleep 2
+          done
 
       - name: Show VPN Connection Status Manually
         if: matrix.start-connection == false
@@ -63,17 +77,28 @@ jobs:
         run: |
           # Show VPN Connection Status Manually
           sleep 10
-          profile_server=$(
-            profile_list_json=$(pritunl-client list -j | jq ". | sort_by(.name)")
-            if [[ -n "${{ matrix.profile-server }}" ]]; then
-              echo "$profile_list_json" | jq ".[] | select(.name | contains(\"${{ matrix.profile-server }}\"))"
-            else
-              echo "$profile_list_json" | jq ".[0]"
-            fi
-          )
-          profile_name=$(echo "$profile_server" | jq -r ".name")
-          profile_ip=$(echo "$profile_server" | jq -r ".client_address")
-          echo "Connected as '$profile_name' with a private client address of '$profile_ip'."
+
+          profile_server_ids_array=()
+          profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-id }}'
+
+          while read -r line; do
+          profile_server_ids_array+=("$line")
+          done < <(echo "$profile_server_ids_json" | jq -c '.[]')
+
+          for profile_server_item in "${profile_server_ids_array[@]}"; do
+            echo "Pinging '$(echo "$profile_server_item" | jq -r ".name")' Gateway."
+
+            profile_id="$(echo "$profile_server_item" | jq -r ".id")"
+            profile_name="$(echo "$profile_server_item" | jq -r ".name")"
+
+            profile_server=$(pritunl-client list -j)
+            profile_ip="$(echo "$profile_server" | jq --arg profile_id "$profile_id" '.[] | select(.id == $profile_id)' | jq -r '.client_address')"
+
+            echo "Connected as '$profile_name' with a private client address of '$profile_ip'."
+
+            # Print new line
+            echo -n -e "\n"
+          done
 
       - name: Install IP Tooling (IP Calculator)
         shell: bash
@@ -105,24 +130,50 @@ jobs:
         shell: bash
         run: |
           # VPN Gateway Reachability Test
-          profile_server=$(
-            profile_list_json=$(pritunl-client list -j | jq ". | sort_by(.name)")
-            if [[ -n "${{ matrix.profile-server }}" ]]; then
-              echo "$profile_list_json" | jq ".[] | select(.name | contains(\"${{ matrix.profile-server }}\"))"
-            else
-              echo "$profile_list_json" | jq ".[0]"
-            fi
-          )
-          profile_ip=$(echo "$profile_server" | jq -r ".client_address")
-          vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
-          ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
+          ping_count_number=5
+          profile_server_ids_array=()
+          profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-id }}'
 
-          # Ping VPN Gateway
-          ping $vpn_gateway $ping_flags
+          while read -r line; do
+          profile_server_ids_array+=("$line")
+          done < <(echo "$profile_server_ids_json" | jq -c '.[]')
+
+          for profile_server_item in "${profile_server_ids_array[@]}"; do
+            echo "Pinging '$(echo "$profile_server_item" | jq -r ".name")' Gateway."
+
+            profile_id="$(echo "$profile_server_item" | jq -r ".id")"
+            profile_ip="$(pritunl-client list -j | jq --arg profile_id "$profile_id" '.[] | select(.id == $profile_id)' | jq -r '.client_address')"
+
+            vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
+            ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n $ping_count_number" || echo "-c $ping_count_number")"
+
+            # Ping VPN Gateway
+            ping $vpn_gateway $ping_flags
+
+            # Print new line
+            echo -n -e "\n"
+          done
+
 
       - name: Stop VPN Connection Manually
         if: matrix.start-connection == false
         shell: bash
         run: |
           # Stop Connection Manually
-          pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
+
+          profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-id }}'
+          profile_server_ids_array=()
+
+          while read -r line; do
+            profile_server_ids_array+=("$line")
+          done < <(echo "$profile_server_ids_json" | jq -c '.[]')
+
+          for profile_server_item in "${profile_server_ids_array[@]}"; do
+            echo "Stopping connection for '$(echo "$profile_server_item" | jq -r ".name")' profile server."
+
+            profile_id="$(echo "$profile_server_item" | jq -r ".id")"
+
+            pritunl-client stop $profile_id
+
+            sleep 2
+          done
