@@ -234,9 +234,11 @@ You can use the full profile name as well, it is also acceptable.
     echo "ipcalc version $(ipcalc --version)"
 
     # VPN Gateway Reachability Test
+    ping_count_number=5
     profile_ip=$(pritunl-client list -j | jq -r 'sort_by(.name) | .[0].client_address')
+
     vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
-    ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
+    ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n $ping_count_number" || echo "-c $ping_count_number")"
 
     # Ping VPN Gateway
     ping $vpn_gateway $ping_flags
