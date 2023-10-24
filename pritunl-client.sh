@@ -3,6 +3,9 @@
 # Set up error handling
 set -euo pipefail
 
+# The script starts by defining environment variables based on GitHub Action inputs.
+# Default values are set if these inputs are not provided.
+
 ## GitHub Action Inputs as Environment Variables
 PRITUNL_PROFILE_FILE="${PRITUNL_PROFILE_FILE:-}"
 PRITUNL_PROFILE_PIN="${PRITUNL_PROFILE_PIN:-}"
@@ -14,9 +17,6 @@ PRITUNL_START_CONNECTION="${PRITUNL_START_CONNECTION:-}"
 PRITUNL_READY_PROFILE_TIMEOUT="${PRITUNL_READY_PROFILE_TIMEOUT:-}"
 PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT:-}"
 
-# The script starts by defining environment variables based on GitHub Action inputs.
-# Default values are set if these inputs are not provided.
-
 ##
 ## For further information on `pritunl-client` package releases and installations,
 ## kindly refer to the links provided below.
@@ -25,7 +25,6 @@ PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT
 ## https://docs.pritunl.com/docs/installation-client
 ## https://github.com/pritunl/pritunl-client-electron
 ##
-## These comments provide information and links related to the `pritunl-client` package installation.
 
 # Installation process for Linux
 install_for_linux() {
@@ -212,10 +211,11 @@ setup_profile_file() {
   local profile_file
 
   # Define Profile Server Information
-  local profile_server
+  local profile_server_json
 
-  total_steps="${PRITUNL_READY_PROFILE_TIMEOUT}"
+  # Progress Status
   current_step=0
+  total_steps="${PRITUNL_READY_PROFILE_TIMEOUT}"
 
   # Store the base64 data in a variable
   profile_base64="$PRITUNL_PROFILE_FILE"
@@ -245,10 +245,10 @@ setup_profile_file() {
   # Loop until the current step reaches the total number of steps
   while [[ "$current_step" -le "$total_steps" ]]; do
 
-    profile_server=$(fetch_profile_server)
+    profile_server_json=$(fetch_profile_server)
 
-    if [[ $(echo "$profile_server" | jq ". | length") -gt 0 ]]; then
-      client_id=$(echo $profile_server | jq -c "[.[] | {name: .name, id: .id}]")
+    if [[ $(echo "$profile_server_json" | jq ". | length") -gt 0 ]]; then
+      client_id=$(echo $profile_server_json | jq -c "[.[] | {name: .name, id: .id}]")
       if [[ -n "$GITHUB_ACTIONS" ]]; then
         # Setting output parameter `client-id`.
         echo "client-id="$client_id"" >> "$GITHUB_OUTPUT"
@@ -284,13 +284,16 @@ start_vpn_connection() {
 
   # Define the start connection options
   local vpn_flags
-  local profile_server
   local profile_server_array
+  local profile_server_json
   local profile_server_item
 
+  # Empty initialization
   vpn_flags=()
   profile_server_array=()
-  profile_server=$(fetch_profile_server)
+
+  # Get Profile
+  profile_server_json=$(fetch_profile_server)
 
   if [[ -n "$PRITUNL_VPN_MODE" ]]; then
     vpn_flags+=( "--mode" "$PRITUNL_VPN_MODE" )
@@ -303,7 +306,7 @@ start_vpn_connection() {
   # Convert the JSON data into a Bash array
   while read -r line; do
     profile_server_array+=("$line")
-  done < <(echo "$profile_server" | jq -c '.[]')
+  done < <(echo "$profile_server_json" | jq -c '.[]')
 
   for profile_server_item in "${profile_server_array[@]}"; do
     pritunl-client start "$(echo "$profile_server_item" | jq -r ".id")" "${vpn_flags[@]}"
@@ -320,7 +323,7 @@ establish_vpn_connection() {
   local current_step
 
   # Define Profile Server Information
-  local profile_server
+  local profile_server_json
   local profile_server_array
   local profile_server_item
 
@@ -330,8 +333,11 @@ establish_vpn_connection() {
   local connections_status
   local connection_status
 
-  total_steps="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT}"
+  # Progress status
   current_step=0
+  total_steps="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT}"
+
+  # Empty initialization
   profile_server_array=()
   connections_status='[]'
 
@@ -343,12 +349,12 @@ establish_vpn_connection() {
     # Print the connection check progress using the progress bar function
     display_progress "$current_step" "$total_steps" "Establishing connection"
 
-    profile_server=$(fetch_profile_server)
+    profile_server_json=$(fetch_profile_server)
 
     # Convert the JSON data into a Bash array
     while read -r line; do
       profile_server_array+=("$line")
-    done < <(echo "$profile_server" | jq -c '.[]')
+    done < <(echo "$profile_server_json" | jq -c '.[]')
 
     for profile_server_item in "${profile_server_array[@]}"; do
       profile_name="$(echo "$profile_server_item" | jq -r ".name")"
@@ -382,7 +388,7 @@ establish_vpn_connection() {
     done
 
     connections_connected="$(echo $connections_status | jq ". | length")"
-    connections_expected="$(echo $profile_server | jq ". | length")"
+    connections_expected="$(echo $profile_server_json | jq ". | length")"
 
     if [[ "$connections_connected" -eq "$connections_expected" ]]; then
       echo "The profile, which has designated server(s), has been successfully set up."
@@ -411,13 +417,13 @@ fetch_profile_server() {
   # This function retrieves the Pritunl profile server information.
 
   # Define `pritunl-client` information fetching options.
-  local profile_server
   local profile_list_json
   local profile_server_array
-  local profile_server_object
-  local profile_server_matching
   local profile_server_json
   local profile_server_array_item
+  local profile_server_matching
+  local profile_server_item
+  local profile_server_object
 
   # Fetch the profile list JSON
   profile_list_json=$(pritunl-client list -j | jq -c 'sort_by(.name)')
@@ -443,11 +449,11 @@ fetch_profile_server() {
       # Initialize an empty array to store matching profiles
       profile_server_matching=()
 
-      for profile_server in "${profile_server_array[@]}"; do
+      for profile_server_item in "${profile_server_array[@]}"; do
         # Try to find the profile server JSON based on the current profile server name
         profile_server_object=$(
           echo "$profile_list_json" |
-            jq -c --arg profile "$profile_server" '.[] | select(.name | contains($profile))'
+            jq -c --arg profile "$profile_server_item" '.[] | select(.name | contains($profile))'
         )
 
         if [[ -n "$profile_server_object" ]]; then
@@ -496,6 +502,7 @@ display_progress() {
   local completed=$((percentage / 2))
   local remaining=$((50 - completed))
 
+  # Progress Counter
   current_step="$1"
   total_steps="$2"
   message="$3"
@@ -522,6 +529,7 @@ normalize_vpn_mode() {
   # This function normalizes the VPN mode input to ensure it matches supported values.
   # It ensures the input is either "ovpn" or "wg" (OpenVPN or WireGuard).
 
+  # Normalization of characters and variable substitution
   case "$(echo "$PRITUNL_VPN_MODE" | tr '[:upper:]' '[:lower:]')" in
     ovpn|openvpn)
       PRITUNL_VPN_MODE="ovpn"
@@ -545,7 +553,10 @@ validate_client_version() {
   local pritunl_client_repo
   local version_file
 
+  # Version Argument
   version="$1"
+
+  # Version Source
   pritunl_client_repo="pritunl/pritunl-client-electron"
   version_file="https://raw.githubusercontent.com/$pritunl_client_repo/master/CHANGES"
 
@@ -567,8 +578,10 @@ install_vpn_platform() {
   # Define OS Type
   local os_type
 
+  # OS Argument
   os_type="$1"
 
+  # Install Packages by OS
   case "$os_type" in
     Linux)
       install_for_linux
