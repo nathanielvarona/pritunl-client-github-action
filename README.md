@@ -87,11 +87,11 @@ The configuration is declarative and relatively simple to use.
 
 ### Outputs
 
-`client-id` — is the randomly generated identifier displayed on Pritunl's client after setting up a profile.
+`client-id` — is a string of key-value pairs associated with a profile, with an identifier the client randomly generates during the profile setup process.
 
-_Output Parameter Retrieving Example:_ `${{ steps.pritunl-connection.outputs.client-id }}`
+_Output parameter retrieving:_ `'${{ steps.pritunl-connection.outputs.client-id }}'`
 
-Where the `pritunl-connection` is the Setup Step ID.
+Where the `pritunl-connection` is the `Setup Step ID`.
 
 > Kindly check the subsection [Manually Controlling the Connection](#and-even-manually-controlling-the-connection) for example.
 
@@ -190,26 +190,17 @@ You can use the full profile name as well, it is also acceptable.
 ### And even Manually Controlling the Connection
 
 ```yml
-- name: Setup Pritunl Profile
-  id: pritunl-connection # A Setup Step ID has been added as a reference identifier for the output `client-id`.
-  uses: nathanielvarona/pritunl-client-github-action@v1
-  with:
-    profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    start-connection: false # Do not establish a connection in this step.
-
 - name: Starting a VPN Connection Manually
   shell: bash
   run: |
-    pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
-      --password ${{ secrets.PRITUNL_PROFILE_PIN }}
+    pritunl-client start "$(echo '${{ steps.pritunl-connection.outputs.client-id }}' | jq -r 'sort_by(.name) | .[0].id')" \
+      --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }}
 
 - name: Show VPN Connection Status Manually
   shell: bash
   run: |
     sleep 10
-    pritunl-client list -j |
-      jq ". | sort_by(.name) | .[0] | { "Profile Name": .name, "Client Address": .client_address }"
-
+    pritunl-client list -j | jq 'sort_by(.name) | .[0] | { "Profile Name": .name, "Client Address": .client_address }'
 
 - name: Your CI/CD Core Logic
   shell: bash
@@ -243,7 +234,7 @@ You can use the full profile name as well, it is also acceptable.
     echo "ipcalc version $(ipcalc --version)"
 
     # VPN Gateway Reachability Test
-    profile_ip=$(pritunl-client list -j | jq ". | sort_by(.name)" | jq ".[0]" | jq -r ".client_address")
+    profile_ip=$(pritunl-client list -j | jq -r 'sort_by(.name) | .[0].client_address')
     vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
     ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n 10" || echo "-c 10")"
 
@@ -254,7 +245,8 @@ You can use the full profile name as well, it is also acceptable.
   if: ${{ always() }}
   shell: bash
   run: |
-    pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
+    pritunl-client stop "$(echo '${{ steps.pritunl-connection.outputs.client-id }}' | jq -r 'sort_by(.name) | .[0].id')"
+
 ```
 
 > Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-complete.yml` for the complete working example.
