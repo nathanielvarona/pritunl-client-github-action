@@ -190,6 +190,13 @@ You can use the full profile name as well, it is also acceptable.
 ### And even Manually Controlling the Connection
 
 ```yml
+- name: Setup Pritunl Profile
+  id: pritunl-connection # A `Setup Step ID` has been added as a reference identifier for the output `client-id`.
+  uses: nathanielvarona/pritunl-client-github-action@v1
+  with:
+    profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
+    start-connection: false # Do not establish a connection in this step.
+
 - name: Starting a VPN Connection Manually
   shell: bash
   run: |
@@ -248,7 +255,6 @@ You can use the full profile name as well, it is also acceptable.
   shell: bash
   run: |
     pritunl-client stop "$(echo '${{ steps.pritunl-connection.outputs.client-id }}' | jq -r 'sort_by(.name) | .[0].id')"
-
 ```
 
 > Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-complete.yml` for the complete working example.
