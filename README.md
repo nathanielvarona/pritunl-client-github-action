@@ -257,9 +257,9 @@ The Pritunl Client CLI won't allow us to load profiles from the plain `ovpn` fil
 
 To store Pritunl Profile to GitHub Secrets, maintaining the raw state of the `tar` archive file format, we need to convert it to `base64` text file format.
 
-### Here are the steps
+### Here are the four steps
 
-#### 1. Download the Pritunl Profile File obtained from the Pritunl User Profile Page
+#### 1. Download the Pritunl Profile File obtained from the Pritunl User Profile Page.
 
 ```bash
 curl -sSL https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar -o ./pritunl.profile.tar
@@ -273,16 +273,14 @@ base64 --wrap 0 ./pritunl.profile.tar > ./pritunl.profile.base64
 
 #### 3. Copy the data from `base64` text file format.
 
-_For macOS:_
 ```bash
+# For macOS:
+# Using `pbcopy`
 cat ./pritunl.profile.base64 | pbcopy
-```
 
-_For Linux:_
-```bash
+# For Linux:
 # Using `xclip`
 cat ./pritunl.profile.base64 | xclip -selection clipboard
-
 # Using `xsel`
 cat ./pritunl.profile.base64 | xsel --clipboard --input
 ```
@@ -298,3 +296,13 @@ Then, copy the entire `base64` text data.
 
 #### 4. Create a GitHub Action Secret and put the value from entire `base64` text data.
 Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
+
+### Shorthand script based on the above steps
+
+```bash
+encode_profile_and_copy() {
+    curl -sSL $1 | base64 -w 0 | pbcopy
+}
+
+encode_profile_and_copy https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar
+```
