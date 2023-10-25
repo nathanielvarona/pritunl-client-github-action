@@ -87,7 +87,7 @@ jobs:
           done < <(echo "$profile_server_ids_json" | jq -c '.[]')
 
           for profile_server_item in "${profile_server_ids_array[@]}"; do
-            echo "Pinging '$(echo "$profile_server_item" | jq -r ".name")' Gateway."
+            echo "Establish connection for '$(echo "$profile_server_item" | jq -r ".name")' profile server."
 
             profile_id="$(echo "$profile_server_item" | jq -r ".id")"
             profile_name="$(echo "$profile_server_item" | jq -r ".name")"
