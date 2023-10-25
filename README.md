@@ -12,8 +12,9 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 ## Connection Tests
 
-[![Connection Tests - Complete](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml?query=branch:main)
 [![Connection Tests - Basic](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml?query=branch:main)
+[![Connection Tests - Complete](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml?query=branch:main)
+[![Connection Tests - Manual (README Example)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yaml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yaml?query=branch:main)
 [![Connection Tests - Multi Server Profile](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml?query=branch:main)
 
 Compatibility and Common [Issues](https://github.com/nathanielvarona/pritunl-client-github-action/issues?q=is:issue) between the Runners and VPN Mode.
@@ -89,7 +90,7 @@ The configuration is declarative and relatively simple to use.
 
 `client-id` — is a string of key-value pairs associated with a profile, with an identifier the client randomly generates during the profile setup process.
 
-_Output parameter retrieving:_ `'${{ steps.pritunl-connection.outputs.client-id }}'`
+`Output parameter` retrieving example: `'${{ steps.pritunl-connection.outputs.client-id }}'`
 
 Where the `pritunl-connection` is the `Setup Step ID`.
 
@@ -98,7 +99,7 @@ Where the `pritunl-connection` is the `Setup Step ID`.
 
 ## Examples
 
-We can create various scenarios as long as `profile-file` is provided.
+Provided that `profile-file` is available, we have the flexibility to generate multiple scenarios.
 
 ### Basic running configuration
 
@@ -257,7 +258,8 @@ You can use the full profile name as well, it is also acceptable.
     pritunl-client stop "$(echo '${{ steps.pritunl-connection.outputs.client-id }}' | jq -r 'sort_by(.name) | .[0].id')"
 ```
 
-> Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-complete.yml` for the complete working example.
+> Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-readme-example-manual.yaml` for the readme example manual test.
+> And the workflow file  `.github/workflows/connection-tests-complete.yml` for the complete tests matrix example.
 
 ## Working with Pritunl Profile File
 
@@ -305,12 +307,9 @@ Then, copy the entire `base64` text data.
 #### 4. Create a GitHub Action Secret and put the value from entire `base64` text data.
 Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
 
-### Shorthand script based on the above steps
+### Shorthand script based on the above first three steps
 
 ```bash
-encode_profile_and_copy() {
-    curl -sSL $1 | base64 -w 0 | pbcopy
-}
-
+encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | pbcopy }
 encode_profile_and_copy https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar
 ```
