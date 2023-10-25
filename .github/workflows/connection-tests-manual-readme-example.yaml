@@ -1,0 +1,87 @@
+name: Connection Tests - Manual (README Example)
+
+on:
+  workflow_dispatch:
+
+jobs:
+  connection-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - macos-latest
+          - windows-latest
+
+    runs-on: ${{ matrix.os }}
+    name: "run:${{ matrix.os }}"
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Pritunl Profile
+        id: pritunl-connection # A `Setup Step ID` has been added as a reference identifier for the output `client-id`.
+        uses: ./ # Use `nathanielvarona/pritunl-client-github-action@v1` for your GitHub Action workflow.
+        with:
+          profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
+          start-connection: false # Do not establish a connection in this step.
+
+      - name: Starting a VPN Connection Manually
+        shell: bash
+        run: |
+          pritunl-client start "$(echo '${{ steps.pritunl-connection.outputs.client-id }}' | jq -r 'sort_by(.name) | .[0].id')" \
+            --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }}
+
+      - name: Show VPN Connection Status Manually
+        shell: bash
+        run: |
+          sleep 10
+          pritunl-client list -j | jq 'sort_by(.name) | .[0] | { "Profile Name": .name, "Client Address": .client_address }'
+
+      - name: Your CI/CD Core Logic
+        shell: bash
+        run: |
+          ##
+          # Below is our simple example for VPN connectivity test.
+          ##
+
+          # Install IP Calculator
+          if [ "$RUNNER_OS" == "Linux" ]; then
+            sudo apt-get install -qq -y ipcalc
+          elif [ "$RUNNER_OS" == "macOS" ]; then
+            brew install -q ipcalc
+          elif [ "$RUNNER_OS" == "Windows" ]; then
+            # Retry up to 3 times in case of failure
+            for attempt in $(seq 3); do
+              if curl -sSL "https://raw.githubusercontent.com/kjokjo/ipcalc/0.51/ipcalc" \
+                -o $HOME/bin/ipcalc && chmod +x $HOME/bin/ipcalc; then
+                break
+              else
+                echo "Attempt $attempt failed. Retrying..." && sleep 1
+                # If all retries fail, exit with an error
+                if [ $attempt -eq 3 ]; then
+                  echo "Failed to install ipcalc after 3 attempts." && exit 1
+                fi
+              fi
+            done
+          fi
+
+          # Validate the IP Calculator Installation
+          echo "ipcalc version $(ipcalc --version)"
+
+          # VPN Gateway Reachability Test
+          ping_count_number=5
+          profile_ip=$(pritunl-client list -j | jq -r 'sort_by(.name) | .[0].client_address')
+
+          vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
+          ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n $ping_count_number" || echo "-c $ping_count_number")"
+
+          # Ping VPN Gateway
+          ping $vpn_gateway $ping_flags
+
+      - name: Stop VPN Connection Manually
+        if: ${{ always() }}
+        shell: bash
+        run: |
+          pritunl-client stop "$(echo '${{ steps.pritunl-connection.outputs.client-id }}' | jq -r 'sort_by(.name) | .[0].id')"
