@@ -63,7 +63,7 @@ runs:
         PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT: ${{ inputs.established-connection-timeout }}
       shell: bash
       run: |
-        # Executing ./pritunl-client.sh
+        # pritunl-client.sh
         "$GITHUB_ACTION_PATH$([[ "$RUNNER_OS" == "Windows" ]] && echo '\' || echo '/')pritunl-client.sh"
 
 branding:
