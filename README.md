@@ -313,3 +313,7 @@ Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
 encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | pbcopy }
 encode_profile_and_copy https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar
 ```
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=nathanielvarona/pritunl-client-github-action&type=Date)](https://star-history.com/#nathanielvarona/pritunl-client-github-action&Date)
