@@ -1,5 +1,14 @@
 #!/usr/bin/env bash
 
+##
+## For further information on Pritunl Client package releases, installation methods, and setup procedures,
+## kindly refer to the distribution link sources provided below.
+##
+## https://client.pritunl.com/#install
+## https://docs.pritunl.com/docs/installation-client
+## https://github.com/pritunl/pritunl-client-electron
+##
+
 # Set up error handling
 set -euo pipefail
 
@@ -13,25 +22,15 @@ PRITUNL_PROFILE_SERVER="${PRITUNL_PROFILE_SERVER:-}"
 PRITUNL_VPN_MODE="${PRITUNL_VPN_MODE:-}"
 PRITUNL_CLIENT_VERSION="${PRITUNL_CLIENT_VERSION:-}"
 PRITUNL_START_CONNECTION="${PRITUNL_START_CONNECTION:-}"
-## GitHub Action Setup and Checks Environent Variables
 PRITUNL_READY_PROFILE_TIMEOUT="${PRITUNL_READY_PROFILE_TIMEOUT:-}"
 PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT:-}"
-
-##
-## For further information on `pritunl-client` package releases and installations,
-## kindly refer to the links provided below.
-##
-## https://client.pritunl.com/#install
-## https://docs.pritunl.com/docs/installation-client
-## https://github.com/pritunl/pritunl-client-electron
-##
 
 # Installation process for Linux
 install_for_linux() {
   # This function contains code to install the Pritunl client on Linux.
   # It installs dependent packages, configures repositories, and installs the client.
 
-  install_vpn_dependencies "Linux"
+  install_vpn_dependencies
 
   if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
     # Installing using Pritunl Prebuilt Apt Repository
@@ -57,6 +56,7 @@ install_for_linux() {
 
     curl -sSL "$deb_url" -o "$pritunl_install_file"
 
+    # Installing using APT package handling utility
     if sudo apt-get install -qq -y "$pritunl_install_file"; then
       rm -f "$pritunl_install_file"
     fi
@@ -72,7 +72,7 @@ install_for_macos() {
   local pritunl_client_bin
   local user_bin_directory
 
-  install_vpn_dependencies "macOS"
+  install_vpn_dependencies
 
   if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
     # Installing using Homebrew Package Manager for macOS
@@ -93,8 +93,9 @@ install_for_macos() {
     curl -sSL "$pkg_zip_url" -o "$pritunl_install_file"
     unzip -qq -o "$pritunl_install_file" -d "$RUNNER_TEMP"
 
+    # Installing using MacOS `installer` a system software and .pkg package installer tool
     if sudo installer -pkg "$RUNNER_TEMP/Pritunl.pkg" -target /; then
-      rm -f "$pritunl_install_file"
+      rm -f "$pritunl_install_file" "$RUNNER_TEMP/Pritunl.pkg"
     fi
   fi
 
@@ -113,7 +114,7 @@ install_for_windows() {
   local pritunl_client_bin
   local user_bin_directory
 
-  install_vpn_dependencies "Windows"
+  install_vpn_dependencies
 
   if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
     # Installing using Choco Package Manager for Windows
@@ -133,6 +134,7 @@ install_for_windows() {
 
     curl -sSL "$exe_url" -o "$pritunl_install_file"
 
+    # Installing using Ad hoc PowerShell Script
     if pwsh -ExecutionPolicy Bypass -Command "Start-Process -FilePath '$pritunl_install_file' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' -Wait"; then
       rm -f "$pritunl_install_file"
     fi
@@ -170,19 +172,15 @@ link_executable_to_bin() {
 install_vpn_dependencies() {
   # This function installs dependencies required for VPN connections based on the operating system.
 
-  local os_type
-
-  os_type="$1"
-
-  case "$os_type" in
+  case "$RUNNER_OS" in
     Linux)
       # Install base dependent packages for `pritunl-client` on Linux
       sudo apt-get update -qq -y
       sudo apt-get install -qq -y net-tools iptables openvpn resolvconf
-      if [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
-        sudo apt-get install -qq -y wireguard-tools
-      elif [[ "$PRITUNL_VPN_MODE" == "ovpn" ]]; then
+      if [[ "$PRITUNL_VPN_MODE" == "ovpn" ]]; then
         sudo apt-get install -qq -y openvpn-systemd-resolved
+      elif [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
+        sudo apt-get install -qq -y wireguard-tools
       fi
       ;;
     macOS)
@@ -575,14 +573,8 @@ validate_client_version() {
 install_vpn_platform() {
   # This function selects the appropriate installation process based on the operating system.
 
-  # Define OS Type
-  local os_type
-
-  # OS Argument
-  os_type="$1"
-
   # Install Packages by OS
-  case "$os_type" in
+  case "$RUNNER_OS" in
     Linux)
       install_for_linux
       ;;
@@ -605,7 +597,7 @@ case "$RUNNER_OS" in
     normalize_vpn_mode
 
     # Installation process based on OS
-    if install_vpn_platform "$RUNNER_OS"; then
+    if install_vpn_platform; then
       # Show the Pritunl client version
       pritunl-client version
     fi
@@ -614,10 +606,10 @@ case "$RUNNER_OS" in
     setup_profile_file
 
     if [[ "$PRITUNL_START_CONNECTION" == "true" ]]; then
-      # Start the VPN connection
+      # Starting the VPN connection
       start_vpn_connection
 
-      # Established VPN Connection
+      # Waiting for Established VPN Connection
       establish_vpn_connection
     fi
     ;;
