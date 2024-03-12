@@ -382,7 +382,7 @@ establish_vpn_connection() {
             echo "$connections_status" |
               jq --arg profile_id "$profile_id" '. + [{"id": $profile_id, "status": "connected"}]'
           )
-          echo "The connection for profile '$profile_name' has been fully established."
+          echo "The connection for profile \`\033[0;32m${profile_name}\033[0m\` has been fully established."
         fi
 
       fi
