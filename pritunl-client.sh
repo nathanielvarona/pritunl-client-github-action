@@ -39,7 +39,7 @@ install_for_linux() {
     echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/pritunl.list
     gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 7568D9BB55FF9E5287D586017AE645C0CF8E292A > /dev/null 2>&1
     gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc > /dev/null
-    sudo apt-get update -qq -y && sudo apt-get install -qq -y pritunl-client
+    sudo apt-get update -qq -y && sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y pritunl-client
 
   else
     # Installing Version Specific using Debian Package from Pritunl GitHub Releases
@@ -57,7 +57,7 @@ install_for_linux() {
     curl -sSL "$deb_url" -o "$pritunl_install_file"
 
     # Installing using APT package handling utility
-    if sudo apt-get install -qq -y "$pritunl_install_file"; then
+    if sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y "$pritunl_install_file"; then
       rm -f "$pritunl_install_file"
     fi
   fi
@@ -179,11 +179,11 @@ install_vpn_dependencies() {
     Linux)
       # Install base dependent packages for `pritunl-client` on Linux
       sudo apt-get update -qq -y
-      sudo apt-get install -qq -y net-tools iptables openvpn resolvconf
+      sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y net-tools iptables openvpn resolvconf
       if [[ "$PRITUNL_VPN_MODE" == "ovpn" ]]; then
-        sudo apt-get install -qq -y openvpn-systemd-resolved
+        sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y openvpn-systemd-resolved
       elif [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
-        sudo apt-get install -qq -y wireguard-tools
+        sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y wireguard-tools
       fi
       ;;
     macOS)
