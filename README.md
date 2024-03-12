@@ -220,7 +220,7 @@ You can use the full profile name as well, it is also acceptable.
 
     # Install IP Calculator
     if [ "$RUNNER_OS" == "Linux" ]; then
-      sudo apt-get install -qq -y ipcalc
+      sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y ipcalc
     elif [ "$RUNNER_OS" == "macOS" ]; then
       brew install -q ipcalc
     elif [ "$RUNNER_OS" == "Windows" ]; then
