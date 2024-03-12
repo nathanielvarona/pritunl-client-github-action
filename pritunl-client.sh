@@ -84,18 +84,21 @@ install_for_macos() {
 
     local pritunl_install_file
     local pkg_zip_url
+    local pkg_arch
 
     validate_client_version "$PRITUNL_CLIENT_VERSION"
 
-    pritunl_install_file="$RUNNER_TEMP/Pritunl.pkg.zip"
-    pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/Pritunl.pkg.zip"
+    pkg_arch=$([[ "$RUNNER_ARCH" == "ARM64" ]] && echo 'arm64.' || echo '')
+
+    pritunl_install_file="$RUNNER_TEMP/Pritunl.${pkg_arch}pkg.zip"
+    pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/Pritunl.${pkg_arch}pkg.zip"
 
     curl -sSL "$pkg_zip_url" -o "$pritunl_install_file"
     unzip -qq -o "$pritunl_install_file" -d "$RUNNER_TEMP"
 
     # Installing using MacOS `installer` a system software and .pkg package installer tool
-    if sudo installer -pkg "$RUNNER_TEMP/Pritunl.pkg" -target /; then
-      rm -f "$pritunl_install_file" "$RUNNER_TEMP/Pritunl.pkg"
+    if sudo installer -pkg "$RUNNER_TEMP/Pritunl.${pkg_arch}pkg" -target /; then
+      rm -f "$pritunl_install_file" "$RUNNER_TEMP/Pritunl.${pkg_arch}pkg"
     fi
   fi
 
