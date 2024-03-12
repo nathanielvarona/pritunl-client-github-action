@@ -602,7 +602,8 @@ case "$RUNNER_OS" in
     # Installation process based on OS
     if install_vpn_platform; then
       # Show the Pritunl client version
-      pritunl-client version
+      pritunl-client version |
+        awk '{printf "\xf0\x9f\x9a\x80 \033[1;34m%s %s\033[0m \033[1;32m%s\033[0m\n", $1, $2, $3}'
     fi
 
     # Load the Pritunl Profile File
