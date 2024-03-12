@@ -5,10 +5,10 @@ on:
 
 jobs:
   pr-labeler:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: micnncim/action-label-syncer@v1
-      - uses: TimonVS/pr-labeler-action@v4
+      - uses: TimonVS/pr-labeler-action@v5
