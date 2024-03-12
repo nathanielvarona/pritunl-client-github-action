@@ -28,8 +28,8 @@
   - [ ] Ubuntu 22.04
   - [ ] Ubuntu 20.04
 - macOS
+  - [ ] macOS 13
   - [ ] macOS 12
-  - [ ] macOS 11
 - Windows
   - [ ] Windows 2022
   - [ ] Windows 2019
@@ -42,7 +42,7 @@
 - [x] Installed from the package manager <!-- default -->
 - Version specific
   <!-- Please specify the versions of the Pritunl Client that you are currently using. -->
-  - [ ] 1.3.3637.72
+  - [ ] 1.3.3814.40
 
 **Start Connection:** *If the connection is started on the setup step.*
 - [x] True <!-- default -->
