@@ -19,14 +19,15 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 Compatibility and Common [Issues](https://github.com/nathanielvarona/pritunl-client-github-action/issues?q=is:issue) between the Runners and VPN Mode.
 
-Runner         | OpenVPN                | WireGuard
----------------|------------------------|-----------------------
-`ubuntu-22.04` | :white_check_mark: yes | :white_check_mark: yes
-`ubuntu-20.04` | :white_check_mark: yes | :white_check_mark: yes
-`macos-13`     | :white_check_mark: yes | :white_check_mark: yes
-`macos-12`     | :white_check_mark: yes | :white_check_mark: yes
-`windows-2022` | :white_check_mark: yes | :white_check_mark: yes
-`windows-2019` | :white_check_mark: yes | :white_check_mark: yes
+Runner            | Architecture | OpenVPN                | WireGuard
+------------------|--------------|------------------------|-----------------------
+`ubuntu-22.04`    | X64          | :white_check_mark: yes | :white_check_mark: yes
+`ubuntu-20.04`    | X64          | :white_check_mark: yes | :white_check_mark: yes
+`macos-13-xlarge` | ARM64        | :white_check_mark: yes | :white_check_mark: yes
+`macos-13`        | X64          | :white_check_mark: yes | :white_check_mark: yes
+`macos-12`        | X64          | :white_check_mark: yes | :white_check_mark: yes
+`windows-2022`    | X64          | :white_check_mark: yes | :white_check_mark: yes
+`windows-2019`    | X64          | :white_check_mark: yes | :white_check_mark: yes
 
 > Kindly check out the comprehensive connection tests matrix available on our GitHub Actions page.
 
