@@ -30,7 +30,7 @@ Runner         | OpenVPN                | WireGuard
 
 > Kindly check out the comprehensive connection tests matrix available on our GitHub Actions page.
 
-_Tested working on **`Pritunl v1.32.3805.95`** Server._
+_As of the latest changes and releases have tested working on **`Pritunl v1.32.3805.95`** Server._
 
 ## Usage
 
