@@ -16,8 +16,8 @@ jobs:
           - windows-2022
           - windows-2019
         profile-server:
-          - pritunl-dev-2
-          - pritunl-dev-1, pritunl-dev-2
+          - pritunl.server.1
+          - pritunl.server.1, pritunl.server.2
         vpn-mode:
           - ovpn
           - wg

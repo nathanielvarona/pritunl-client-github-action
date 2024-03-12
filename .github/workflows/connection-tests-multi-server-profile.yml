@@ -13,8 +13,8 @@ jobs:
           - macos-latest
           - windows-latest
         profile-server:
-          - pritunl-dev-2
-          - pritunl-dev-1, pritunl-dev-2
+          - pritunl.server.1
+          - pritunl.server.1, pritunl.server.2
 
     runs-on: ${{ matrix.os }}
     name: "run:${{ matrix.os }}, ps:'${{ matrix.profile-server }}'"
