@@ -23,8 +23,8 @@ Runner         | OpenVPN                | WireGuard
 ---------------|------------------------|-----------------------
 `ubuntu-22.04` | :white_check_mark: yes | :white_check_mark: yes
 `ubuntu-20.04` | :white_check_mark: yes | :white_check_mark: yes
+`macos-13`     | :white_check_mark: yes | :white_check_mark: yes
 `macos-12`     | :white_check_mark: yes | :white_check_mark: yes
-`macos-11`     | :white_check_mark: yes | :white_check_mark: yes
 `windows-2022` | :white_check_mark: yes | :white_check_mark: yes
 `windows-2019` | :white_check_mark: yes | :white_check_mark: yes
 
