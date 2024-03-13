@@ -204,8 +204,12 @@ setup_profile_file() {
   # This function decodes a base64-encoded profile file and adds it to the Pritunl client.
 
   # Define the total number of steps and initialize the current step variable
-  local total_steps
-  local current_step
+  local timeout_seconds
+  local start_time
+  local end_time
+  local current_time
+  local progression_count
+  local elapsed_count
 
   # Define Profile File Base64 Data
   local profile_base64
@@ -215,8 +219,10 @@ setup_profile_file() {
   local profile_server_json
 
   # Progress Status
-  current_step=0
-  total_steps="${PRITUNL_READY_PROFILE_TIMEOUT}"
+  timeout_seconds="${PRITUNL_READY_PROFILE_TIMEOUT}"
+  start_time=$(date +%s)
+  end_time=$(( start_time + timeout_seconds ))
+  current_time=$(date +%s)
 
   # Store the base64 data in a variable
   profile_base64="$PRITUNL_PROFILE_FILE"
@@ -244,7 +250,7 @@ setup_profile_file() {
   fi
 
   # Loop until the current step reaches the total number of steps
-  while [[ "$current_step" -le "$total_steps" ]]; do
+  while [[ "$end_time" -ge "$current_time" ]]; do
 
     profile_server_json=$(fetch_profile_server)
 
@@ -265,16 +271,25 @@ setup_profile_file() {
       # Break the loop
       break
     else
-      # Increment the current step
-      current_step=$((current_step + 1))
+      # Calculate the time consumed
+      progression_count=$((current_time - start_time))
+
+      # Present the time consumed as lapsed count
+      elapsed_count=$([[ "$progression_count" -lt 1 ]] && echo 0 || echo $progression_count)
+
       # Print the attempt progress using the progress bar function
-      display_progress "$current_step" "$total_steps" "Ready profile"
-      # Sleep for a moment (simulating work)
-      sleep 1
+      display_progress "$elapsed_count" "$timeout_seconds" "Ready profile"
+
       # Print the timeout message and exit error if needed
-      if [[ "$current_step" -eq "$total_steps" ]]; then
+      if [[ "$current_time" -ge "$end_time" ]]; then
         echo "No server entries found for a profile!" && exit 1
       fi
+
+      # Sleep for a moment (simulating work)
+      sleep 1
+
+      # Update the current time
+      current_time=$(date +%s)
     fi
   done
 }
@@ -320,8 +335,12 @@ establish_vpn_connection() {
   # This function waits for the VPN connection to be fully established.
 
   # Define the total number of steps and initialize the current step variable
-  local total_steps
-  local current_step
+  local timeout_seconds
+  local start_time
+  local end_time
+  local current_time
+  local progression_count
+  local elapsed_count
 
   # Define Profile Server Information
   local profile_server_json
@@ -335,20 +354,25 @@ establish_vpn_connection() {
   local connection_status
 
   # Progress status
-  current_step=0
-  total_steps="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT}"
+  timeout_seconds="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT}"
+  start_time=$(date +%s)
+  end_time=$(( start_time + timeout_seconds ))
+  current_time=$(date +%s)
 
   # Empty initialization
   profile_server_array=()
   connections_status='[]'
 
   # Loop until the current step reaches the total number of steps
-  while [[ "$current_step" -le "$total_steps" ]]; do
-    # Increment the current step
-    current_step=$((current_step + 1))
+  while [[ "$end_time" -ge "$current_time" ]]; do
+    # Calculate the time consumed
+    progression_count=$((current_time - start_time))
+
+    # Present the time consumed as lapsed count
+    elapsed_count=$([[ "$progression_count" -lt 1 ]] && echo 0 || echo $progression_count)
 
     # Print the connection check progress using the progress bar function
-    display_progress "$current_step" "$total_steps" "Establishing connection"
+    display_progress "$elapsed_count" "$timeout_seconds" "Establishing connection"
 
     profile_server_json=$(fetch_profile_server)
 
@@ -397,7 +421,7 @@ establish_vpn_connection() {
     fi
 
     # Print the timeout message and exit error if needed
-    if [[ "$current_step" -eq "$total_steps" ]]; then
+    if [[ "$current_time" -ge "$end_time" ]]; then
       echo "Timeout reached!"
       if [[ "$connections_connected" -gt 0 ]] && [[ "$connections_connected" -lt "$connections_expected" ]]; then
         echo "We could not establish a connection to other servers, but we will go ahead and proceed anyway."
@@ -410,6 +434,9 @@ establish_vpn_connection() {
 
     # Sleep for a moment (simulating work)
     sleep 1
+
+    # Update the current time
+    current_time=$(date +%s)
   done
 }
 
@@ -514,12 +541,12 @@ display_progress() {
   # Print the progress bar
   echo -n -e "$message: ["
   for ((i = 0; i < completed; i++)); do
-    echo -n -e "#"
+    echo -n -e "\033[0;33m#\033[0m"
   done
   for ((i = 0; i < remaining; i++)); do
-    echo -n -e "-"
+    echo -n -e "\033[0;32m-\033[0m"
   done
-  echo -n -e "] checking $current_step out of $total_steps allowed checks."
+  echo -n -e "] \033[0;33m${current_step}s\033[0m elapsed (out of \033[0;32m${total_steps}s\033[0m allowed)."
 
   # Print new line
   echo -n -e "\n"
