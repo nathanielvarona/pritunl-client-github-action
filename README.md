@@ -12,6 +12,7 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 ## Connection Tests
 
+[![Connection Tests - ARM64](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml)
 [![Connection Tests - Basic](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml?query=branch:main)
 [![Connection Tests - Complete](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml?query=branch:main)
 [![Connection Tests - Manual (README Example)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yaml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yaml?query=branch:main)
@@ -322,6 +323,12 @@ Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
 encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | pbcopy }
 encode_profile_and_copy https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar
 ```
+
+## Other Runners Architecture
+
+### ARM64 Architecture Runner
+
+> Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-arm64.yml` for the ARM64 running example.
 
 ## Star History
 
