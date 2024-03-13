@@ -257,7 +257,7 @@ setup_profile_file() {
 
       # Display the profile name and client id in the logs.
       echo "======================================================="
-      echo "Profile is set, the step output \`\033[0;34mclient-id\033[0m\` is created."
+      echo -e "Profile is set, the step output \`\033[0;34mclient-id\033[0m\` is created."
       echo "======================================================="
       echo "$client_id" | jq -C
       echo "======================================================="
