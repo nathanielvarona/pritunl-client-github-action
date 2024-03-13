@@ -202,18 +202,24 @@ You can use the full profile name as well, it is also acceptable.
 - name: Starting a VPN Connection Manually
   shell: bash
   run: |
+    # Starting a VPN Connection Manually
+
     pritunl-client start "$(echo '${{ steps.pritunl-connection.outputs.client-id }}' | jq -r 'sort_by(.name) | .[0].id')" \
       --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }}
 
 - name: Show VPN Connection Status Manually
   shell: bash
   run: |
+    # Show VPN Connection Status Manually
+
     sleep 10
     pritunl-client list -j | jq 'sort_by(.name) | .[0] | { "Profile Name": .name, "Client Address": .client_address }'
 
 - name: Your CI/CD Core Logic
   shell: bash
   run: |
+    # Your CI/CD Core Logic
+
     ##
     # Below is our simple example for VPN connectivity test.
     ##
@@ -256,6 +262,8 @@ You can use the full profile name as well, it is also acceptable.
   if: ${{ always() }}
   shell: bash
   run: |
+    # Stop VPN Connection Manually
+
     pritunl-client stop "$(echo '${{ steps.pritunl-connection.outputs.client-id }}' | jq -r 'sort_by(.name) | .[0].id')"
 ```
 
