@@ -20,19 +20,22 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 Compatibility and Common [Issues](https://github.com/nathanielvarona/pritunl-client-github-action/issues?q=is:issue) between the Runners and VPN Mode.
 
-Runner            | Architecture | OpenVPN                | WireGuard
-------------------|--------------|------------------------|-----------------------
-`ubuntu-22.04`    | X64          | :white_check_mark: yes | :white_check_mark: yes
-`ubuntu-20.04`    | X64          | :white_check_mark: yes | :white_check_mark: yes
-`macos-13-xlarge` | ARM64        | :white_check_mark: yes | :white_check_mark: yes
-`macos-13`        | X64          | :white_check_mark: yes | :white_check_mark: yes
-`macos-12`        | X64          | :white_check_mark: yes | :white_check_mark: yes
-`windows-2022`    | X64          | :white_check_mark: yes | :white_check_mark: yes
-`windows-2019`    | X64          | :white_check_mark: yes | :white_check_mark: yes
+Runner            | Runner Arch.                       | OpenVPN                | WireGuard
+------------------|------------------------------------|------------------------|-----------------------
+`ubuntu-22.04`    | X64                                | :white_check_mark: yes | :white_check_mark: yes
+`ubuntu-20.04`    | X64                                | :white_check_mark: yes | :white_check_mark: yes
+`macos-13-xlarge` | ARM64 :warning: :money_with_wings: | :white_check_mark: yes | :white_check_mark: yes
+`macos-13`        | X64                                | :white_check_mark: yes | :white_check_mark: yes
+`macos-12`        | X64                                | :white_check_mark: yes | :white_check_mark: yes
+`windows-2022`    | X64                                | :white_check_mark: yes | :white_check_mark: yes
+`windows-2019`    | X64                                | :white_check_mark: yes | :white_check_mark: yes
 
-> Kindly check out the comprehensive connection tests matrix available on our GitHub Actions page.
+> Kindly check out the comprehensive connection tests matrix available on our [GitHub Actions](https://github.com/nathanielvarona/pritunl-client-github-action/actions) page.
 
-_As of the latest changes and releases have tested working on **`Pritunl v1.32.3805.95`** Server._
+:warning: :money_with_wings: — **"These runners will always be charged for, including in public repositories."** 
+> For a comprehensive overview of your billing details, we recommend starting with the "[About billing for GitHub Actions](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions)" page for thorough insights.
+
+_As of the most recent updates and releases, we have confirmed compatibility with [Pritunl v1.32.3805.95](https://github.com/pritunl/pritunl/releases/tag/1.32.3805.95) Server through rigorous testing. Server clusters are deployed on both [AWS](https://aws.amazon.com/) and [Azure](https://azure.microsoft.com/) cloud platforms._
 
 ## Usage
 

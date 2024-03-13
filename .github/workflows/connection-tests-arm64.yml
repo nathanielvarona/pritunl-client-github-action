@@ -10,12 +10,15 @@ jobs:
       matrix:
         os:
           - macos-13-xlarge
+        vpn-mode:
+            - ovpn
+            - wg
         client-version:
           - from-package-manager
           - 1.3.3709.64
 
     runs-on: ${{ matrix.os }}
-    name: "run:${{ matrix.os }}, cv:${{ matrix.client-version }}"
+    name: "run:${{ matrix.os }}, vpn:${{ matrix.vpn-mode }}, cv:${{ matrix.client-version }}"
 
     steps:
       - name: Checkout
