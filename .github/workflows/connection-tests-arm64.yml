@@ -11,8 +11,8 @@ jobs:
         os:
           - macos-13-xlarge
         vpn-mode:
-            - ovpn
-            - wg
+          - ovpn
+          - wg
         client-version:
           - from-package-manager
           - 1.3.3709.64
