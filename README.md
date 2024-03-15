@@ -20,20 +20,23 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 Compatibility and Common [Issues](https://github.com/nathanielvarona/pritunl-client-github-action/issues?q=is:issue) between the Runners and VPN Mode.
 
-Runner            | Runner Arch.                       | OpenVPN                | WireGuard
-------------------|------------------------------------|------------------------|-----------------------
-`ubuntu-22.04`    | X64                                | :white_check_mark: yes | :white_check_mark: yes
-`ubuntu-20.04`    | X64                                | :white_check_mark: yes | :white_check_mark: yes
-`macos-13-xlarge` | ARM64 :warning: :money_with_wings: | :white_check_mark: yes | :white_check_mark: yes
-`macos-13`        | X64                                | :white_check_mark: yes | :white_check_mark: yes
-`macos-12`        | X64                                | :white_check_mark: yes | :white_check_mark: yes
-`windows-2022`    | X64                                | :white_check_mark: yes | :white_check_mark: yes
-`windows-2019`    | X64                                | :white_check_mark: yes | :white_check_mark: yes
+Runner            | Runner Arch.      | OpenVPN                | WireGuard
+------------------|-------------------|------------------------|-----------------------
+`ubuntu-22.04`    | X64               | :white_check_mark: yes | :white_check_mark: yes
+`ubuntu-20.04`    | X64               | :white_check_mark: yes | :white_check_mark: yes
+`macos-13-xlarge` | ARM64 :warning: * | :white_check_mark: yes | :white_check_mark: yes
+`macos-13`        | X64               | :white_check_mark: yes | :white_check_mark: yes
+`macos-12`        | X64               | :white_check_mark: yes | :white_check_mark: yes
+`windows-2022`    | X64               | :white_check_mark: yes | :white_check_mark: yes
+`windows-2019`    | X64               | :white_check_mark: yes | :white_check_mark: yes
 
-> Kindly check out the comprehensive connection tests matrix available on our [GitHub Actions](https://github.com/nathanielvarona/pritunl-client-github-action/actions) page.
+:warning: * — _**"These runners will always be charged for, including in public repositories."**_
 
-:warning: :money_with_wings: — **"These runners will always be charged for, including in public repositories."** 
+> [!WARNING]
 > For a comprehensive overview of your billing details, we recommend starting with the "[About billing for GitHub Actions](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions)" page for thorough insights.
+
+> [!TIP]
+> Kindly check out the comprehensive connection tests matrix available on our [GitHub Actions](https://github.com/nathanielvarona/pritunl-client-github-action/actions) page.
 
 _As of the most recent updates and releases, we have confirmed compatibility with [Pritunl v1.32.3805.95](https://github.com/pritunl/pritunl/releases/tag/1.32.3805.95) Server through rigorous testing. Server clusters are deployed on both [AWS](https://aws.amazon.com/) and [Azure](https://azure.microsoft.com/) cloud platforms._
 
@@ -80,25 +83,43 @@ The configuration is declarative and relatively simple to use.
 
     ready-profile-timeout: ''
     # OPTIONAL: Ready Profile Timeout
-    # TYPE: Natural Numbers
-    # If not supplied, which defaults to `3`.
+    # TYPE: Natural Numbers (Unit of time in Second)
+    # If not supplied, which defaults to `3` seconds.
 
     established-connection-timeout: ''
     # OPTIONAL: Established Connection Timeout
-    # TYPE: Natural Numbers
-    # If not supplied, which defaults to `30`.
+    # TYPE: Natural Numbers (Unit of time in Second)
+    # If not supplied, which defaults to `30` seconds.
 ```
 
+> [!IMPORTANT]
 > Kindly check the subsection [Working with Pritunl Profile File](#working-with-pritunl-profile-file) on converting `tar` archive file format to `base64` text file format for the `profile-file` input.
 
 ### Outputs
 
 `client-id` — is a string of key-value pairs associated with a profile, with an identifier the client randomly generates during the profile setup process.
 
-`Output parameter` retrieving example: `'${{ steps.pritunl-connection.outputs.client-id }}'`
+The step `output` retrieving example is `'${{ steps.pritunl-connection.outputs.client-id }}'` where the `pritunl-connection` is the `Setup Step ID`.
+<details>
+  <summary>
+    Show the Example Output.
+  </summary>
 
-Where the `pritunl-connection` is the `Setup Step ID`.
+```yml
+[
+  {
+    "name": "pritunl.profile.1 (pritunl.server.1)",
+    "id": "uykk46qpju3topgh"
+  },
+  {
+    "name": "pritunl.profile.1 (pritunl.server.2)",
+    "id": "za4c6gkjqbetkpwj"
+  }
+]
+```
+</details>
 
+> [!TIP]
 > Kindly check the subsection [Manually Controlling the Connection](#and-even-manually-controlling-the-connection) for example.
 
 
@@ -115,7 +136,10 @@ Provided that `profile-file` is available, we have the flexibility to generate m
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
 ```
 
-_Then your other steps down below._
+<details>
+  <summary>
+    Then your other steps are below.
+  </summary>
 
 ```yml
 - name: Your CI/CD Core Logic
@@ -136,9 +160,13 @@ _Then your other steps down below._
   uses: cypress-io/github-action@v5
     working-directory: e2e
 ```
-> Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-basic.yml` for the basic running example.
+</details>
 
-### If the connection requires a Pin or a Password
+
+> [!TIP]
+> Kindly check the GitHub Action workflow file [connection-tests-basic.yml](./.github/workflows/connection-tests-basic.yml) for the basic running example.
+
+### If the connection requires a PIN or a Password
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -180,7 +208,8 @@ You can use the full profile name as well, it is also acceptable.
     profile-server: cicd.automation (qa-team), cicd.automation (dev-team)
 ```
 
-> Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-multi-server-profile.yml` for the multi-server profile connections example.
+> [!TIP]
+> Kindly check the GitHub Action workflow file [connection-tests-multi-server-profile.yml](./.github/workflows/connection-tests-multi-server-profile.yml) for the multi-server profile connections example.
 
 ### Or using a Specific Version of the Client and a WireGuard for the VPN Mode
 
@@ -189,7 +218,7 @@ You can use the full profile name as well, it is also acceptable.
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    client-version: 1.3.3637.72
+    client-version: 1.3.3814.40
     vpn-mode: wg
 ```
 
@@ -271,8 +300,9 @@ You can use the full profile name as well, it is also acceptable.
     pritunl-client stop "$(echo '${{ steps.pritunl-connection.outputs.client-id }}' | jq -r 'sort_by(.name) | .[0].id')"
 ```
 
-> Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-readme-example-manual.yaml` for the readme example manual test.
-> And the workflow file  `.github/workflows/connection-tests-complete.yml` for the complete tests matrix example.
+> [!TIP]
+> Kindly check the GitHub Action workflow file [connection-tests-manual-readme-example.yaml](./.github/workflows/connection-tests-manual-readme-example.yaml) for the readme example manual test.
+> And the workflow file  [connection-tests-complete.yml](./.github/workflows/connection-tests-complete.yml) for the complete tests matrix example.
 
 ## Working with Pritunl Profile File
 
@@ -331,7 +361,8 @@ encode_profile_and_copy https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar
 
 ### ARM64 Architecture Runner
 
-> Kindly check the GitHub Action workflow file `.github/workflows/connection-tests-arm64.yml` for the ARM64 running example.
+> [!TIP]
+> Kindly check the GitHub Action workflow file [connection-tests-arm64.yml](./.github/workflows/connection-tests-arm64.yml) for the ARM64 running example.
 
 ## Star History
 
