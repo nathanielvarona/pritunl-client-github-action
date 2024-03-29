@@ -1,4 +1,4 @@
-name: Connection Tests - ARM64
+name: Connection Tests - Arm64
 
 on:
   workflow_dispatch:

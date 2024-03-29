@@ -2,42 +2,35 @@
 
 Establish a [Pritunl VPN](https://pritunl.com/) connection using [Pritunl Client](https://client.pritunl.com/) supporting [OpenVPN](https://openvpn.net/) (ovpn) and [WireGuard](https://www.wireguard.com/) (wg) modes on [GitHub Actions](https://github.com/features/actions).
 
-This utility helps you with tasks like automated internal endpoint testing, periodic backups, and anything that requires private access inside the corporate infrastructure using Pritunl VPN Enterprise Servers.
+This utility helps you with tasks like automated internal endpoint testing, periodic backups, builds distribution for cross-platform multi-architecture platforms, and anything that requires private access inside the corporate infrastructure using Pritunl VPN Enterprise Servers.
 
 ## Action Diagram
 
 ![Diagram](action.dio.svg)
 
-> _The [diagram](./action.dio.svg) is an editable vector image using [drawio](https://www.drawio.com/) app._
+> [!NOTE]
+> _The [diagram](./action.dio.svg) above is an editable vector image using [drawio](https://www.drawio.com/) app._
 
 ## Connection Tests
 
-[![Connection Tests - ARM64](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml)
 [![Connection Tests - Basic](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml?query=branch:main)
 [![Connection Tests - Complete](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml?query=branch:main)
-[![Connection Tests - Manual (README Example)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yaml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yaml?query=branch:main)
+[![Connection Tests - Manual (README Example)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yml?query=branch:main)
 [![Connection Tests - Multi Server Profile](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml?query=branch:main)
 
 Compatibility and Common [Issues](https://github.com/nathanielvarona/pritunl-client-github-action/issues?q=is:issue) between the Runners and VPN Mode.
 
-Runner            | Runner Arch.      | OpenVPN                | WireGuard
-------------------|-------------------|------------------------|-----------------------
-`ubuntu-22.04`    | X64               | :white_check_mark: yes | :white_check_mark: yes
-`ubuntu-20.04`    | X64               | :white_check_mark: yes | :white_check_mark: yes
-`macos-13-xlarge` | ARM64 <sup>:warning: 1</sup> | :white_check_mark: yes | :white_check_mark: yes
-`macos-13`        | X64               | :white_check_mark: yes | :white_check_mark: yes
-`macos-12`        | X64               | :white_check_mark: yes | :white_check_mark: yes
-`windows-2022`    | X64               | :white_check_mark: yes | :white_check_mark: yes
-`windows-2019`    | X64               | :white_check_mark: yes | :white_check_mark: yes
+Runner         | OpenVPN                | WireGuard
+---------------|------------------------|-----------------------
+`ubuntu-22.04` | :white_check_mark: yes | :white_check_mark: yes
+`ubuntu-20.04` | :white_check_mark: yes | :white_check_mark: yes
+`macos-13`     | :white_check_mark: yes | :white_check_mark: yes
+`macos-12`     | :white_check_mark: yes | :white_check_mark: yes
+`windows-2022` | :white_check_mark: yes | :white_check_mark: yes
+`windows-2019` | :white_check_mark: yes | :white_check_mark: yes
 
 > [!TIP]
 > Kindly check out the comprehensive connection tests matrix available on our [GitHub Actions](https://github.com/nathanielvarona/pritunl-client-github-action/actions) page.
-
-> [!WARNING]
-> <sup>:warning: 1</sup> — _"These runner will always be charged for, including in public repositories."_
->
-> For a comprehensive overview of your billing details, we recommend starting with the "[About billing for GitHub Actions](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions)" page for thorough insights.
-
 
 _As of the most recent updates and releases, we have confirmed compatibility with [Pritunl v1.32.3805.95](https://github.com/pritunl/pritunl/releases/tag/1.32.3805.95) Server through rigorous testing. Server clusters are deployed on both [AWS](https://aws.amazon.com/) and [Azure](https://azure.microsoft.com/) cloud platforms._
 
@@ -73,7 +66,7 @@ The configuration is declarative and relatively simple to use.
     client-version: ''
     # OPTIONAL: Pritunl Client Version
     # TYPE: String (Numerical dot separated identifiers)
-    # For example, using the later version `1.3.3637.72`.
+    # For example, using the later version `1.3.3814.40`.
     # If not supplied, which defaults to the latest version from the Package Manager.
 
     start-connection: ''
@@ -302,7 +295,7 @@ You can use the full profile name as well, it is also acceptable.
 ```
 
 > [!TIP]
-> Kindly check the GitHub Action workflow file [connection-tests-manual-readme-example.yaml](./.github/workflows/connection-tests-manual-readme-example.yaml) for the readme example manual test.
+> Kindly check the GitHub Action workflow file [connection-tests-manual-readme-example.yml](./.github/workflows/connection-tests-manual-readme-example.yml) for the readme example manual test.
 > And the workflow file  [connection-tests-complete.yml](./.github/workflows/connection-tests-complete.yml) for the complete tests matrix example.
 
 ## Working with Pritunl Profile File
@@ -313,10 +306,12 @@ To store Pritunl Profile to GitHub Secrets, maintaining the raw state of the `ta
 
 ### Here are the four steps
 
-#### 1. Download the Pritunl Profile File obtained from the Pritunl User Profile Page.
+#### 1. Download the `Profile File` from the `User Profile Page` or obtain it from your `Infrastructure Team`.
+
+_If the `Infrastructure Team` provided you with a `tar` file, proceed to `Step 2`._
 
 ```bash
-curl -sSL https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar -o ./pritunl.profile.tar
+curl -sSL https://vpn.domain.tld/key/a1b2c3d4e5.tar -o ./pritunl.profile.tar
 ```
 
 #### 2. Convert your Pritunl Profile File from `tar` archive file format to `base64` text file format.
@@ -351,19 +346,49 @@ Then, copy the entire `base64` text data.
 #### 4. Create a GitHub Action Secret and put the value from entire `base64` text data.
 Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
 
-### Shorthand script based on the above first three steps
+> [!TIP]
+> _Shorthand scripts based on the above first three steps._
+>
+> ```bash
+> # For macOS
+> encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | pbcopy }
+> # For Linux
+> encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xclip -selection clipboard } # Or,
+> encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xsel --clipboard --input }
+>
+> encode_profile_and_copy https://vpn.domain.tld/key/a1b2c3d4e5.tar
+> ```
 
-```bash
-encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | pbcopy }
-encode_profile_and_copy https://vpn.domain.tld/key/xxxxxxxxxxxxxx.tar
-```
+## Supported Arm64 Architecture Runners
 
-## Other Runners Architecture
+[![Connection Tests - Arm64](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml)
 
-### ARM64 Architecture Runner
+Runner                          | OpenVPN                | WireGuard
+--------------------------------|------------------------|-----------------------
+`macos-13-xlarge`<sup>*w1</sup> | :white_check_mark: yes | :white_check_mark: yes
+
+> [!WARNING]
+> <sup>*w1</sup> — _"These runner will always be charged for, including in public repositories."_
+>
+> For a comprehensive overview of your billing details, we recommend starting with the "[About billing for GitHub Actions](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions)" page for thorough insights.
 
 > [!TIP]
-> Kindly check the GitHub Action workflow file [connection-tests-arm64.yml](./.github/workflows/connection-tests-arm64.yml) for the ARM64 running example.
+> Kindly check the GitHub Action workflow file [connection-tests-arm64.yml](./.github/workflows/connection-tests-arm64.yml) for the Arm64 running example.
+
+## Development and Contributing
+
+If you have any suggestions for improvement, please don't hesitate to fork the project and submit a Pull Request.
+
+### An example of using your fork
+```yml
+- name: Setup Pritunl Profile and Start VPN Connection
+  uses: <YOUR GITHUB USERNAME>/pritunl-client-github-action@<YOUR FEATURE BRANCH>
+  with:
+    profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
+    ...
+    <YOUR FEATURE INPUTS>
+    ...
+```
 
 ## Star History
 
