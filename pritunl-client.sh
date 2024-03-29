@@ -383,7 +383,7 @@ establish_vpn_connection() {
     elapsed_count=$([[ "$progression_count" -lt 1 ]] && echo 0 || echo $progression_count)
 
     # Print the connection check progress using the progress bar function
-    display_progress "$elapsed_count" "$timeout_seconds" "Waiting for established connection"
+    display_progress "$elapsed_count" "$timeout_seconds" "Establishing connection"
 
     for profile_server_item in "${profile_server_array[@]}"; do
       profile_name="$(echo "$profile_server_item" | jq -r ".name")"
