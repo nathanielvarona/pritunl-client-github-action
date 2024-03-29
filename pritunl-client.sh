@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
-##
-## For further information on Pritunl Client package releases, installation methods, and setup procedures,
-## kindly refer to the distribution link sources provided below.
-##
-## https://client.pritunl.com/#install
-## https://docs.pritunl.com/docs/installation-client
-## https://github.com/pritunl/pritunl-client-electron
-##
+#
+# For further information on Pritunl Client package releases, installation methods, and setup procedures,
+# kindly refer to the distribution link sources provided below.
+#
+# https://client.pritunl.com/#install
+# https://docs.pritunl.com/docs/installation-client
+# https://github.com/pritunl/pritunl-client-electron
+#
 
 # Set up error handling
 set -euo pipefail
@@ -15,7 +15,7 @@ set -euo pipefail
 # The script starts by defining environment variables based on GitHub Action inputs.
 # Default values are set if these inputs are not provided.
 
-## GitHub Action Inputs as Environment Variables
+# GitHub Action Inputs as Environment Variables
 PRITUNL_PROFILE_FILE="${PRITUNL_PROFILE_FILE:-}"
 PRITUNL_PROFILE_PIN="${PRITUNL_PROFILE_PIN:-}"
 PRITUNL_PROFILE_SERVER="${PRITUNL_PROFILE_SERVER:-}"
@@ -299,24 +299,24 @@ start_vpn_connection() {
   # This function starts the VPN connection using the Pritunl client.
 
   # Define the start connection options
-  local vpn_flags
+  local pritunl_client_start_flags
   local profile_server_array
   local profile_server_json
   local profile_server_item
 
   # Empty initialization
-  vpn_flags=()
+  pritunl_client_start_flags=()
   profile_server_array=()
 
   # Get Profile
   profile_server_json=$(fetch_profile_server)
 
   if [[ -n "$PRITUNL_VPN_MODE" ]]; then
-    vpn_flags+=( "--mode" "$PRITUNL_VPN_MODE" )
+    pritunl_client_start_flags+=( "--mode" "$PRITUNL_VPN_MODE" )
   fi
 
   if [[ -n "$PRITUNL_PROFILE_PIN" ]]; then
-    vpn_flags+=( "--password" "$PRITUNL_PROFILE_PIN" )
+    pritunl_client_start_flags+=( "--password" "$PRITUNL_PROFILE_PIN" )
   fi
 
   # Convert the JSON data into a Bash array
@@ -325,7 +325,7 @@ start_vpn_connection() {
   done < <(echo "$profile_server_json" | jq -c '.[]')
 
   for profile_server_item in "${profile_server_array[@]}"; do
-    pritunl-client start "$(echo "$profile_server_item" | jq -r ".id")" "${vpn_flags[@]}"
+    pritunl-client start "$(echo "$profile_server_item" | jq -r ".id")" "${pritunl_client_start_flags[@]}"
     sleep 1
   done
 }
