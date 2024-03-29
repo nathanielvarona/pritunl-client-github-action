@@ -13,10 +13,10 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 ## Connection Tests
 
-[![Connection Tests - Basic](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml?query=branch:main)
-[![Connection Tests - Complete](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml?query=branch:main)
-[![Connection Tests - Manual (README Example)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yml?query=branch:main)
-[![Connection Tests - Multi Server Profile](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml?query=branch:main)
+[![Connection Tests - Basic](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml)
+[![Connection Tests - Complete](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml)
+[![Connection Tests - Manual (README Example)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yml)
+[![Connection Tests - Multi Server Profile](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml)
 
 Compatibility and Common [Issues](https://github.com/nathanielvarona/pritunl-client-github-action/issues?q=is:issue) between the Runners and VPN Mode.
 
@@ -346,18 +346,24 @@ Then, copy the entire `base64` text data.
 #### 4. Create a GitHub Action Secret and put the value from entire `base64` text data.
 Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
 
-> [!TIP]
-> _Shorthand scripts based on the above first three steps._
->
-> ```bash
-> # For macOS
-> encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | pbcopy }
-> # For Linux
-> encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xclip -selection clipboard } # Or,
-> encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xsel --clipboard --input }
->
-> encode_profile_and_copy https://vpn.domain.tld/key/a1b2c3d4e5.tar
-> ```
+### One-liner shorthand script
+
+<details>
+  <summary>
+    Show the one-liner shorthand script for the first three steps.
+  </summary>
+
+```bash
+# For macOS
+encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | pbcopy }
+# For Linux
+encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xclip -selection clipboard } # Or,
+encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xsel --clipboard --input }
+
+# Usage
+encode_profile_and_copy https://vpn.domain.tld/key/a1b2c3d4e5.tar
+```
+</details>
 
 ## Supported Arm64 Architecture Runners
 

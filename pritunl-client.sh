@@ -280,16 +280,16 @@ setup_profile_file() {
       # Print the attempt progress using the progress bar function
       display_progress "$elapsed_count" "$timeout_seconds" "Ready profile"
 
-      # Print the timeout message and exit error if needed
-      if [[ "$current_time" -ge "$end_time" ]]; then
-        echo "No server entries found for a profile!" && exit 1
-      fi
-
       # Sleep for a moment (simulating work)
       sleep 1
 
       # Update the current time
       current_time=$(date +%s)
+
+      # Print the timeout message and exit error if needed
+      if [[ "$current_time" -ge "$end_time" ]]; then
+        echo "No server entries found for a profile!" && exit 1
+      fi
     fi
   done
 }
@@ -364,15 +364,7 @@ establish_vpn_connection() {
   connections_status='[]'
 
   # Loop until the current step reaches the total number of steps
-  while [[ "$end_time" -ge "$current_time" ]]; do
-    # Calculate the time consumed
-    progression_count=$((current_time - start_time))
-
-    # Present the time consumed as lapsed count
-    elapsed_count=$([[ "$progression_count" -lt 1 ]] && echo 0 || echo $progression_count)
-
-    # Print the connection check progress using the progress bar function
-    display_progress "$elapsed_count" "$timeout_seconds" "Establishing connection"
+  while [[ "$current_time" -le "$end_time" ]]; do
 
     profile_server_json=$(fetch_profile_server)
 
@@ -380,6 +372,18 @@ establish_vpn_connection() {
     while read -r line; do
       profile_server_array+=("$line")
     done < <(echo "$profile_server_json" | jq -c '.[]')
+
+    # Update the current time
+    current_time=$(date +%s)
+
+    # Calculate the time consumed
+    progression_count=$((current_time - start_time))
+
+    # Present the time consumed as lapsed count
+    elapsed_count=$([[ "$progression_count" -lt 1 ]] && echo 0 || echo $progression_count)
+
+    # Print the connection check progress using the progress bar function
+    display_progress "$elapsed_count" "$timeout_seconds" "Waiting for established connection"
 
     for profile_server_item in "${profile_server_array[@]}"; do
       profile_name="$(echo "$profile_server_item" | jq -r ".name")"
@@ -420,24 +424,24 @@ establish_vpn_connection() {
       break
     fi
 
-    # Print the timeout message and exit error if needed
-    if [[ "$current_time" -ge "$end_time" ]]; then
-      echo "Timeout reached!"
-      if [[ "$connections_connected" -gt 0 ]] && [[ "$connections_connected" -lt "$connections_expected" ]]; then
-        echo "We could not establish a connection to other servers, but we will go ahead and proceed anyway."
-        break
-      else
-        echo "We could not connect to the server(s) specified in the profile. The process has been terminated."
-        exit 1
-      fi
-    fi
-
-    # Sleep for a moment (simulating work)
+    # Sleep for a moment
     sleep 1
 
-    # Update the current time
+    # Update once again the current time
     current_time=$(date +%s)
   done
+
+  # Print the timeout message and exit error if needed
+  if [[ "$current_time" -gt "$end_time" ]]; then
+    echo "Timeout reached!"
+    if [[ "$connections_connected" -gt 0 ]] && [[ "$connections_connected" -lt "$connections_expected" ]]; then
+      echo "We could not establish a connection to other servers, but we will go ahead and proceed anyway."
+      break
+    else
+      echo "We could not connect to the server(s) specified in the profile. The process has been terminated."
+      exit 1
+    fi
+  fi
 }
 
 # Get the Profile Server
@@ -519,16 +523,16 @@ display_progress() {
   # It's used to provide visual feedback on the progress of certain actions.
 
   # Define the current, the total step in the process and the message to display
-  local current_step="$1"
-  local total_steps="$2"
-  local message="$3"
+  local current_step
+  local total_steps
+  local message
 
   # Calculate the percentage progress
-  local percentage=$((current_step * 100 / total_steps))
+  local percentage
 
   # Calculate the number of completed and remaining characters for the progress bar
-  local completed=$((percentage / 2))
-  local remaining=$((50 - completed))
+  local completed
+  local remaining
 
   # Progress Counter
   current_step="$1"
