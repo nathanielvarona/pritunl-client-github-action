@@ -13,26 +13,29 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 ## Connection Tests
 
+
 [![Connection Tests - Basic](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml?query=branch:main)
 [![Connection Tests - Complete](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml?query=branch:main)
-[![Connection Tests - Manual (README Example)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yml?query=branch:main)
 [![Connection Tests - Multi Server Profile](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml?query=branch:main)
+[![Connection Tests - Manual (README Example)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yml?query=branch:main)
+[![Connection Tests - Arm64](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml?query=branch:main)
 
 Compatibility and Common [Issues](https://github.com/nathanielvarona/pritunl-client-github-action/issues?q=is:issue) between the Runners and VPN Mode.
 
-Runner         | OpenVPN                | WireGuard
----------------|------------------------|-----------------------
-`ubuntu-22.04` | :white_check_mark: yes | :white_check_mark: yes
-`ubuntu-20.04` | :white_check_mark: yes | :white_check_mark: yes
-`macos-13`     | :white_check_mark: yes | :white_check_mark: yes
-`macos-12`     | :white_check_mark: yes | :white_check_mark: yes
-`windows-2022` | :white_check_mark: yes | :white_check_mark: yes
-`windows-2019` | :white_check_mark: yes | :white_check_mark: yes
+Runner                              | OpenVPN                | WireGuard
+------------------------------------|------------------------|-----------------------
+`ubuntu-22.04`                      | :white_check_mark: yes | :white_check_mark: yes
+`ubuntu-20.04`                      | :white_check_mark: yes | :white_check_mark: yes
+`macos-13`                          | :white_check_mark: yes | :white_check_mark: yes
+`macos-13-xlarge` <sup>arm64*</sup> | :white_check_mark: yes | :white_check_mark: yes
+`macos-12`                          | :white_check_mark: yes | :white_check_mark: yes
+`windows-2022`                      | :white_check_mark: yes | :white_check_mark: yes
+`windows-2019`                      | :white_check_mark: yes | :white_check_mark: yes
 
 > [!TIP]
 > Kindly check out the comprehensive connection tests matrix available on our [GitHub Actions](https://github.com/nathanielvarona/pritunl-client-github-action/actions) page.
 
-_As of the most recent updates and releases, we have confirmed compatibility with [Pritunl v1.32.3805.95](https://github.com/pritunl/pritunl/releases/tag/1.32.3805.95) Server through rigorous testing. Server clusters are deployed on both [AWS](https://aws.amazon.com/) and [Azure](https://azure.microsoft.com/) cloud platforms._
+_As of the most recent updates and releases, we have confirmed compatibility with [Pritunl v1.32.3805.95](https://github.com/pritunl/pritunl/releases/tag/1.32.3805.95) Server through rigorous testing. Server clusters are deployed on both [AWS](https://aws.amazon.com/), [Azure](https://azure.microsoft.com/) and [Linode (Akamai)](https://www.linode.com/) cloud platforms._
 
 ## Usage
 
@@ -367,21 +370,15 @@ encode_profile_and_copy https://vpn.domain.tld/key/a1b2c3d4e5.tar
 
 ## Supported Arm64 Architecture Runners
 
-[![Connection Tests - Arm64](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml?query=branch:main)
-
-Runner                          | OpenVPN                | WireGuard
---------------------------------|------------------------|-----------------------
-`macos-13-xlarge`<sup>*w1</sup> | :white_check_mark: yes | :white_check_mark: yes
-
-> [!WARNING]
-> <sup>*w1</sup> — _"These runner will always be charged for, including in public repositories."_
->
-> For a comprehensive overview of your billing details, we recommend starting with the "[About billing for GitHub Actions](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions)" page for thorough insights.
-
 > [!TIP]
 > Kindly check the GitHub Action workflow file [connection-tests-arm64.yml](./.github/workflows/connection-tests-arm64.yml) for the Arm64 running example.
 
-## Development and Contributing
+> [!WARNING]
+> <sup>arm64*</sup> — _"These runner will always be charged for, including in public repositories."_
+>
+> For a comprehensive overview of your billing details, we recommend starting with the "[About billing for GitHub Actions](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions)" page for thorough insights.
+
+## Development and Contribution
 
 If you have any suggestions for improvement, please don't hesitate to fork the project and submit a Pull Request.
 
