@@ -181,7 +181,7 @@ link_executable_to_bin() {
     fi
     ln -s "$executable_file" "$bin_directory"
   else
-    echo -e "${RED_NORMAL}Installation of the executable '$executable_file' failed!${COLOR_RESET}" && exit 1
+    echo -e "${RED_NORMAL}Installation of the executable \`$executable_file\` failed.${COLOR_RESET}" && exit 1
   fi
 }
 
@@ -244,7 +244,7 @@ setup_profile_file() {
 
   # Check if the base64 data is valid
   if ! [[ $(base64 -d <<< "$profile_base64" 2>/dev/null | tr -d '\0') ]]; then
-    echo -e "${RED_NORMAL}Base64 data is not valid!${COLOR_RESET}" && exit 1
+    echo -e "${RED_NORMAL}Base64 data is not valid.${COLOR_RESET}" && exit 1
   fi
 
   # If the base64 data is valid, decode it and store it to tempotary file.
@@ -253,12 +253,12 @@ setup_profile_file() {
   if [[ -e "$profile_file" ]]; then
     # Check if the file is a valid tar archive
     if ! file "$profile_file" | grep -q 'tar archive'; then
-      echo -e "${RED_NORMAL}The file is not a valid tar archive!${COLOR_RESET}" && exit 1
+      echo -e "${RED_NORMAL}The file is not a valid tar archive.${COLOR_RESET}" && exit 1
     fi
   fi
 
   if ! pritunl-client add "$profile_file"; then
-    echo -e "${RED_NORMAL}It appears that the profile file cannot be loaded!${COLOR_RESET}" && exit 1
+    echo -e "${RED_NORMAL}It appears that the profile file cannot be loaded.${COLOR_RESET}" && exit 1
   else
     rm -f "$profile_file"
   fi
@@ -302,7 +302,7 @@ setup_profile_file() {
 
       # Print the timeout message and exit error if needed
       if [[ "$current_time" -ge "$end_time" ]]; then
-        echo -e "${RED_NORMAL}No server entries found for a profile!${COLOR_RESET}" && exit 1
+        echo -e "${RED_NORMAL}No server entries found for a profile.${COLOR_RESET}" && exit 1
       fi
     fi
   done
@@ -583,7 +583,7 @@ normalize_vpn_mode() {
       PRITUNL_VPN_MODE="wg"
       ;;
     *)
-      echo "Invalid VPN mode for '$PRITUNL_VPN_MODE'!" && exit 1
+      echo -e "${RED_NORMAL}Invalid VPN mode for \`$PRITUNL_VPN_MODE\`.${COLOR_RESET}" && exit 1
       ;;
   esac
 }
@@ -607,12 +607,12 @@ validate_client_version() {
 
   # Validate Client Version Pattern
   if ! [[ "$version" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
-    echo "Invalid version pattern for '$version'!" && exit 1
+    echo -e "${RED_NORMAL}Invalid version pattern for \`$version\`.${COLOR_RESET}" && exit 1
   fi
 
   # Use curl to fetch the raw file and pipe it to grep
   if ! [[ $(curl -sSL $version_file | grep -c "$version") -ge 1 ]]; then
-    echo "Version '$version' does not exist in the '$pritunl_client_repo' source!" && exit 1
+    echo -e "${RED_NORMAL}Version \`$version\` does not exist in the \`$pritunl_client_repo\` source.${COLOR_RESET}" && exit 1
   fi
 }
 
@@ -670,6 +670,6 @@ case "$RUNNER_OS" in
     ;;
   *)
     # If the operating system is not supported, it prints an error message and exits.
-    echo -e "${RED_BOLD}Unsupported OS: $RUNNER_OS${COLOR_RESET}" && exit 1
+    echo -e "${RED_BOLD}Unsupported OS: \`$RUNNER_OS\`.${COLOR_RESET}" && exit 1
     ;;
 esac
