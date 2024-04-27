@@ -616,6 +616,32 @@ validate_client_version() {
   fi
 }
 
+# Function to display the installed Pritunl client version
+display_installed_client() {
+  # Print the Pritunl client version with colorful output
+  # Using awk to format the output
+  pritunl-client version |
+    awk 'BEGIN {
+      # Define ASCII art rocket and color codes
+      rocket="'$EMOJI_ROCKET'"
+      blue="'$BLUE_BOLD'"
+      green="'$GREEN_BOLD'"
+      reset="'$COLOR_RESET'"
+    }
+    # Format the output with colors and rocket ASCII art
+    {
+      printf "%s %s%s %s%s %s%s%s\n", 
+        rocket, 
+        blue, 
+        $1, 
+        $2, 
+        reset, 
+        green, 
+        $3, 
+        reset
+    }'
+}
+
 # Installation process based on OS
 install_vpn_platform() {
   # This function selects the appropriate installation process based on the operating system.
@@ -646,15 +672,7 @@ case "$RUNNER_OS" in
     # Installation process based on OS
     if install_vpn_platform; then
       # Show the Pritunl client version
-      pritunl-client version | awk 'BEGIN {
-        rocket="'$EMOJI_ROCKET'"
-        blue="'$BLUE_BOLD'"
-        green="'$GREEN_BOLD'"
-        reset="'$COLOR_RESET'"
-      }
-      {
-        printf "%s %s%s %s%s %s%s%s\n", rocket, blue, $1, $2, reset, green, $3, reset
-      }'
+      display_installed_client
     fi
 
     # Load the Pritunl Profile File
