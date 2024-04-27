@@ -50,9 +50,30 @@ install_for_linux() {
     # Installing using Pritunl Prebuilt Apt Repository
     # This section sets up the Pritunl repository and installs the client using the package manager.
 
+    # Set the Pritunl Linux runner GPG key
+    # Default value: 7568D9BB55FF9E5287D586017AE645C0CF8E292A
+    # Check https://keyserver.ubuntu.com/ for the latest key
+    PRITUNL_LINUX_RUNNER_GPG_KEY="${PRITUNL_LINUX_RUNNER_GPG_KEY:-7568D9BB55FF9E5287D586017AE645C0CF8E292A}"
+
+    # Note: If the default key fails, you can override it with a new key
+    # Example: In GitHub Actions, use the 'env' key to set a new GPG key
+    # See the example workflow below:
+    # ```
+    # - name: Setup Pritunl Profile and Start VPN Connection
+    #   uses: nathanielvarona/pritunl-client-github-action@v1
+    #   with:
+    #     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
+    #   env:
+    #     PRITUNL_LINUX_RUNNER_GPG_KEY: '<YOUR OVERRIDE GPG KEY>'
+    # ```
+
+    # Add Pritunl repository to the system
     echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/pritunl.list
-    gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys 7568D9BB55FF9E5287D586017AE645C0CF8E292A > /dev/null 2>&1
-    gpg --armor --export 7568D9BB55FF9E5287D586017AE645C0CF8E292A | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc > /dev/null
+    # Import Pritunl's GPG key
+    gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys ${PRITUNL_LINUX_RUNNER_GPG_KEY} > /dev/null 2>&1
+    # Export the GPG key and add it to the trusted keyring
+    gpg --armor --export ${PRITUNL_LINUX_RUNNER_GPG_KEY} | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc > /dev/null
+    # Update the package list and install Pritunl client
     sudo apt-get update -qq -y && sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y pritunl-client
 
   else
