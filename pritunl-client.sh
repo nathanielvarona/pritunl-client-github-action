@@ -483,13 +483,13 @@ establish_vpn_connection() {
           # If the object already exists, filter it out and append the updated object
           connections_status=$(
             echo "$connections_status" |
-              jq --arg profile_id "$profile_id" '. | map(select(.id != $profile_id)) + [{"id": $profile_id, "status": "connected"}]'
+              jq --arg profile_id "$profile_id" '. | map(select(.id != $profile_id)) + [{"id": $profile_id}]'
           )
         else
           # If the object does not exist, use jq to append it to the JSON array
           connections_status=$(
             echo "$connections_status" |
-              jq --arg profile_id "$profile_id" '. + [{"id": $profile_id, "status": "connected"}]'
+              jq --arg profile_id "$profile_id" '. + [{"id": $profile_id}]'
           )
           echo -e "The connection for profile \`${TTY_GREEN_NORMAL}${profile_name}${TTY_COLOR_RESET}\` has been fully established."
         fi
