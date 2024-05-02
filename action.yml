@@ -3,48 +3,48 @@ description: Establish a Pritunl VPN connection using Pritunl Client supporting 
 
 inputs:
   profile-file:
-    description: 'The corporate provided or self-obtained Pritunl Profile Key file.'
+    description: Pritunl Profile Key file
     required: true
     default: ''
 
   profile-pin:
-    description: 'The Pritunl Profile PIN/Password if provided.'
+    description: Pritunl Profile PIN/Password
     required: false
     default: ''
 
   profile-server:
-    description: 'The Pritunl Profile Server if provided, especially multiple servers in a profile.'
+    description: Pritunl Profile Server (for multiple servers in a profile)
     required: false
     default: ''
 
   vpn-mode:
-    description: 'The VPN mode from the two choices is `ovpn` for OpenVPN or `wg` for WireGuard.'
+    description: VPN mode (ovpn for OpenVPN or wg for WireGuard)
     required: false
     default: 'ovpn'
 
   client-version:
-    description: 'The Version of Pritunl Client to use.'
+    description: Pritunl Client version (defaults to package manager version)
     required: false
     default: 'from-package-manager'
 
   start-connection:
-    description: 'Start the VPN Connection Automatically.'
+    description: Start VPN connection automatically (true/false)
     required: false
     default: 'true'
 
   ready-profile-timeout:
-    description: 'Wait for Ready Profile Timeout.'
+    description: Wait for Ready Profile timeout (seconds)
     required: false
     default: '3'
 
   established-connection-timeout:
-    description: 'Wait for Established Connection Timeout.'
+    description: Wait for Established Connection timeout (seconds)
     required: false
     default: '30'
 
 outputs:
   client-id:
-    description: "Pritunl Client ID"
+    description: Unique Pritunl Client ID
     value: ${{ steps.pritunl-client.outputs.client-id }}
 
 runs:
@@ -53,6 +53,7 @@ runs:
     - name: Setup Pritunl Client
       id: pritunl-client
       env:
+        # Set environment variables for input values
         PRITUNL_PROFILE_FILE: ${{ inputs.profile-file }}
         PRITUNL_PROFILE_PIN: ${{ inputs.profile-pin }}
         PRITUNL_PROFILE_SERVER: ${{ inputs.profile-server }}

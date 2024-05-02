@@ -1,43 +1,43 @@
 #!/usr/bin/env bash
 
-#
-# For further information on Pritunl Client package releases, installation methods, and setup procedures,
-# kindly refer to the distribution link sources provided below.
-#
+# Refer to these links for Pritunl Client installation and setup guides:
 # https://client.pritunl.com/#install
 # https://docs.pritunl.com/docs/installation-client
 # https://github.com/pritunl/pritunl-client-electron
-#
 
-# Set up error handling
-set -euo pipefail
+# Set up error handling to ensure the script fails on errors and pipes
+set -euo pipefail  # Enables error handling and pipefail
 
-# The script starts by defining environment variables based on GitHub Action inputs.
-# Default values are set if these inputs are not provided.
+# Define environment variables based on GitHub Action inputs
+# Default values are set if inputs are not provided
 
 # GitHub Action Inputs as Environment Variables
-PRITUNL_PROFILE_FILE="${PRITUNL_PROFILE_FILE:-}"
-PRITUNL_PROFILE_PIN="${PRITUNL_PROFILE_PIN:-}"
-PRITUNL_PROFILE_SERVER="${PRITUNL_PROFILE_SERVER:-}"
-PRITUNL_VPN_MODE="${PRITUNL_VPN_MODE:-}"
-PRITUNL_CLIENT_VERSION="${PRITUNL_CLIENT_VERSION:-}"
-PRITUNL_START_CONNECTION="${PRITUNL_START_CONNECTION:-}"
-PRITUNL_READY_PROFILE_TIMEOUT="${PRITUNL_READY_PROFILE_TIMEOUT:-}"
-PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT:-}"
+PRITUNL_PROFILE_FILE="${PRITUNL_PROFILE_FILE:-}"  # Pritunl Profile File
+PRITUNL_PROFILE_PIN="${PRITUNL_PROFILE_PIN:-}"  # Pritunl Profile PIN
+PRITUNL_PROFILE_SERVER="${PRITUNL_PROFILE_SERVER:-}"  # Pritunl Profile Server
+PRITUNL_VPN_MODE="${PRITUNL_VPN_MODE:-}"  # VPN Connection Mode
+PRITUNL_CLIENT_VERSION="${PRITUNL_CLIENT_VERSION:-}"  # Pritunl Client Version
+PRITUNL_START_CONNECTION="${PRITUNL_START_CONNECTION:-}"  # Start VPN Connection
+PRITUNL_READY_PROFILE_TIMEOUT="${PRITUNL_READY_PROFILE_TIMEOUT:-}"  # Ready Profile Timeout
+PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT:-}"  # Established Connection Timeout
+
+# ---------------------------------------------------------------
 
 # Emoji Icons
-EMOJI_ROCKET='\xf0\x9f\x9a\x80'
+TTY_EMOJI_ROCKET='\xf0\x9f\x9a\x80'  # Rocket emoji for visual feedback
+
+# ---------------------------------------------------------------
 
 # Terminal Colors
-RED_NORMAL='\033[0;31m'
-RED_BOLD='\033[1;31m'
-GREEN_NORMAL='\033[0;32m'
-GREEN_BOLD='\033[1;32m'
-YELLOW_NORMAL='\033[0;33m'
-YELLOW_BOLD='\033[1;33m'
-BLUE_NORMAL='\033[0;34m'
-BLUE_BOLD='\033[1;34m'
-COLOR_RESET='\033[0m'
+TTY_RED_NORMAL='\033[0;31m'  # Normal red color
+TTY_RED_BOLD='\033[1;31m'  # Bold red color
+TTY_GREEN_NORMAL='\033[0;32m'  # Normal green color
+TTY_GREEN_BOLD='\033[1;32m'  # Bold green color
+TTY_YELLOW_NORMAL='\033[0;33m'  # Normal yellow color
+TTY_YELLOW_BOLD='\033[1;33m'  # Bold yellow color
+TTY_BLUE_NORMAL='\033[0;34m'  # Normal blue color
+TTY_BLUE_BOLD='\033[1;34m'  # Bold blue color
+TTY_COLOR_RESET='\033[0m'  # Reset terminal color
 
 # Installation process for Linux
 install_for_linux() {
@@ -202,7 +202,7 @@ link_executable_to_bin() {
     fi
     ln -s "$executable_file" "$bin_directory"
   else
-    echo -e "${RED_NORMAL}Installation of the executable \`$executable_file\` failed.${COLOR_RESET}" && exit 1
+    echo -e "${TTY_RED_NORMAL}Installation of the executable \`$executable_file\` failed.${TTY_COLOR_RESET}" && exit 1
   fi
 }
 
@@ -265,7 +265,7 @@ setup_profile_file() {
 
   # Check if the base64 data is valid
   if ! [[ $(base64 -d <<< "$profile_base64" 2>/dev/null | tr -d '\0') ]]; then
-    echo -e "${RED_NORMAL}Base64 data is not valid.${COLOR_RESET}" && exit 1
+    echo -e "${TTY_RED_NORMAL}Base64 data is not valid.${TTY_COLOR_RESET}" && exit 1
   fi
 
   # If the base64 data is valid, decode it and store it to tempotary file.
@@ -274,12 +274,12 @@ setup_profile_file() {
   if [[ -e "$profile_file" ]]; then
     # Check if the file is a valid tar archive
     if ! file "$profile_file" | grep -q 'tar archive'; then
-      echo -e "${RED_NORMAL}The file is not a valid tar archive.${COLOR_RESET}" && exit 1
+      echo -e "${TTY_RED_NORMAL}The file is not a valid tar archive.${TTY_COLOR_RESET}" && exit 1
     fi
   fi
 
   if ! pritunl-client add "$profile_file"; then
-    echo -e "${RED_NORMAL}It appears that the profile file cannot be loaded.${COLOR_RESET}" && exit 1
+    echo -e "${TTY_RED_NORMAL}It appears that the profile file cannot be loaded.${TTY_COLOR_RESET}" && exit 1
   else
     rm -f "$profile_file"
   fi
@@ -298,7 +298,7 @@ setup_profile_file() {
 
       # Display the profile name and client id in the logs.
       echo "======================================================="
-      echo -e "Profile is set, the step output \`${BLUE_NORMAL}client-id${COLOR_RESET}\` is created."
+      echo -e "Profile is set, the step output \`${TTY_BLUE_NORMAL}client-id${TTY_COLOR_RESET}\` is created."
       echo "======================================================="
       echo "$client_id" | jq -C
       echo "======================================================="
@@ -323,7 +323,7 @@ setup_profile_file() {
 
       # Print the timeout message and exit error if needed
       if [[ "$current_time" -ge "$end_time" ]]; then
-        echo -e "${RED_NORMAL}No server entries found for a profile.${COLOR_RESET}" && exit 1
+        echo -e "${TTY_RED_NORMAL}No server entries found for a profile.${TTY_COLOR_RESET}" && exit 1
       fi
     fi
   done
@@ -445,7 +445,7 @@ establish_vpn_connection() {
             echo "$connections_status" |
               jq --arg profile_id "$profile_id" '. + [{"id": $profile_id, "status": "connected"}]'
           )
-          echo -e "The connection for profile \`${GREEN_NORMAL}${profile_name}${COLOR_RESET}\` has been fully established."
+          echo -e "The connection for profile \`${TTY_GREEN_NORMAL}${profile_name}${TTY_COLOR_RESET}\` has been fully established."
         fi
 
       fi
@@ -455,7 +455,7 @@ establish_vpn_connection() {
     connections_expected="$(echo $profile_server_json | jq ". | length")"
 
     if [[ "$connections_connected" -eq "$connections_expected" ]]; then
-      echo -e "${GREEN_BOLD}The profile, which has designated server(s), has been successfully set up.${COLOR_RESET}"
+      echo -e "${TTY_GREEN_BOLD}The profile, which has designated server(s), has been successfully set up.${TTY_COLOR_RESET}"
       break
     fi
 
@@ -470,10 +470,10 @@ establish_vpn_connection() {
   if [[ "$current_time" -gt "$end_time" ]]; then
     echo "Timeout reached!"
     if [[ "$connections_connected" -gt 0 ]] && [[ "$connections_connected" -lt "$connections_expected" ]]; then
-      echo -e "${YELLOW_BOLD}We could not establish a connection to other servers, but we will go ahead and proceed anyway.${COLOR_RESET}"
+      echo -e "${TTY_YELLOW_BOLD}We could not establish a connection to other servers, but we will go ahead and proceed anyway.${TTY_COLOR_RESET}"
       break
     else
-      echo -e "${RED_BOLD}We could not connect to the server(s) specified in the profile. The process has been terminated.${COLOR_RESET}" && exit 1
+      echo -e "${TTY_RED_BOLD}We could not connect to the server(s) specified in the profile. The process has been terminated.${TTY_COLOR_RESET}" && exit 1
     fi
   fi
 }
@@ -579,12 +579,12 @@ display_progress() {
   # Print the progress bar
   echo -n -e "$message: ["
   for ((i = 0; i < completed; i++)); do
-    echo -n -e "${YELLOW_NORMAL}#${COLOR_RESET}"
+    echo -n -e "${TTY_YELLOW_NORMAL}#${TTY_COLOR_RESET}"
   done
   for ((i = 0; i < remaining; i++)); do
-    echo -n -e "${GREEN_NORMAL}-${COLOR_RESET}"
+    echo -n -e "${TTY_GREEN_NORMAL}-${TTY_COLOR_RESET}"
   done
-  echo -n -e "] ${YELLOW_NORMAL}${current_step}s${COLOR_RESET} elapsed (out of ${GREEN_NORMAL}${total_steps}s${COLOR_RESET} allowed)."
+  echo -n -e "] ${TTY_YELLOW_NORMAL}${current_step}s${TTY_COLOR_RESET} elapsed (out of ${TTY_GREEN_NORMAL}${total_steps}s${TTY_COLOR_RESET} allowed)."
 
   # Print new line
   echo -n -e "\n"
@@ -604,7 +604,7 @@ normalize_vpn_mode() {
       PRITUNL_VPN_MODE="wg"
       ;;
     *)
-      echo -e "${RED_NORMAL}Invalid VPN mode for \`$PRITUNL_VPN_MODE\`.${COLOR_RESET}" && exit 1
+      echo -e "${TTY_RED_NORMAL}Invalid VPN mode for \`$PRITUNL_VPN_MODE\`.${TTY_COLOR_RESET}" && exit 1
       ;;
   esac
 }
@@ -628,12 +628,12 @@ validate_client_version() {
 
   # Validate Client Version Pattern
   if ! [[ "$version" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
-    echo -e "${RED_NORMAL}Invalid version pattern for \`$version\`.${COLOR_RESET}" && exit 1
+    echo -e "${TTY_RED_NORMAL}Invalid version pattern for \`$version\`.${TTY_COLOR_RESET}" && exit 1
   fi
 
   # Use curl to fetch the raw file and pipe it to grep
   if ! [[ $(curl -sSL $version_file | grep -c "$version") -ge 1 ]]; then
-    echo -e "${RED_NORMAL}Version \`$version\` does not exist in the \`$pritunl_client_repo\` source.${COLOR_RESET}" && exit 1
+    echo -e "${TTY_RED_NORMAL}Version \`$version\` does not exist in the \`$pritunl_client_repo\` source.${TTY_COLOR_RESET}" && exit 1
   fi
 }
 
@@ -644,10 +644,10 @@ display_installed_client() {
   pritunl-client version |
     awk 'BEGIN {
       # Define ASCII art rocket and color codes
-      rocket="'$EMOJI_ROCKET'"
-      blue="'$BLUE_BOLD'"
-      green="'$GREEN_BOLD'"
-      reset="'$COLOR_RESET'"
+      rocket="'$TTY_EMOJI_ROCKET'"
+      blue="'$TTY_BLUE_BOLD'"
+      green="'$TTY_GREEN_BOLD'"
+      reset="'$TTY_COLOR_RESET'"
     }
     # Format the output with colors and rocket ASCII art
     {
@@ -682,33 +682,33 @@ install_vpn_platform() {
 }
 
 # Main script execution
-case "$RUNNER_OS" in
+case "${RUNNER_OS}" in
   Linux|macOS|Windows)
-    # The main script begins by checking the operating system and then proceeds with the installation and setup.
-    # It also starts the VPN connection and waits for it to be established if specified.
+    # Check the operating system and proceed with installation, setup, and starting the VPN connection if specified
 
-    # Normalize the VPN mode
+    # Normalize the VPN mode to ensure consistency
     normalize_vpn_mode
 
-    # Installation process based on OS
+    # Install the VPN client based on the operating system
     if install_vpn_platform; then
-      # Show the Pritunl client version
+      # Display the installed Pritunl client version for reference
       display_installed_client
     fi
 
-    # Load the Pritunl Profile File
+    # Load the Pritunl Profile File for configuration
     setup_profile_file
 
-    if [[ "$PRITUNL_START_CONNECTION" == "true" ]]; then
-      # Starting the VPN connection
+    # Check if the VPN connection should be started automatically
+    if [[ "${PRITUNL_START_CONNECTION}" == "true" ]]; then
+      # Start the VPN connection
       start_vpn_connection
 
-      # Waiting for Established VPN Connection
+      # Wait for the VPN connection to be established
       establish_vpn_connection
     fi
     ;;
   *)
-    # If the operating system is not supported, it prints an error message and exits.
-    echo -e "${RED_BOLD}Unsupported OS: \`$RUNNER_OS\`.${COLOR_RESET}" && exit 1
+    # If the operating system is not supported, print an error message and exit
+    echo -e "${TTY_RED_BOLD}Unsupported OS: ${RUNNER_OS}.${TTY_COLOR_RESET}" && exit 1
     ;;
 esac
