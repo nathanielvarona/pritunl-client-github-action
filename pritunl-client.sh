@@ -20,15 +20,10 @@ PRITUNL_CLIENT_VERSION="${PRITUNL_CLIENT_VERSION:-}"  # Pritunl Client Version
 PRITUNL_START_CONNECTION="${PRITUNL_START_CONNECTION:-}"  # Start VPN Connection
 PRITUNL_READY_PROFILE_TIMEOUT="${PRITUNL_READY_PROFILE_TIMEOUT:-}"  # Ready Profile Timeout
 PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT:-}"  # Established Connection Timeout
-
 # ---------------------------------------------------------------
 
-# Emoji Icons
+# ASCII Art and Color Codes
 TTY_EMOJI_ROCKET='\xf0\x9f\x9a\x80'  # Rocket emoji for visual feedback
-
-# ---------------------------------------------------------------
-
-# Terminal Colors
 TTY_RED_NORMAL='\033[0;31m'  # Normal red color
 TTY_RED_BOLD='\033[1;31m'  # Bold red color
 TTY_GREEN_NORMAL='\033[0;32m'  # Normal green color
@@ -38,12 +33,14 @@ TTY_YELLOW_BOLD='\033[1;33m'  # Bold yellow color
 TTY_BLUE_NORMAL='\033[0;34m'  # Normal blue color
 TTY_BLUE_BOLD='\033[1;34m'  # Bold blue color
 TTY_COLOR_RESET='\033[0m'  # Reset terminal color
+# ---------------------------------------------------------------
 
 # Installation process for Linux
 install_for_linux() {
   # This function contains code to install the Pritunl client on Linux.
   # It installs dependent packages, configures repositories, and installs the client.
 
+  # Install dependent packages
   install_vpn_dependencies
 
   if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
@@ -84,15 +81,20 @@ install_for_linux() {
     local pritunl_install_file
     local deb_url
 
+    # Validate client version
     validate_client_version "$PRITUNL_CLIENT_VERSION"
 
+    # Set install file path
     pritunl_install_file="$RUNNER_TEMP/pritunl-client.deb"
+    # Set download URL
     deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/pritunl-client_$PRITUNL_CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
 
+    # Download the Debian package
     curl -sSL "$deb_url" -o "$pritunl_install_file"
 
-    # Installing using APT package handling utility
+    # Install using APT package handling utility
     if sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y "$pritunl_install_file"; then
+      # Remove the install file
       rm -f "$pritunl_install_file"
     fi
   fi
@@ -107,39 +109,55 @@ install_for_macos() {
   local pritunl_client_bin
   local user_bin_directory
 
+  # Install dependent packages
   install_vpn_dependencies
 
   if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
     # Installing using Homebrew Package Manager for macOS
+    # This section installs the Pritunl client using Homebrew.
 
+    # Install Pritunl client using Homebrew
     brew install -q --cask pritunl
 
   else
     # Installing Version Specific using macOS Package from Pritunl GitHub Releases
+    # This section installs a specific version of the client from GitHub releases.
 
+    # Define install file and URL
     local pritunl_install_file
     local pkg_zip_url
     local pkg_arch
 
+    # Validate client version
     validate_client_version "$PRITUNL_CLIENT_VERSION"
 
+    # Set package architecture (arm64 or empty)
     pkg_arch=$([[ "$RUNNER_ARCH" == "ARM64" ]] && echo 'arm64.' || echo '')
 
+    # Set install file path and download URL
     pritunl_install_file="$RUNNER_TEMP/Pritunl.${pkg_arch}pkg.zip"
     pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/Pritunl.${pkg_arch}pkg.zip"
 
+    # Download the package
     curl -sSL "$pkg_zip_url" -o "$pritunl_install_file"
+
+    # Unzip the package
     unzip -qq -o "$pritunl_install_file" -d "$RUNNER_TEMP"
 
-    # Installing using MacOS `installer` a system software and .pkg package installer tool
+    # Install using MacOS `installer` tool
     if sudo installer -pkg "$RUNNER_TEMP/Pritunl.${pkg_arch}pkg" -target /; then
+      # Remove the install file and package
       rm -f "$pritunl_install_file" "$RUNNER_TEMP/Pritunl.${pkg_arch}pkg"
     fi
   fi
 
+  # Set Pritunl client binary path
   pritunl_client_bin="/Applications/Pritunl.app/Contents/Resources/pritunl-client"
+
+  # Set user bin directory
   user_bin_directory="$HOME/bin/"
 
+  # Link the executable to the user bin directory
   link_executable_to_bin "$pritunl_client_bin" "$user_bin_directory"
 }
 
@@ -152,35 +170,48 @@ install_for_windows() {
   local pritunl_client_bin
   local user_bin_directory
 
+  # Install dependent packages
   install_vpn_dependencies
 
   if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
     # Installing using Choco Package Manager for Windows
+    # This section installs the Pritunl client using Chocolatey.
 
+    # Install Pritunl client using Chocolatey
     choco install --no-progress -y pritunl-client
 
   else
-    # Install Version Specific using Windows Package from Pritunl GitHub Releases
+    # Installing Version Specific using Windows Package from Pritunl GitHub Releases
+    # This section installs a specific version of the client from GitHub releases.
 
+    # Define install file and URL
     local pritunl_install_file
     local exe_url
 
+    # Validate client version
     validate_client_version "$PRITUNL_CLIENT_VERSION"
 
+    # Set install file path and download URL
     pritunl_install_file="$RUNNER_TEMP\Pritunl.exe"
     exe_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/Pritunl.exe"
 
+    # Download the executable
     curl -sSL "$exe_url" -o "$pritunl_install_file"
 
-    # Installing using Ad hoc PowerShell Script
+    # Install using Ad hoc PowerShell Script
     if pwsh -ExecutionPolicy Bypass -Command "Start-Process -FilePath '$pritunl_install_file' -ArgumentList '/VERYSILENT /SUPPRESSMSGBOXES /NORESTART /SP-' -Wait"; then
+      # Remove the install file
       rm -f "$pritunl_install_file"
     fi
   fi
 
+  # Set Pritunl client binary path
   pritunl_client_bin="/c/Program Files (x86)/Pritunl/pritunl-client.exe"
+
+  # Set user bin directory
   user_bin_directory="$HOME/bin/"
 
+  # Link the executable to the user bin directory
   link_executable_to_bin "$pritunl_client_bin" "$user_bin_directory"
 }
 
@@ -193,15 +224,20 @@ link_executable_to_bin() {
   local executable_file
   local bin_directory
 
+  # Set executable file path and bin directory from function arguments
   executable_file="$1"
   bin_directory="$2"
 
+  # Check if the executable file exists
   if [[ -e "$executable_file" ]]; then
+    # Check if the bin directory exists, create it if it doesn't
     if ! [[ -d "$bin_directory" ]]; then
       mkdir -p "$bin_directory"
     fi
+    # Create a symbolic link to the executable in the bin directory
     ln -s "$executable_file" "$bin_directory"
   else
+    # Print an error message if the executable file is not found
     echo -e "${TTY_RED_NORMAL}Installation of the executable \`$executable_file\` failed.${TTY_COLOR_RESET}" && exit 1
   fi
 }
@@ -213,20 +249,27 @@ install_vpn_dependencies() {
   case "$RUNNER_OS" in
     Linux)
       # Install base dependent packages for `pritunl-client` on Linux
+      # Update package list and install required packages
       sudo apt-get update -qq -y
       sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y net-tools iptables openvpn resolvconf
+
+      # Install additional packages based on VPN mode
       if [[ "$PRITUNL_VPN_MODE" == "ovpn" ]]; then
+        # Install OpenVPN systemd-resolved package for ovpn mode
         sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y openvpn-systemd-resolved
       elif [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
+        # Install WireGuard tools for wg mode
         sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y wireguard-tools
       fi
       ;;
     macOS)
+      # Install WireGuard tools for macOS (only for wg mode)
       if [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
         brew install -q wireguard-tools
       fi
       ;;
     Windows)
+      # Install WireGuard for Windows (only for wg mode)
       if [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
         choco install --no-progress -y wireguard
       fi
@@ -268,7 +311,7 @@ setup_profile_file() {
     echo -e "${TTY_RED_NORMAL}Base64 data is not valid.${TTY_COLOR_RESET}" && exit 1
   fi
 
-  # If the base64 data is valid, decode it and store it to tempotary file.
+  # If the base64 data is valid, decode it and store it to temporary file.
   echo "$profile_base64" | base64 -d > "$profile_file"
 
   if [[ -e "$profile_file" ]]; then
@@ -291,7 +334,7 @@ setup_profile_file() {
 
     if [[ $(echo "$profile_server_json" | jq ". | length") -gt 0 ]]; then
       client_id=$(echo $profile_server_json | jq -c "[.[] | {name: .name, id: .id}]")
-      if [[ -n "$GITHUB_ACTIONS" ]]; then
+      if [[ -n "${GITHUB_ACTIONS}" ]]; then
         # Setting output parameter `client-id`.
         echo "client-id="$client_id"" >> "$GITHUB_OUTPUT"
       fi
@@ -346,10 +389,12 @@ start_vpn_connection() {
   # Get Profile
   profile_server_json=$(fetch_profile_server)
 
+  # Add VPN mode flag if set
   if [[ -n "$PRITUNL_VPN_MODE" ]]; then
     pritunl_client_start_flags+=( "--mode" "$PRITUNL_VPN_MODE" )
   fi
 
+  # Add password flag if set
   if [[ -n "$PRITUNL_PROFILE_PIN" ]]; then
     pritunl_client_start_flags+=( "--password" "$PRITUNL_PROFILE_PIN" )
   fi
@@ -359,6 +404,7 @@ start_vpn_connection() {
     profile_server_array+=("$line")
   done < <(echo "$profile_server_json" | jq -c '.[]')
 
+  # Start the VPN connection for each profile server
   for profile_server_item in "${profile_server_array[@]}"; do
     pritunl-client start "$(echo "$profile_server_item" | jq -r ".id")" "${pritunl_client_start_flags[@]}"
     sleep 1
@@ -548,6 +594,7 @@ fetch_profile_server() {
     profile_server_json="[$(echo "$profile_list_json" | jq -c ".[0]")]"
   fi
 
+  # Output the profile server JSON with proper formatting
   echo "$profile_server_json" | jq -c -M
 }
 
@@ -556,7 +603,7 @@ display_progress() {
   # This function displays a progress bar for various tasks.
   # It's used to provide visual feedback on the progress of certain actions.
 
-  # Define the current, the total step in the process and the message to display
+  # Define the current step, total steps, and message to display
   local current_step
   local total_steps
   local message
@@ -572,18 +619,25 @@ display_progress() {
   current_step="$1"
   total_steps="$2"
   message="$3"
+
+  # Calculate percentage progress
   percentage=$((current_step * 100 / total_steps))
+
+  # Calculate completed and remaining characters for progress bar
   completed=$((percentage / 2))
   remaining=$((50 - completed))
 
   # Print the progress bar
   echo -n -e "$message: ["
+  # Print completed characters (yellow)
   for ((i = 0; i < completed; i++)); do
     echo -n -e "${TTY_YELLOW_NORMAL}#${TTY_COLOR_RESET}"
   done
+  # Print remaining characters (green)
   for ((i = 0; i < remaining; i++)); do
     echo -n -e "${TTY_GREEN_NORMAL}-${TTY_COLOR_RESET}"
   done
+  # Print elapsed and total time
   echo -n -e "] ${TTY_YELLOW_NORMAL}${current_step}s${TTY_COLOR_RESET} elapsed (out of ${TTY_GREEN_NORMAL}${total_steps}s${TTY_COLOR_RESET} allowed)."
 
   # Print new line
@@ -595,15 +649,21 @@ normalize_vpn_mode() {
   # This function normalizes the VPN mode input to ensure it matches supported values.
   # It ensures the input is either "ovpn" or "wg" (OpenVPN or WireGuard).
 
-  # Normalization of characters and variable substitution
-  case "$(echo "$PRITUNL_VPN_MODE" | tr '[:upper:]' '[:lower:]')" in
+  # Normalize input to lowercase
+  local vpn_mode="$(echo "$PRITUNL_VPN_MODE" | tr '[:upper:]' '[:lower:]')"
+
+  # Check and normalize VPN mode
+  case "$vpn_mode" in
     ovpn|openvpn)
+      # Set normalized VPN mode to "ovpn"
       PRITUNL_VPN_MODE="ovpn"
       ;;
     wg|wireguard)
+      # Set normalized VPN mode to "wg"
       PRITUNL_VPN_MODE="wg"
       ;;
     *)
+      # Print error message if invalid VPN mode and exit
       echo -e "${TTY_RED_NORMAL}Invalid VPN mode for \`$PRITUNL_VPN_MODE\`.${TTY_COLOR_RESET}" && exit 1
       ;;
   esac
@@ -627,10 +687,12 @@ validate_client_version() {
   version_file="https://raw.githubusercontent.com/$pritunl_client_repo/master/CHANGES"
 
   # Validate Client Version Pattern
+  # Check if the version matches the pattern of digits and dots (e.g., 1.2.3.4)
   if ! [[ "$version" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
     echo -e "${TTY_RED_NORMAL}Invalid version pattern for \`$version\`.${TTY_COLOR_RESET}" && exit 1
   fi
 
+  # Check if the version exists in the source
   # Use curl to fetch the raw file and pipe it to grep
   if ! [[ $(curl -sSL $version_file | grep -c "$version") -ge 1 ]]; then
     echo -e "${TTY_RED_NORMAL}Version \`$version\` does not exist in the \`$pritunl_client_repo\` source.${TTY_COLOR_RESET}" && exit 1
@@ -652,14 +714,14 @@ display_installed_client() {
     # Format the output with rocket ASCII art and colors
     {
       # Print the version information with colors and rocket ASCII art
-      printf "%s %s%s %s%s %s%s%s\n", # Render Format
+      printf "%s %s%s %s%s %s%s%s\n", # Rendering Format
         rocket, # TTY Emoji Rocket
         blue, # TTY Color Blue
-        $1,  # Client name
-        $2,  # Client name
+        $1, # App Name Text
+        $2, # App Version Number
         reset, # TTY Color Reset
         green, # TTY Green Color
-        $3,  # Version Number
+        $3, # Version Number
         reset # TTY Color Reset
     }'
 }
@@ -667,16 +729,20 @@ display_installed_client() {
 # Installation process based on OS
 install_vpn_platform() {
   # This function selects the appropriate installation process based on the operating system.
+  # It uses the ${RUNNER_OS} variable to determine the OS and execute the corresponding installation script.
 
   # Install Packages by OS
-  case "$RUNNER_OS" in
+  case "${RUNNER_OS}" in
     Linux)
+      # Install VPN client for Linux
       install_for_linux
       ;;
     macOS)
+      # Install VPN client for macOS
       install_for_macos
       ;;
     Windows)
+      # Install VPN client for Windows
       install_for_windows
       ;;
   esac
