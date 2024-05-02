@@ -44,16 +44,17 @@ The configuration is declarative and relatively simple to use.
 ### Inputs
 
 ```yaml
-uses: nathanielvarona/pritunl-client-github-action@v1
-with:
-  profile-file: ''  # REQUIRED: Pritunl Profile File (Base64 text format)
-  profile-pin: ''  # OPTIONAL: Profile Pin (Numerical values, default: no pin)
-  profile-server: ''  # OPTIONAL: Profile Server (Single string or comma-separated for multiple names, default: first or only server in the profile)
-  vpn-mode: ''  # OPTIONAL: VPN Connection Mode ( choices: 'ovpn', 'openvpn', 'OpenVPN', 'wg', 'wireguard', 'WireGuard', default: 'ovpn')
-  client-version: ''  # OPTIONAL: Pritunl Client Version (Numerical dot-separated identifiers, default: latest version from Package Manager)
-  start-connection: ''  # OPTIONAL: Start the Connection (Boolean, default: true)
-  ready-profile-timeout: ''  # OPTIONAL: Ready Profile Timeout (Natural Numbers, unit of time in seconds, default: 3)
-  established-connection-timeout: ''  # OPTIONAL: Established Connection Timeout (Natural Numbers, unit of time in seconds, default: 30)
+- name: Pritunl Client GitHub Action
+  uses: nathanielvarona/pritunl-client-github-action@v1
+  with:
+    profile-file: '' # REQUIRED: Pritunl Profile File (Base64 text format)
+    profile-pin: '' # OPTIONAL: Profile Pin (Numerical values, default: no pin)
+    profile-server: '' # OPTIONAL: Profile Server (Single string or comma-separated for multiple names, default: first or only server in the profile)
+    vpn-mode: '' # OPTIONAL: VPN Connection Mode ( choices: 'ovpn', 'openvpn', 'OpenVPN', 'wg', 'wireguard', 'WireGuard', default: 'ovpn')
+    client-version: '' # OPTIONAL: Pritunl Client Version (Numerical dot-separated identifiers, default: latest version from Package Manager)
+    start-connection: '' # OPTIONAL: Start the Connection (Boolean, default: true)
+    ready-profile-timeout: '' # OPTIONAL: Ready Profile Timeout (Natural Numbers, unit of time in seconds, default: 3)
+    established-connection-timeout: '' # OPTIONAL: Established Connection Timeout (Natural Numbers, unit of time in seconds, default: 30)
 ```
 
 > [!IMPORTANT]
