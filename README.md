@@ -44,49 +44,16 @@ The configuration is declarative and relatively simple to use.
 ### Inputs
 
 ```yaml
-- uses: nathanielvarona/pritunl-client-github-action@v1
-  with:
-    profile-file: ''
-    # REQUIRED: Pritunl Profile File
-    # TYPE: Wrapping String (Base64 text format)
-
-    profile-pin: ''
-    # OPTIONAL: Profile Pin
-    # TYPE: String (Numerical values)
-    # If not supplied, which defaults No Pin.
-
-    profile-server: ''
-    # OPTIONAL: Profile Server
-    # TYPE: String (Single string or Comma-separated for multiple names)
-    # If not supplied, which defaults to the first or only server in the profile.
-
-    vpn-mode: ''
-    # OPTIONAL: VPN Connection Mode
-    # TYPE: String
-    # CHOICES: ['ovpn', 'openvpn', 'OpenVPN'] or ['wg', 'wireguard', 'WireGuard']
-    # If not supplied, which defaults to 'ovpn'.
-
-    client-version: ''
-    # OPTIONAL: Pritunl Client Version
-    # TYPE: String (Numerical dot separated identifiers)
-    # For example, using the later version `1.3.3814.40`.
-    # If not supplied, which defaults to the latest version from the Package Manager.
-
-    start-connection: ''
-    # OPTIONAL: Start the Connection
-    # TYPE: Boolean
-    # If not supplied, which defaults to `true`.
-    # If `true` the VPN connection starts within the setup step.
-
-    ready-profile-timeout: ''
-    # OPTIONAL: Ready Profile Timeout
-    # TYPE: Natural Numbers (Unit of time in Second)
-    # If not supplied, which defaults to `3` seconds.
-
-    established-connection-timeout: ''
-    # OPTIONAL: Established Connection Timeout
-    # TYPE: Natural Numbers (Unit of time in Second)
-    # If not supplied, which defaults to `30` seconds.
+uses: nathanielvarona/pritunl-client-github-action@v1
+with:
+  profile-file: ''  # REQUIRED: Pritunl Profile File (Base64 text format)
+  profile-pin: ''  # OPTIONAL: Profile Pin (Numerical values, default: no pin)
+  profile-server: ''  # OPTIONAL: Profile Server (Single string or comma-separated for multiple names, default: first or only server in the profile)
+  vpn-mode: ''  # OPTIONAL: VPN Connection Mode ( choices: 'ovpn', 'openvpn', 'OpenVPN', 'wg', 'wireguard', 'WireGuard', default: 'ovpn')
+  client-version: ''  # OPTIONAL: Pritunl Client Version (Numerical dot-separated identifiers, default: latest version from Package Manager)
+  start-connection: ''  # OPTIONAL: Start the Connection (Boolean, default: true)
+  ready-profile-timeout: ''  # OPTIONAL: Ready Profile Timeout (Natural Numbers, unit of time in seconds, default: 3)
+  established-connection-timeout: ''  # OPTIONAL: Established Connection Timeout (Natural Numbers, unit of time in seconds, default: 30)
 ```
 
 > [!IMPORTANT]
@@ -124,7 +91,9 @@ The step `output` retrieving example is `'${{ steps.pritunl-connection.outputs.c
 
 Provided that `profile-file` is available, we have the flexibility to generate multiple scenarios.
 
-### Basic running configuration
+### Minimum Working Configuration
+
+For a basic working configuration, you need to set the profile file and the action automatically starts a connection. Here's an example:
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
