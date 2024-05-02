@@ -644,22 +644,23 @@ display_installed_client() {
   pritunl-client version |
     awk 'BEGIN {
       # Define ASCII art rocket and color codes
-      rocket="'$TTY_EMOJI_ROCKET'"
-      blue="'$TTY_BLUE_BOLD'"
-      green="'$TTY_GREEN_BOLD'"
-      reset="'$TTY_COLOR_RESET'"
+      rocket="'${TTY_EMOJI_ROCKET}'"  # Rocket emoji for visual feedback
+      blue="'${TTY_BLUE_BOLD}'"  # Blue color for version text
+      green="'${TTY_GREEN_BOLD}'"  # Green color for version status
+      reset="'${TTY_COLOR_RESET}'"  # Reset terminal color
     }
-    # Format the output with colors and rocket ASCII art
+    # Format the output with rocket ASCII art and colors
     {
-      printf "%s %s%s %s%s %s%s%s\n", 
-        rocket, 
-        blue, 
-        $1, 
-        $2, 
-        reset, 
-        green, 
-        $3, 
-        reset
+      # Print the version information with colors and rocket ASCII art
+      printf "%s %s%s %s%s %s%s%s\n", # Render Format
+        rocket, # TTY Emoji Rocket
+        blue, # TTY Color Blue
+        $1,  # Client name
+        $2,  # Client name
+        reset, # TTY Color Reset
+        green, # TTY Green Color
+        $3,  # Version Number
+        reset # TTY Color Reset
     }'
 }
 
