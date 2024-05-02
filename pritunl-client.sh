@@ -22,7 +22,7 @@ PRITUNL_READY_PROFILE_TIMEOUT="${PRITUNL_READY_PROFILE_TIMEOUT:-}"  # Ready Prof
 PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT:-}"  # Established Connection Timeout
 # ---------------------------------------------------------------
 
-# ASCII Art and Color Codes
+# Emoji Unicode and Color Codes
 TTY_EMOJI_ROCKET='\xf0\x9f\x9a\x80'  # Rocket emoji for visual feedback
 TTY_RED_NORMAL='\033[0;31m'  # Normal red color
 TTY_RED_BOLD='\033[1;31m'  # Bold red color
