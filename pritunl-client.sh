@@ -43,7 +43,7 @@ install_for_linux() {
   # Install dependent packages
   install_vpn_dependencies
 
-  if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
+  if [[ "${PRITUNL_CLIENT_VERSION}" == "from-package-manager" ]]; then
     # Installing using Pritunl Prebuilt Apt Repository
     # This section sets up the Pritunl repository and installs the client using the package manager.
 
@@ -82,12 +82,12 @@ install_for_linux() {
     local deb_url
 
     # Validate client version
-    validate_client_version "$PRITUNL_CLIENT_VERSION"
+    validate_client_version "${PRITUNL_CLIENT_VERSION}"
 
     # Set install file path
-    pritunl_install_file="$RUNNER_TEMP/pritunl-client.deb"
+    pritunl_install_file="${RUNNER_TEMP}/pritunl-client.deb"
     # Set download URL
-    deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/pritunl-client_$PRITUNL_CLIENT_VERSION-0ubuntu1.$(lsb_release -cs)_amd64.deb"
+    deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/${PRITUNL_CLIENT_VERSION}/pritunl-client_${PRITUNL_CLIENT_VERSION}-0ubuntu1.$(lsb_release -cs)_amd64.deb"
 
     # Download the Debian package
     curl -sSL "$deb_url" -o "$pritunl_install_file"
@@ -112,7 +112,7 @@ install_for_macos() {
   # Install dependent packages
   install_vpn_dependencies
 
-  if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
+  if [[ "${PRITUNL_CLIENT_VERSION}" == "from-package-manager" ]]; then
     # Installing using Homebrew Package Manager for macOS
     # This section installs the Pritunl client using Homebrew.
 
@@ -129,25 +129,25 @@ install_for_macos() {
     local pkg_arch
 
     # Validate client version
-    validate_client_version "$PRITUNL_CLIENT_VERSION"
+    validate_client_version "${PRITUNL_CLIENT_VERSION}"
 
     # Set package architecture (arm64 or empty)
-    pkg_arch=$([[ "$RUNNER_ARCH" == "ARM64" ]] && echo 'arm64.' || echo '')
+    pkg_arch=$([[ "${RUNNER_ARCH}" == "ARM64" ]] && echo 'arm64.' || echo '')
 
     # Set install file path and download URL
-    pritunl_install_file="$RUNNER_TEMP/Pritunl.${pkg_arch}pkg.zip"
-    pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/Pritunl.${pkg_arch}pkg.zip"
+    pritunl_install_file="${RUNNER_TEMP}/Pritunl.${pkg_arch}pkg.zip"
+    pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/${PRITUNL_CLIENT_VERSION}/Pritunl.${pkg_arch}pkg.zip"
 
     # Download the package
     curl -sSL "$pkg_zip_url" -o "$pritunl_install_file"
 
     # Unzip the package
-    unzip -qq -o "$pritunl_install_file" -d "$RUNNER_TEMP"
+    unzip -qq -o "$pritunl_install_file" -d "${RUNNER_TEMP}"
 
     # Install using MacOS `installer` tool
-    if sudo installer -pkg "$RUNNER_TEMP/Pritunl.${pkg_arch}pkg" -target /; then
+    if sudo installer -pkg "${RUNNER_TEMP}/Pritunl.${pkg_arch}pkg" -target /; then
       # Remove the install file and package
-      rm -f "$pritunl_install_file" "$RUNNER_TEMP/Pritunl.${pkg_arch}pkg"
+      rm -f "$pritunl_install_file" "${RUNNER_TEMP}/Pritunl.${pkg_arch}pkg"
     fi
   fi
 
@@ -173,7 +173,7 @@ install_for_windows() {
   # Install dependent packages
   install_vpn_dependencies
 
-  if [[ "$PRITUNL_CLIENT_VERSION" == "from-package-manager" ]]; then
+  if [[ "${PRITUNL_CLIENT_VERSION}" == "from-package-manager" ]]; then
     # Installing using Choco Package Manager for Windows
     # This section installs the Pritunl client using Chocolatey.
 
@@ -189,11 +189,11 @@ install_for_windows() {
     local exe_url
 
     # Validate client version
-    validate_client_version "$PRITUNL_CLIENT_VERSION"
+    validate_client_version "${PRITUNL_CLIENT_VERSION}"
 
     # Set install file path and download URL
-    pritunl_install_file="$RUNNER_TEMP\Pritunl.exe"
-    exe_url="https://github.com/pritunl/pritunl-client-electron/releases/download/$PRITUNL_CLIENT_VERSION/Pritunl.exe"
+    pritunl_install_file="${RUNNER_TEMP}\Pritunl.exe"
+    exe_url="https://github.com/pritunl/pritunl-client-electron/releases/download/${PRITUNL_CLIENT_VERSION}/Pritunl.exe"
 
     # Download the executable
     curl -sSL "$exe_url" -o "$pritunl_install_file"
@@ -246,7 +246,7 @@ link_executable_to_bin() {
 install_vpn_dependencies() {
   # This function installs dependencies required for VPN connections based on the operating system.
 
-  case "$RUNNER_OS" in
+  case "${RUNNER_OS}" in
     Linux)
       # Install base dependent packages for `pritunl-client` on Linux
       # Update package list and install required packages
@@ -254,23 +254,23 @@ install_vpn_dependencies() {
       sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y net-tools iptables openvpn resolvconf
 
       # Install additional packages based on VPN mode
-      if [[ "$PRITUNL_VPN_MODE" == "ovpn" ]]; then
+      if [[ "${PRITUNL_VPN_MODE}" == "ovpn" ]]; then
         # Install OpenVPN systemd-resolved package for ovpn mode
         sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y openvpn-systemd-resolved
-      elif [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
+      elif [[ "${PRITUNL_VPN_MODE}" == "wg" ]]; then
         # Install WireGuard tools for wg mode
         sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y wireguard-tools
       fi
       ;;
     macOS)
       # Install WireGuard tools for macOS (only for wg mode)
-      if [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
+      if [[ "${PRITUNL_VPN_MODE}" == "wg" ]]; then
         brew install -q wireguard-tools
       fi
       ;;
     Windows)
       # Install WireGuard for Windows (only for wg mode)
-      if [[ "$PRITUNL_VPN_MODE" == "wg" ]]; then
+      if [[ "${PRITUNL_VPN_MODE}" == "wg" ]]; then
         choco install --no-progress -y wireguard
       fi
       ;;
@@ -303,8 +303,8 @@ setup_profile_file() {
   current_time=$(date +%s)
 
   # Store the base64 data in a variable
-  profile_base64="$PRITUNL_PROFILE_FILE"
-  profile_file="$RUNNER_TEMP/profile-file.tar"
+  profile_base64="${PRITUNL_PROFILE_FILE}"
+  profile_file="${RUNNER_TEMP}/profile-file.tar"
 
   # Check if the base64 data is valid
   if ! [[ $(base64 -d <<< "$profile_base64" 2>/dev/null | tr -d '\0') ]]; then
@@ -390,13 +390,13 @@ start_vpn_connection() {
   profile_server_json=$(fetch_profile_server)
 
   # Add VPN mode flag if set
-  if [[ -n "$PRITUNL_VPN_MODE" ]]; then
-    pritunl_client_start_flags+=( "--mode" "$PRITUNL_VPN_MODE" )
+  if [[ -n "${PRITUNL_VPN_MODE}" ]]; then
+    pritunl_client_start_flags+=( "--mode" "${PRITUNL_VPN_MODE}" )
   fi
 
   # Add password flag if set
-  if [[ -n "$PRITUNL_PROFILE_PIN" ]]; then
-    pritunl_client_start_flags+=( "--password" "$PRITUNL_PROFILE_PIN" )
+  if [[ -n "${PRITUNL_PROFILE_PIN}" ]]; then
+    pritunl_client_start_flags+=( "--password" "${PRITUNL_PROFILE_PIN}" )
   fi
 
   # Convert the JSON data into a Bash array
@@ -540,15 +540,15 @@ fetch_profile_server() {
   # Fetch the profile list JSON
   profile_list_json=$(pritunl-client list -j | jq -c 'sort_by(.name)')
 
-  if [[ -n "$PRITUNL_PROFILE_SERVER" ]]; then
+  if [[ -n "${PRITUNL_PROFILE_SERVER}" ]]; then
 
-    if [[ "$PRITUNL_PROFILE_SERVER" == "all-profile-server" ]]; then
+    if [[ "${PRITUNL_PROFILE_SERVER}" == "all-profile-server" ]]; then
       # If "all-profile-server" is set, return the entire profile list
       profile_server_json="$profile_list_json"
     else
 
       # Split the comma-separated profile server names into an array
-      IFS=',' read -r -a profile_server_array <<< "$PRITUNL_PROFILE_SERVER"
+      IFS=',' read -r -a profile_server_array <<< "${PRITUNL_PROFILE_SERVER}"
 
       # Remove leading and trailing spaces from each element in the array
       for profile_server_array_item in "${!profile_server_array[@]}"; do
@@ -650,7 +650,7 @@ normalize_vpn_mode() {
   # It ensures the input is either "ovpn" or "wg" (OpenVPN or WireGuard).
 
   # Normalize input to lowercase
-  local vpn_mode="$(echo "$PRITUNL_VPN_MODE" | tr '[:upper:]' '[:lower:]')"
+  local vpn_mode="$(echo "${PRITUNL_VPN_MODE}" | tr '[:upper:]' '[:lower:]')"
 
   # Check and normalize VPN mode
   case "$vpn_mode" in
@@ -664,7 +664,7 @@ normalize_vpn_mode() {
       ;;
     *)
       # Print error message if invalid VPN mode and exit
-      echo -e "${TTY_RED_NORMAL}Invalid VPN mode for \`$PRITUNL_VPN_MODE\`.${TTY_COLOR_RESET}" && exit 1
+      echo -e "${TTY_RED_NORMAL}Invalid VPN mode for \`${PRITUNL_VPN_MODE}\`.${TTY_COLOR_RESET}" && exit 1
       ;;
   esac
 }

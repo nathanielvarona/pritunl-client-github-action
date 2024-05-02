@@ -65,7 +65,7 @@ runs:
       shell: bash
       run: |
         # pritunl-client.sh
-        "$GITHUB_ACTION_PATH$([[ "$RUNNER_OS" == "Windows" ]] && echo '\' || echo '/')pritunl-client.sh"
+        "${GITHUB_ACTION_PATH}$([[ "${RUNNER_OS}" == "Windows" ]] && echo '\' || echo '/')pritunl-client.sh"
 
 branding:
   icon: server
