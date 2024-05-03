@@ -72,7 +72,10 @@ The step output retrieving examples are:
 _Note: `pritunl-connection` refers to the `Setup Step ID`._
 
 > [!TIP]
-> Kindly check the subsection [Manually Controlling the Connection](#and-even-manually-controlling-the-connection) for example.
+> Please see the subsection [Manually Controlling the Connection](#and-even-manually-controlling-the-connection) for an example of using `client-id`.
+
+> [!IMPORTANT]
+> See also the workflow file [connection-tests-complete.yml](./.github/workflows/connection-tests-complete.yml) for a complete tests matrix example, including the usage of `client-ids` output.
 
 
 ## Examples
@@ -256,7 +259,6 @@ You can use the full profile name as well, it is also acceptable.
 
 > [!TIP]
 > Kindly check the GitHub Action workflow file [connection-tests-manual-readme-example.yml](./.github/workflows/connection-tests-manual-readme-example.yml) for the readme example manual test.
-> And the workflow file  [connection-tests-complete.yml](./.github/workflows/connection-tests-complete.yml) for the complete tests matrix example.
 
 ## Working with Pritunl Profile File
 
