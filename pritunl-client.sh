@@ -299,6 +299,9 @@ setup_profile_file() {
 
   # Define Profile Server Information
   local profile_server_json
+  local primary_client_id
+  local primary_client_name
+  local client_ids
 
   # Progress Status
   timeout_seconds="${PRITUNL_READY_PROFILE_TIMEOUT}"
@@ -337,18 +340,39 @@ setup_profile_file() {
     profile_server_json=$(fetch_profile_server)
 
     if [[ $(echo "$profile_server_json" | jq ". | length") -gt 0 ]]; then
-      client_id=$(echo $profile_server_json | jq -c "[.[] | {name: .name, id: .id}]")
+
+      # Extract the first client ID and name from the profile server JSON
+      primary_client_id=$(echo $profile_server_json | jq ". | sort_by(.name)" | jq ".[0]" | jq -r ".id")
+      primary_client_name=$(echo $profile_server_json | jq ". | sort_by(.name)" | jq ".[0]" | jq -r ".name")
+
+      # Extract all client IDs and names from the profile server JSON
+      client_ids=$(echo $profile_server_json | jq -c "[.[] | {name: .name, id: .id}]")
+
+      # If running in GitHub Actions, set output parameters
       if [[ -n "${GITHUB_ACTIONS}" ]]; then
-        # Setting output parameter `client-id`.
-        echo "client-id="$client_id"" >> "$GITHUB_OUTPUT"
+        # Set output parameter `client-id`
+        echo "client-id=$primary_client_id" >> "$GITHUB_OUTPUT"
+
+        # Set output parameter `client-ids`
+        echo "client-ids=$client_ids" >> "$GITHUB_OUTPUT"
       fi
 
-      # Display the profile name and client id in the logs.
-      echo "======================================================="
-      echo -e "Profile is set, the step output \`${TTY_BLUE_NORMAL}client-id${TTY_COLOR_RESET}\` is created."
-      echo "======================================================="
-      echo "$client_id" | jq -C
-      echo "======================================================="
+      # Display the profile setup output
+      echo "Profile setup, the step outputs are created"
+      echo "=================="
+
+      # Display primary client ID and name
+      echo -e "${TTY_BLUE_NORMAL}Primary Client ID${TTY_COLOR_RESET}"
+      echo -e "The first or only client ID in the profile, specifically for \"${TTY_GREEN_NORMAL}$primary_client_name${TTY_COLOR_RESET}\""
+      echo -e "\"${TTY_BLUE_NORMAL}client-id${TTY_COLOR_RESET}\": \"${TTY_GREEN_NORMAL}$primary_client_id${TTY_COLOR_RESET}\""
+      echo "------------------"
+
+      # Display list of client IDs
+      echo -e "${TTY_BLUE_NORMAL}List of Client IDs${TTY_COLOR_RESET}"
+      echo "A list of all client IDs in the profile (multiple entries possible)"
+      echo -e "\"${TTY_BLUE_NORMAL}client-ids${TTY_COLOR_RESET}\":"
+      echo -e "$client_ids" | jq -C
+      echo "------------------"
 
       # Break the loop
       break
