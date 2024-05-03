@@ -337,13 +337,33 @@ encode_profile_and_copy https://vpn.domain.tld/key/a1b2c3d4e5.tar
 >
 > For a comprehensive overview of your billing details, we recommend starting with the "[About billing for GitHub Actions](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions)" page for thorough insights.
 
-## Development and Contribution
+## Contributing
 
-If you have any suggestions for improvement, please don't hesitate to fork the project and submit a Pull Request.
+Thank you for your interest in contributing to our project! We appreciate your help in making our project better.
 
-### An example of using your fork
+### Fork & Pull Requests
+
+1. Fork our repository to your own GitHub account.
+2. Make changes, additions, or fixes on your forked repository.
+3. Send a pull request to our original repository.
+
+### Rebasing and Squashing Commits
+
+1. Rebase your branch on top of the latest main branch before submitting a pull request.
+2. Squash your commits into a single, meaningful commit.
+
+### Using Your Fork
+
+If you have any suggestions for improvement, please don't hesitate to fork the project. Here's an example of how to use your fork:
+
+* Modify the main files:
+  - `action.yml` _(GitHub Actions Metadata File)_
+  - `pritunl-client.sh` _(Pritunl Client Entrypoint Script File)_
+
+**Example of using your fork:**
+
 ```yml
-- name: Setup Pritunl Profile and Start VPN Connection
+- name: Pritunl Client GitHub Action (Development Fork)
   uses: <YOUR GITHUB USERNAME>/pritunl-client-github-action@<YOUR FEATURE BRANCH>
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
@@ -351,6 +371,31 @@ If you have any suggestions for improvement, please don't hesitate to fork the p
     <YOUR FEATURE INPUTS>
     ...
 ```
+
+### Testing
+
+We use GitHub Actions to test our project. You can find example test workflows in the [.github/workflows/](./.github/workflows)`connection-tests-*.yml` files. Please make sure to update these tests or add new ones as necessary to cover your changes.
+
+### Documentation
+
+When contributing to our project, please make sure to document your features or changes in the following ways:
+* Update the [README.md](./README.md) file to include information about your feature or change.
+* Add comments to your code to explain what it does and how it works.
+* If necessary, create a new documentation file or update an existing one to provide more detailed information about your feature or change.
+
+### Additional Guidelines
+
+* Be respectful and considerate of others in our community.
+* Follow the GitHub Community Guidelines and Anti-Harassment Policy.
+* Keep your contributions aligned with our project's goals and scope.
+
+### What to Expect
+
+* Our maintainers will review your pull request and provide feedback.
+* We may request changes or improvements before merging your pull request.
+* Once approved, your contribution will be merged and credited to you.
+
+Thank you again for your contribution! If you have any questions or concerns, feel free to reach out to us.
 
 ## Star History
 
