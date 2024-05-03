@@ -354,4 +354,10 @@ If you have any suggestions for improvement, please don't hesitate to fork the p
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=nathanielvarona/pritunl-client-github-action&type=Date)](https://star-history.com/#nathanielvarona/pritunl-client-github-action&Date)
+<a href="https://star-history.com/#nathanielvarona/pritunl-client-github-action&Date">
+ <picture>
+   <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=nathanielvarona/pritunl-client-github-action&type=Date&theme=dark" />
+   <source media="(prefers-color-scheme: light)" srcset="https://api.star-history.com/svg?repos=nathanielvarona/pritunl-client-github-action&type=Date" />
+   <img alt="Star History Chart" src="https://api.star-history.com/svg?repos=nathanielvarona/pritunl-client-github-action&type=Date" />
+ </picture>
+</a>
