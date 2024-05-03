@@ -242,7 +242,7 @@ link_executable_to_bin() {
     ln -s "$executable_file" "$bin_directory"
   else
     # Print an error message if the executable file is not found
-    echo -e "${TTY_RED_NORMAL}Installation of the executable \`$executable_file\` failed.${TTY_COLOR_RESET}" && exit 1
+    echo -e "${TTY_RED_NORMAL}Installation of the executable \"$executable_file\" failed.${TTY_COLOR_RESET}" && exit 1
   fi
 }
 
@@ -358,21 +358,28 @@ setup_profile_file() {
       fi
 
       # Display the profile setup output
-      echo "Profile setup, the step outputs are created"
-      echo "=================="
+      echo "."
+      echo -e "The profile file is now set, and the ${TTY_BLUE_NORMAL}step outputs${TTY_COLOR_RESET} for the specified profile(s) have been generated."
+      echo "."
 
       # Display primary client ID and name
-      echo -e "${TTY_BLUE_NORMAL}Primary Client ID${TTY_COLOR_RESET}"
-      echo -e "The first or only client ID in the profile, specifically for \"${TTY_GREEN_NORMAL}$primary_client_name${TTY_COLOR_RESET}\""
-      echo -e "\"${TTY_BLUE_NORMAL}client-id${TTY_COLOR_RESET}\": \"${TTY_GREEN_NORMAL}$primary_client_id${TTY_COLOR_RESET}\""
+      echo "=================="
+      echo -e "Primary ${TTY_BLUE_NORMAL}Client ID${TTY_COLOR_RESET}"
       echo "------------------"
+      echo -e "${TTY_BLUE_NORMAL}\"client-id\"${TTY_COLOR_RESET}: ${TTY_GREEN_NORMAL}\"$primary_client_id\"${TTY_COLOR_RESET}"
+      echo "=================="
+
+      echo "."
 
       # Display list of client IDs
-      echo -e "${TTY_BLUE_NORMAL}List of Client IDs${TTY_COLOR_RESET}"
-      echo "A list of all client IDs in the profile (multiple entries possible)"
-      echo -e "\"${TTY_BLUE_NORMAL}client-ids${TTY_COLOR_RESET}\":"
-      echo -e "$client_ids" | jq -C
+      echo "=================="
+      echo -e "List of ${TTY_BLUE_NORMAL}Client IDs${TTY_COLOR_RESET}"
       echo "------------------"
+      echo -e "${TTY_BLUE_NORMAL}\"client-ids\"${TTY_COLOR_RESET}:"
+      echo -e "$client_ids" | jq -C
+      echo "=================="
+
+      echo "."
 
       # Break the loop
       break
@@ -519,7 +526,7 @@ establish_vpn_connection() {
             echo "$connections_status" |
               jq --arg profile_id "$profile_id" '. + [{"id": $profile_id}]'
           )
-          echo -e "The connection for profile \`${TTY_GREEN_NORMAL}${profile_name}${TTY_COLOR_RESET}\` has been fully established."
+          echo -e "The connection for profile ${TTY_GREEN_NORMAL}\"${profile_name}\"${TTY_COLOR_RESET} has been fully established."
         fi
 
       fi
@@ -529,6 +536,7 @@ establish_vpn_connection() {
     connections_expected="$(echo $profile_server_json | jq ". | length")"
 
     if [[ "$connections_connected" -eq "$connections_expected" ]]; then
+      echo "."
       echo -e "${TTY_GREEN_BOLD}The profile, which has designated server(s), has been successfully set up.${TTY_COLOR_RESET}"
       break
     fi
@@ -692,7 +700,7 @@ normalize_vpn_mode() {
       ;;
     *)
       # Print error message if invalid VPN mode and exit
-      echo -e "${TTY_RED_NORMAL}Invalid VPN mode for \`${PRITUNL_VPN_MODE}\`.${TTY_COLOR_RESET}" && exit 1
+      echo -e "${TTY_RED_NORMAL}Invalid VPN mode for \"${PRITUNL_VPN_MODE}\".${TTY_COLOR_RESET}" && exit 1
       ;;
   esac
 }
@@ -717,13 +725,13 @@ validate_client_version() {
   # Validate Client Version Pattern
   # Check if the version matches the pattern of digits and dots (e.g., 1.2.3.4)
   if ! [[ "$version" =~ ^[0-9]+(\.[0-9]+)+$ ]]; then
-    echo -e "${TTY_RED_NORMAL}Invalid version pattern for \`$version\`.${TTY_COLOR_RESET}" && exit 1
+    echo -e "${TTY_RED_NORMAL}Invalid version pattern for \"$version\".${TTY_COLOR_RESET}" && exit 1
   fi
 
   # Check if the version exists in the source
   # Use curl to fetch the raw file and pipe it to grep
   if ! [[ $(curl -sSL $version_file | grep -c "$version") -ge 1 ]]; then
-    echo -e "${TTY_RED_NORMAL}Version \`$version\` does not exist in the \`$pritunl_client_repo\` source.${TTY_COLOR_RESET}" && exit 1
+    echo -e "${TTY_RED_NORMAL}Version \"$version\" does not exist in the \"$pritunl_client_repo\" source.${TTY_COLOR_RESET}" && exit 1
   fi
 }
 
