@@ -12,28 +12,31 @@ set -euo pipefail  # Enables error handling and pipefail
 # Default values are set if inputs are not provided
 
 # GitHub Action Inputs as Environment Variables
-PRITUNL_PROFILE_FILE="${PRITUNL_PROFILE_FILE:-}"  # Pritunl Profile File
-PRITUNL_PROFILE_PIN="${PRITUNL_PROFILE_PIN:-}"  # Pritunl Profile PIN
-PRITUNL_PROFILE_SERVER="${PRITUNL_PROFILE_SERVER:-}"  # Pritunl Profile Server
-PRITUNL_VPN_MODE="${PRITUNL_VPN_MODE:-}"  # VPN Connection Mode
-PRITUNL_CLIENT_VERSION="${PRITUNL_CLIENT_VERSION:-}"  # Pritunl Client Version
-PRITUNL_START_CONNECTION="${PRITUNL_START_CONNECTION:-}"  # Start VPN Connection
-PRITUNL_READY_PROFILE_TIMEOUT="${PRITUNL_READY_PROFILE_TIMEOUT:-}"  # Ready Profile Timeout
-PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT:-}"  # Established Connection Timeout
+# ---------------------------------------------------------------
+PRITUNL_PROFILE_FILE="${PRITUNL_PROFILE_FILE:-}" # Pritunl Profile File
+PRITUNL_PROFILE_PIN="${PRITUNL_PROFILE_PIN:-}" # Pritunl Profile PIN
+PRITUNL_PROFILE_SERVER="${PRITUNL_PROFILE_SERVER:-}" # Pritunl Profile Server
+PRITUNL_VPN_MODE="${PRITUNL_VPN_MODE:-}" # VPN Connection Mode
+PRITUNL_CLIENT_VERSION="${PRITUNL_CLIENT_VERSION:-}" # Pritunl Client Version
+PRITUNL_START_CONNECTION="${PRITUNL_START_CONNECTION:-}" # Start VPN Connection
+PRITUNL_READY_PROFILE_TIMEOUT="${PRITUNL_READY_PROFILE_TIMEOUT:-}" # Ready Profile Timeout
+PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT:-}" # Established Connection Timeout
 # ---------------------------------------------------------------
 
-# Emoji Unicode and Color Codes
-TTY_EMOJI_ROCKET='\xf0\x9f\x9a\x80'  # Rocket emoji for visual feedback
-TTY_RED_NORMAL='\033[0;31m'  # Normal red color
-TTY_RED_BOLD='\033[1;31m'  # Bold red color
-TTY_GREEN_NORMAL='\033[0;32m'  # Normal green color
-TTY_GREEN_BOLD='\033[1;32m'  # Bold green color
-TTY_YELLOW_NORMAL='\033[0;33m'  # Normal yellow color
-TTY_YELLOW_BOLD='\033[1;33m'  # Bold yellow color
-TTY_BLUE_NORMAL='\033[0;34m'  # Normal blue color
-TTY_BLUE_BOLD='\033[1;34m'  # Bold blue color
-TTY_COLOR_RESET='\033[0m'  # Reset terminal color
+# Visual Feedback with Emoji Unicode and Color Codes
 # ---------------------------------------------------------------
+TTY_EMOJI_ROCKET='\xf0\x9f\x9a\x80' # Rocket emoji for visual feedback
+TTY_RED_NORMAL='\033[0;31m' # Normal red color
+TTY_RED_BOLD='\033[1;31m' # Bold red color
+TTY_GREEN_NORMAL='\033[0;32m' # Normal green color
+TTY_GREEN_BOLD='\033[1;32m' # Bold green color
+TTY_YELLOW_NORMAL='\033[0;33m' # Normal yellow color
+TTY_YELLOW_BOLD='\033[1;33m' # Bold yellow color
+TTY_BLUE_NORMAL='\033[0;34m' # Normal blue color
+TTY_BLUE_BOLD='\033[1;34m' # Bold blue color
+TTY_COLOR_RESET='\033[0m' # Reset terminal color
+# ---------------------------------------------------------------
+
 
 # Installation process for Linux
 install_for_linux() {
@@ -47,7 +50,7 @@ install_for_linux() {
     # Installing using Pritunl Prebuilt Apt Repository
     # This section sets up the Pritunl repository and installs the client using the package manager.
 
-    # Set the Pritunl Linux runner GPG key
+    # Set the Pritunl Linux Runner GPG Key
     # Default value: 7568D9BB55FF9E5287D586017AE645C0CF8E292A
     # Check https://keyserver.ubuntu.com/ for the latest key
     PRITUNL_LINUX_RUNNER_GPG_KEY="${PRITUNL_LINUX_RUNNER_GPG_KEY:-7568D9BB55FF9E5287D586017AE645C0CF8E292A}"
@@ -56,12 +59,13 @@ install_for_linux() {
     # Example: In GitHub Actions, use the 'env' key to set a new GPG key
     # See the example workflow below:
     # ```
-    # - name: Setup Pritunl Profile and Start VPN Connection
+    # - name: ...
     #   uses: nathanielvarona/pritunl-client-github-action@v1
     #   with:
-    #     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
+    #     profile-file: ...
+    #      ...
     #   env:
-    #     PRITUNL_LINUX_RUNNER_GPG_KEY: '<YOUR OVERRIDE GPG KEY>'
+    #     PRITUNL_LINUX_RUNNER_GPG_KEY: <YOUR LINUX RUNNER GPG KEY OVERRIDE>
     # ```
 
     # Add Pritunl repository to the system
@@ -705,23 +709,23 @@ display_installed_client() {
   # Using awk to format the output
   pritunl-client version |
     awk 'BEGIN {
-      # Define ASCII art rocket and color codes
+      # Define Emoji Unicode and Color Codes
       rocket="'${TTY_EMOJI_ROCKET}'"  # Rocket emoji for visual feedback
       blue="'${TTY_BLUE_BOLD}'"  # Blue color for version text
       green="'${TTY_GREEN_BOLD}'"  # Green color for version status
       reset="'${TTY_COLOR_RESET}'"  # Reset terminal color
     }
-    # Format the output with rocket ASCII art and colors
+    # Format the output with Emoji Unicode and Colors
     {
-      # Print the version information with colors and rocket ASCII art
+      # Print the App Name and Version Information with Emoji Unicode and Colors
       printf "%s %s%s %s%s %s%s%s\n", # Rendering Format
         rocket, # TTY Emoji Rocket
         blue, # TTY Color Blue
-        $1, # App Name Text
-        $2, # App Version Number
+        $1, # App Name First Word
+        $2, # App Name Second Word
         reset, # TTY Color Reset
         green, # TTY Green Color
-        $3, # Version Number
+        $3, # App Version Number
         reset # TTY Color Reset
     }'
 }
