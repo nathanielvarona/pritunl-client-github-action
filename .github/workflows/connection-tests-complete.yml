@@ -54,7 +54,7 @@ jobs:
         run: |
           # Start the VPN Connection Manually
 
-          profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-id }}'
+          profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-ids }}'
 
           while read -r line; do
             profile_server_ids_array+=("$line")
@@ -79,7 +79,7 @@ jobs:
           # Show VPN Connection Status Manually
 
           sleep 10
-          profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-id }}'
+          profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-ids }}'
           profile_server_ids_array=()
 
           while read -r line; do
@@ -135,7 +135,7 @@ jobs:
           # VPN Gateway Reachability Test
 
           ping_count_number=5
-          profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-id }}'
+          profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-ids }}'
           profile_server_ids_array=()
 
           while read -r line; do
@@ -165,7 +165,7 @@ jobs:
         run: |
           # Stop Connection Manually
 
-          profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-id }}'
+          profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-ids }}'
           profile_server_ids_array=()
 
           while read -r line; do
