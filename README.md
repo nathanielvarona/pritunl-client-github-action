@@ -62,27 +62,14 @@ The configuration is declarative and relatively simple to use.
 
 ### Outputs
 
-`client-id` — is a string of key-value pairs associated with a profile, with an identifier the client randomly generates during the profile setup process.
+* `client-id` — a string representing the primary client ID, which is a single identifier generated during the profile setup process.
+* `client-ids` — a JSON array containing all client IDs and names in the profile, with each entry represented as a key-value pair (e.g., `{ "name": "profile_name", "id": "client_id" }`).
 
-The step `output` retrieving example is `'${{ steps.pritunl-connection.outputs.client-id }}'` where the `pritunl-connection` is the `Setup Step ID`.
-<details>
-  <summary>
-    Show the Example Output.
-  </summary>
+The step output retrieving examples are:
+* `${{ steps.pritunl-connection.outputs.client-id }}`, for the primary client ID.
+* `${{ steps.pritunl-connection.outputs.client-ids }}`, for the list of client IDs.
 
-```yml
-[
-  {
-    "name": "pritunl.profile.1 (pritunl.server.1)",
-    "id": "uykk46qpju3topgh"
-  },
-  {
-    "name": "pritunl.profile.1 (pritunl.server.2)",
-    "id": "za4c6gkjqbetkpwj"
-  }
-]
-```
-</details>
+_Note: `pritunl-connection` refers to the `Setup Step ID`._
 
 > [!TIP]
 > Kindly check the subsection [Manually Controlling the Connection](#and-even-manually-controlling-the-connection) for example.
