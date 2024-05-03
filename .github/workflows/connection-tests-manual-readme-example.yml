@@ -31,7 +31,7 @@ jobs:
         run: |
           # Starting a VPN Connection Manually
 
-          pritunl-client start "$(echo '${{ steps.pritunl-connection.outputs.client-id }}' | jq -r 'sort_by(.name) | .[0].id')" \
+          pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
             --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }}
 
       - name: Show VPN Connection Status Manually
@@ -91,4 +91,4 @@ jobs:
         run: |
           # Stop VPN Connection Manually
 
-          pritunl-client stop "$(echo '${{ steps.pritunl-connection.outputs.client-id }}' | jq -r 'sort_by(.name) | .[0].id')"
+          pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
