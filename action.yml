@@ -13,7 +13,7 @@ inputs:
     default: ''
 
   profile-server:
-    description: Pritunl Profile Server (for multiple servers in a profile)
+    description: Pritunl Profile Server (for specifying a particular server or multiple servers within a profile)
     required: false
     default: ''
 
@@ -44,8 +44,12 @@ inputs:
 
 outputs:
   client-id:
-    description: Unique Pritunl Client ID
+    description: Primary Client ID
     value: ${{ steps.pritunl-client.outputs.client-id }}
+
+  client-ids:
+    description: All Client IDs and Names
+    value: ${{ steps.pritunl-client.outputs.client-ids }}
 
 runs:
   using: "composite"
