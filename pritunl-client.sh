@@ -299,8 +299,7 @@ setup_profile_file() {
 
   # Define Profile Server Information
   local profile_server_json
-  local primary_client_id
-  local primary_client_name
+  local client_id
   local client_ids
 
   # Progress Status
@@ -342,8 +341,7 @@ setup_profile_file() {
     if [[ $(echo "$profile_server_json" | jq ". | length") -gt 0 ]]; then
 
       # Extract the first client ID and name from the profile server JSON
-      primary_client_id=$(echo $profile_server_json | jq ". | sort_by(.name)" | jq ".[0]" | jq -r ".id")
-      primary_client_name=$(echo $profile_server_json | jq ". | sort_by(.name)" | jq ".[0]" | jq -r ".name")
+      client_id=$(echo $profile_server_json | jq ". | sort_by(.name)" | jq ".[0]" | jq -r ".id")
 
       # Extract all client IDs and names from the profile server JSON
       client_ids=$(echo $profile_server_json | jq -c "[.[] | {name: .name, id: .id}]")
@@ -351,7 +349,7 @@ setup_profile_file() {
       # If running in GitHub Actions, set output parameters
       if [[ -n "${GITHUB_ACTIONS}" ]]; then
         # Set output parameter `client-id`
-        echo "client-id=$primary_client_id" >> "$GITHUB_OUTPUT"
+        echo "client-id=$client_id" >> "$GITHUB_OUTPUT"
 
         # Set output parameter `client-ids`
         echo "client-ids=$client_ids" >> "$GITHUB_OUTPUT"
@@ -362,11 +360,11 @@ setup_profile_file() {
       echo -e "The profile file is now set, and the ${TTY_BLUE_NORMAL}step outputs${TTY_COLOR_RESET} for the specified profile(s) have been generated."
       echo "."
 
-      # Display primary client ID and name
+      # Display primary client ID
       echo "=================="
       echo -e "Primary ${TTY_BLUE_NORMAL}Client ID${TTY_COLOR_RESET}"
       echo "------------------"
-      echo -e "${TTY_BLUE_NORMAL}\"client-id\"${TTY_COLOR_RESET}: ${TTY_GREEN_NORMAL}\"$primary_client_id\"${TTY_COLOR_RESET}"
+      echo -e "${TTY_BLUE_NORMAL}\"client-id\"${TTY_COLOR_RESET}: ${TTY_GREEN_NORMAL}\"$client_id\"${TTY_COLOR_RESET}"
       echo "=================="
 
       echo "."
