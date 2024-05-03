@@ -191,7 +191,7 @@ You can use the full profile name as well, it is also acceptable.
   run: |
     # Starting a VPN Connection Manually
 
-    pritunl-client start "$(echo '${{ steps.pritunl-connection.outputs.client-id }}' | jq -r 'sort_by(.name) | .[0].id')" \
+    pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
       --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }}
 
 - name: Show VPN Connection Status Manually
@@ -251,7 +251,7 @@ You can use the full profile name as well, it is also acceptable.
   run: |
     # Stop VPN Connection Manually
 
-    pritunl-client stop "$(echo '${{ steps.pritunl-connection.outputs.client-id }}' | jq -r 'sort_by(.name) | .[0].id')"
+    pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
 ```
 
 > [!TIP]
