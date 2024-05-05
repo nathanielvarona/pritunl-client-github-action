@@ -20,7 +20,7 @@ jobs:
           - false
 
     runs-on: ${{ matrix.os }}
-    name: "run:${{ matrix.os }}, ps:'${{ matrix.profile-server }}'"
+    name: "run:${{ matrix.os }}, ps:'${{ matrix.profile-server }}, co:${{ matrix.concealed-outputs }}"
 
     steps:
       - name: Checkout

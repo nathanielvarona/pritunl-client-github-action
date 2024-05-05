@@ -2,8 +2,6 @@
 
 Automate secure [Pritunl VPN](https://pritunl.com/) in [GitHub Actions](https://github.com/features/actions)! Establish secure connections with [Pritunl Client](https://client.pritunl.com/) modes [OpenVPN](https://openvpn.net/), and [WireGuard](https://www.wireguard.com/).
 
-Automate secure [Pritunl VPN](https://pritunl.com/) in [GitHub Actions](https://github.com/features/actions)! Establish secure connections with [Pritunl Client](https://client.pritunl.com/) modes [OpenVPN](https://openvpn.net/), and [WireGuard](https://www.wireguard.com/).
-
 Simplify your workflow, strengthen security, and safeguard access to corporate resources and infrastructure. This utility ensures secure connections, protecting your organization's valuable assets and data.
 
 Streamline tasks such as:
