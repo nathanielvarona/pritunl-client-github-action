@@ -48,7 +48,7 @@ We have confirmed compatibility with [Pritunl v1.32.3805.95](https://github.com/
 
 ## Usage
 
-The configuration is declarative and relatively simple to use.
+Configure the **Pritunl Client GitHub Action** using a declarative syntax, making it easy to integrate and manage your VPN connections.
 
 ### Inputs
 
@@ -56,19 +56,36 @@ The configuration is declarative and relatively simple to use.
 - name: Pritunl Client GitHub Action
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
-    profile-file: '' # REQUIRED: Pritunl Profile File (Base64 text format)
-    profile-pin: '' # OPTIONAL: Profile Pin (Numerical values, default: no pin)
-    profile-server: '' # OPTIONAL: Profile Server (Single string or comma-separated for multiple names, default: first or only server in the profile)
-    vpn-mode: '' # OPTIONAL: VPN Connection Mode ( choices: 'ovpn', 'openvpn', 'OpenVPN', 'wg', 'wireguard', 'WireGuard', default: 'ovpn')
-    client-version: '' # OPTIONAL: Pritunl Client Version (Numerical dot-separated identifiers, default: latest version from Package Manager)
-    start-connection: '' # OPTIONAL: Start the Connection (Boolean, default: true)
-    ready-profile-timeout: '' # OPTIONAL: Ready Profile Timeout (Natural Numbers, unit of time in seconds, default: 3)
-    established-connection-timeout: '' # OPTIONAL: Established Connection Timeout (Natural Numbers, unit of time in seconds, default: 30)
-    concealed-outputs: '' # OPTIONAL: Concealed Outputs (Boolean, default: true)
+    profile-file: ''  # REQUIRED: Pritunl Profile File (Base64 text format)
+      # Description: Provide the Base64-encoded Pritunl profile file contents.
+
+    profile-pin: ''  # OPTIONAL: Profile Pin (Numerical values, default: no pin)
+      # Description: Specify a numerical pin for the profile (if required).
+
+    profile-server: ''  # OPTIONAL: Profile Server (Single string or comma-separated for multiple names, default: first or only server in the profile)
+      # Description: Specify the profile server(s) to connect to.
+
+    vpn-mode: ''  # OPTIONAL: VPN Connection Mode (choices: 'ovpn', 'openvpn', 'OpenVPN', 'wg', 'wireguard', 'WireGuard', default: 'ovpn')
+      # Description: Select the VPN connection mode.
+
+    client-version: ''  # OPTIONAL: Pritunl Client Version (Numerical dot-separated identifiers, default: latest version from Package Manager)
+      # Description: Specify the Pritunl client version to use.
+
+    start-connection: ''  # OPTIONAL: Start the Connection (Boolean, default: true)
+      # Description: Set to 'false' to prevent the connection from starting automatically.
+
+    ready-profile-timeout: ''  # OPTIONAL: Ready Profile Timeout (Natural Numbers, unit of time in seconds, default: 3)
+      # Description: Set the timeout for the profile to become ready.
+
+    established-connection-timeout: ''  # OPTIONAL: Established Connection Timeout (Natural Numbers, unit of time in seconds, default: 30)
+      # Description: Set the timeout for the connection to become established.
+
+    concealed-outputs: ''  # OPTIONAL: Concealed Outputs (Boolean, default: true)
+      # Description: Set to 'false' to reveal sensitive output information.
 ```
 
 > [!IMPORTANT]
-> Kindly check the subsection [Working with Pritunl Profile File](#working-with-pritunl-profile-file) on converting `tar` archive file format to `base64` text file format for the `profile-file` input.
+> Please note: For the `profile-file` input, ensure you convert the `tar` archive file format to `base64` text file format. Refer to the [Working with Pritunl Profile File](#working-with-pritunl-profile-file) subsection for guidance.
 
 ### Outputs
 
