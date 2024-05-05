@@ -10,7 +10,7 @@ jobs:
       matrix:
         os:
           - macos-13-xlarge
-          - macos-14-xlarge # TODO: For Testing
+          - macos-14-xlarge
         vpn-mode:
           - ovpn
           - wg
