@@ -1,8 +1,16 @@
 # Pritunl Client GitHub Action
 
-Establish a [Pritunl VPN](https://pritunl.com/) connection using [Pritunl Client](https://client.pritunl.com/) supporting [OpenVPN](https://openvpn.net/) (ovpn) and [WireGuard](https://www.wireguard.com/) (wg) modes on [GitHub Actions](https://github.com/features/actions).
+Automate secure [Pritunl VPN](https://pritunl.com/) in [GitHub Actions](https://github.com/features/actions)! Establish secure connections with [Pritunl Client](https://client.pritunl.com/) modes [OpenVPN](https://openvpn.net/), and [WireGuard](https://www.wireguard.com/).
 
-This utility helps you with tasks like automated internal endpoint testing, periodic backups, builds distribution for cross-platform multi-architecture platforms, and anything that requires private access inside the corporate infrastructure using Pritunl VPN Enterprise Servers.
+Automate secure [Pritunl VPN](https://pritunl.com/) in [GitHub Actions](https://github.com/features/actions)! Establish secure connections with [Pritunl Client](https://client.pritunl.com/) modes [OpenVPN](https://openvpn.net/), and [WireGuard](https://www.wireguard.com/).
+
+Simplify your workflow, strengthen security, and safeguard access to corporate resources and infrastructure. This utility ensures secure connections, protecting your organization's valuable assets and data.
+
+Streamline tasks such as:
+* Cross-platform, multi-arch builds for desktop apps, mobile, IoT, and firmware
+* Secure access to private resources like file servers (e.g. `SharePoint`, `NFS`) and corporate infrastructure using Pritunl VPN Enterprise Servers
+* Automated testing of internal/private API endpoints
+* Periodic/Regular backups
 
 ## Action Diagram
 
@@ -13,14 +21,15 @@ This utility helps you with tasks like automated internal endpoint testing, peri
 
 ## Connection Tests
 
-
 [![Connection Tests - Basic](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml?query=branch:main)
 [![Connection Tests - Complete](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml?query=branch:main)
 [![Connection Tests - Multi Server Profile](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml?query=branch:main)
 [![Connection Tests - Manual (README Example)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yml?query=branch:main)
 [![Connection Tests - Arm64](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml?query=branch:main)
 
-Compatibility and Common [Issues](https://github.com/nathanielvarona/pritunl-client-github-action/issues?q=is:issue) between the Runners and VPN Mode.
+### Compatibility Matrix
+
+Check the compatibility of various runners and VPN modes:
 
 Runner                              | OpenVPN                | WireGuard
 ------------------------------------|------------------------|-----------------------
@@ -33,9 +42,11 @@ Runner                              | OpenVPN                | WireGuard
 `windows-2019`                      | :white_check_mark: yes | :white_check_mark: yes
 
 > [!TIP]
-> Kindly check out the comprehensive connection tests matrix available on our [GitHub Actions](https://github.com/nathanielvarona/pritunl-client-github-action/actions) page.
+> View the comprehensive connection tests matrix on our [GitHub Actions](https://github.com/nathanielvarona/pritunl-client-github-action/actions) page for more details.
 
-_As of the most recent updates and releases, we have confirmed compatibility with [Pritunl v1.32.3805.95](https://github.com/pritunl/pritunl/releases/tag/1.32.3805.95) Server through rigorous testing. Server clusters are deployed on both [AWS](https://aws.amazon.com/), [Azure](https://azure.microsoft.com/) and [Linode (Akamai)](https://www.linode.com/) cloud platforms._
+### Confirmed Compatibility
+We have confirmed compatibility with [Pritunl v1.32.3805.95](https://github.com/pritunl/pritunl/releases/tag/1.32.3805.95) Server through rigorous testing. Server clusters are deployed on both [AWS](https://aws.amazon.com/), [Azure](https://azure.microsoft.com/) and [Linode (Akamai)](https://www.linode.com/) cloud platforms.
+
 
 ## Usage
 
@@ -87,10 +98,8 @@ The step output retrieving examples are:
 _Note: `pritunl-connection` refers to the **Setup Step ID**._
 
 > [!TIP]
-> Please see the subsection "[Manually Controlling the Connection](#and-even-manually-controlling-the-connection)" for an example of using `client-id`.
-
-> [!TIP]
-> Please see the subsection "[If the profile has multiple servers and want to specify one or more](#if-the-profile-has-multiple-servers-and-want-to-specify-one-or-more)" for examples of using `client-ids`.
+> * See "[Manually Controlling the Connection](#and-even-manually-controlling-the-connection)" for an example of using `client-id`.
+> * See "[Specifying Server or Servers in a Multi-Server Profile](#specifying-server-or-servers-in-a-multi-server-profile)" for examples of using `client-ids`.
 
 > [!IMPORTANT]
 > See also the workflow file [connection-tests-complete.yml](./.github/workflows/connection-tests-complete.yml) for a complete tests matrix example.
@@ -102,7 +111,7 @@ Provided that `profile-file` is available, we have the flexibility to generate m
 
 ### Minimum Working Configuration
 
-For a basic working configuration, you need to set the profile file and the action automatically starts a connection. Here's an example:
+Start a VPN connection with just two lines of code! Set the `profile-file` and let the action handle the rest.
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -111,37 +120,12 @@ For a basic working configuration, you need to set the profile file and the acti
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
 ```
 
-<details>
-  <summary>
-    Then your other steps are below.
-  </summary>
-
-```yml
-- name: Your CI/CD Core Logic
-  shell: bash
-  run: |
-    cat <<EOF
-      ##
-      # EXAMPLES:
-      #   * Integration Test,
-      #   * End-to-End Test,
-      #   * Endpoint Reachability Test,
-      #   * Backup Tasks,
-      #   * And more.
-      ##
-    EOF
-
-- name: Example Cypress E2E Test
-  uses: cypress-io/github-action@v5
-    working-directory: e2e
-```
-</details>
-
-
 > [!TIP]
-> Kindly check the GitHub Action workflow file [connection-tests-basic.yml](./.github/workflows/connection-tests-basic.yml) for the basic running example.
+> See a working example of this action in our [connection-tests-basic.yml](./.github/workflows/connection-tests-basic.yml). This example demonstrates a basic setup and connection test.
 
-### If the connection requires a PIN or a Password
+### Authenticate with PIN or Password
+
+If your VPN connection requires authentication, use the `profile-pin` input to provide a PIN or password.
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -151,7 +135,9 @@ For a basic working configuration, you need to set the profile file and the acti
     profile-pin: ${{ secrets.PRITUNL_PROFILE_PIN }}
 ```
 
-### If the profile has multiple servers and want to specify one or more
+### Specifying Server or Servers in a Multi-Server Profile
+
+You can connect to a specific server by specifying its name. You can use the short name (e.g., `qa-team`) or the full profile name (e.g., `cicd.automation (qa-team)`).
 
 You can connect to a specific server by specifying its name.
 
@@ -160,33 +146,16 @@ You can connect to a specific server by specifying its name.
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    profile-server: qa-team
-```
-
-The feature allows us to connect to multiple servers by their names, separated by commas.
-
-```yml
-- name: Setup Pritunl Profile and Start VPN Connection
-  uses: nathanielvarona/pritunl-client-github-action@v1
-  with:
-    profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    profile-server: qa-team, dev-team
-```
-
-You can use the full profile name as well, it is also acceptable.
-
-```yml
-- name: Setup Pritunl Profile and Start VPN Connection
-  uses: nathanielvarona/pritunl-client-github-action@v1
-  with:
-    profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    profile-server: cicd.automation (qa-team), cicd.automation (dev-team)
+    profile-server: <server-name>  # e.g., qa-team, dev-team, or cicd.automation (qa-team)
+    concealed-outputs: <false|true>  # optional, defaults to true
 ```
 
 > [!TIP]
-> Kindly check the GitHub Action workflow file [connection-tests-multi-server-profile.yml](./.github/workflows/connection-tests-multi-server-profile.yml) for the multi-server profile connections example.
+> See an example of connecting to multiple servers in our [connection-tests-multi-server-profile.yml](./.github/workflows/connection-tests-multi-server-profile.yml) file. This workflow demonstrates how to configure and test connections to multiple servers using a single profile.
 
-### Or using a Specific Version of the Client and a WireGuard for the VPN Mode
+### Specify Client Version and VPN Mode
+
+Use a specific version of the Pritunl client and WireGuard for VPN mode.
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -197,7 +166,9 @@ You can use the full profile name as well, it is also acceptable.
     vpn-mode: wg
 ```
 
-### And even Manually Controlling the Connection
+### Manual Connection Control
+
+Demonstrates manual control over the VPN connection, including starting, stopping, and checking the connection status.
 
 ```yml
 - name: Setup Pritunl Profile
@@ -276,31 +247,33 @@ You can use the full profile name as well, it is also acceptable.
 ```
 
 > [!TIP]
-> Kindly check the GitHub Action workflow file [connection-tests-manual-readme-example.yml](./.github/workflows/connection-tests-manual-readme-example.yml) for the readme example manual test.
+> See a working example of manual connection control in our [connection-tests-manual-readme-example.yml](./.github/workflows/connection-tests-manual-readme-example.yml) for the readme example manual test.
 
 ## Working with Pritunl Profile File
 
-The Pritunl Client CLI won't allow us to load profiles from the plain `ovpn` file, and GitHub doesn't have a feature to upload binary files such as the `tar` archive file for the GitHub Actions Secrets.
+The Pritunl Client CLI requires a specific file format, and GitHub has limitations on uploading binary files. To store the Pritunl Profile in GitHub Secrets, we need to convert the `tar` archive file to a `base64` text file format.
 
-To store Pritunl Profile to GitHub Secrets, maintaining the raw state of the `tar` archive file format, we need to convert it to `base64` text file format.
+### Four Easy Steps
 
-### Here are the four steps
+#### 1. Obtain the Profile File
 
-#### 1. Download the `Profile File` from the `User Profile Page` or obtain it from your `Infrastructure Team`.
-
-_If the `Infrastructure Team` provided you with a `tar` file, proceed to `Step 2`._
+Download the `Profile File` from the User `Profile Page` or obtain it from your `Infrastructure Team`. If you receive a `tar` file, proceed to `Step 2`.
 
 ```bash
 curl -sSL https://vpn.domain.tld/key/a1b2c3d4e5.tar -o ./pritunl.profile.tar
 ```
 
-#### 2. Convert your Pritunl Profile File from `tar` archive file format to `base64` text file format.
+#### 2. Convert to Base64
+
+Convert the Pritunl Profile File from `tar` archive file format to `base64` text file format.
 
 ```bash
 base64 --wrap 0 ./pritunl.profile.tar > ./pritunl.profile.base64
 ```
 
-#### 3. Copy the data from `base64` text file format.
+#### 3. Copy the Base64 Data
+
+Copy the contents of the base64 text file format.
 
 ```bash
 # For macOS:
@@ -314,7 +287,7 @@ cat ./pritunl.profile.base64 | xclip -selection clipboard
 cat ./pritunl.profile.base64 | xsel --clipboard --input
 ```
 
-_Or you can easily access the file data by opening it with your preferred code editor:_
+Alternatively, open the file in a code editor and copy the contents
 
 ```bash
 code ./pritunl.profile.base64 # or,
@@ -323,37 +296,38 @@ vim ./pritunl.profile.base64
 
 Then, copy the entire `base64` text data.
 
-#### 4. Create a GitHub Action Secret and put the value from entire `base64` text data.
-Such as Secrets Key `PRITUNL_PROFILE_FILE` from the [Examples](#examples).
+#### 4. Create a GitHub Action Secret
 
-### One-liner shorthand script
+Create a GitHub Action Secret (e.g., `PRITUNL_PROFILE_FILE`) and paste the entire `base64` text data as the secret value.
 
-<details>
-  <summary>
-    Show the one-liner shorthand script for the first three steps.
-  </summary>
-
-```bash
-# For macOS
-encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | pbcopy }
-# For Linux
-encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xclip -selection clipboard } # Or,
-encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xsel --clipboard --input }
-
-# Usage
-encode_profile_and_copy https://vpn.domain.tld/key/a1b2c3d4e5.tar
-```
-</details>
+> [!TIP]
+> **One-liner Shorthand Script**
+>
+> Use this handy one-liner script to simplify the first three steps:
+>
+> ```bash
+> # For macOS
+> encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | pbcopy }
+>
+> # For Linux
+> encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xclip -selection clipboard } # Or,
+> encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xsel --clipboard --input }
+>
+> # Usage
+> encode_profile_and_copy https://vpn.domain.tld/key/a1b2c3d4e5.tar
+> ```
+>
+> This script combines the steps of downloading the profile, converting to base64, and copying to the clipboard into a single command. Just replace the URL with your profile link!
 
 ## Supported Arm64 Architecture Runners
 
 > [!TIP]
-> Kindly check the GitHub Action workflow file [connection-tests-arm64.yml](./.github/workflows/connection-tests-arm64.yml) for the Arm64 running example.
+> See an example of Arm64 support in our [connection-tests-arm64.yml](./.github/workflows/connection-tests-arm64.yml) file.
 
 > [!WARNING]
-> <sup>arm64*</sup> — _"These runner will always be charged for, including in public repositories."_
->
-> For a comprehensive overview of your billing details, we recommend starting with the "[About billing for GitHub Actions](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions)" page for thorough insights.
+> <sup>arm64*</sup> — Arm64 runners incur usage charges, even in public repositories. Please note that these charges apply to your account.
+
+For a detailed understanding of your billing, we recommend reviewing the "[About billing for GitHub Actions](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions)" page.
 
 ## Contributing
 
