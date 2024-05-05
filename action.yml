@@ -42,13 +42,18 @@ inputs:
     required: false
     default: '30'
 
+  concealed-outputs:
+    description: Concealed Outputs (true/false)
+    required: false
+    default: 'true'
+
 outputs:
   client-id:
-    description: Primary Client ID
+    description: Primary Client ID (string, bash variable)
     value: ${{ steps.pritunl-client.outputs.client-id }}
 
   client-ids:
-    description: All Client IDs and Names
+    description: All Client IDs and Names (JSON array)
     value: ${{ steps.pritunl-client.outputs.client-ids }}
 
 runs:
@@ -66,6 +71,7 @@ runs:
         PRITUNL_START_CONNECTION: ${{ inputs.start-connection }}
         PRITUNL_READY_PROFILE_TIMEOUT: ${{ inputs.ready-profile-timeout }}
         PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT: ${{ inputs.established-connection-timeout }}
+        PRITUNL_CONCEALED_OUTPUTS: ${{ inputs.concealed-outputs }}
       shell: bash
       run: |
         # pritunl-client.sh

@@ -15,6 +15,9 @@ jobs:
         profile-server:
           - pritunl.server.1
           - pritunl.server.1, pritunl.server.2
+        concealed-outputs:
+          - true
+          - false
 
     runs-on: ${{ matrix.os }}
     name: "run:${{ matrix.os }}, ps:'${{ matrix.profile-server }}'"
@@ -29,6 +32,7 @@ jobs:
         with:
           profile-file: ${{ secrets.PRITUNL_PROFILE_FILE_MULTI_SERVER }}
           profile-server: ${{ matrix.profile-server }}
+          concealed-outputs: ${{ matrix.concealed-outputs }}
 
       - name: Install IP Tooling (IP Calculator)
         shell: bash

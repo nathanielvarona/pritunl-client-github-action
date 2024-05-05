@@ -21,11 +21,13 @@ PRITUNL_CLIENT_VERSION="${PRITUNL_CLIENT_VERSION:-}" # Pritunl Client Version
 PRITUNL_START_CONNECTION="${PRITUNL_START_CONNECTION:-}" # Start VPN Connection
 PRITUNL_READY_PROFILE_TIMEOUT="${PRITUNL_READY_PROFILE_TIMEOUT:-}" # Ready Profile Timeout
 PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT:-}" # Established Connection Timeout
+PRITUNL_CONCEALED_OUTPUTS="${PRITUNL_CONCEALED_OUTPUTS:-}" # Concealed Outputs
 # ---------------------------------------------------------------
 
-# Visual Feedback with Emoji Unicode and Color Codes
+# Visual Feedback with Emoji Bytes and Color Codes
 # ---------------------------------------------------------------
-TTY_EMOJI_ROCKET='\xf0\x9f\x9a\x80' # Rocket emoji for visual feedback
+TTY_EMOJI_PACKAGE='\xF0\x9F\x93\xA6' # Package emoji
+TTY_EMOJI_SCROLL='\xF0\x9F\x93\x9C' # Scroll emoji
 TTY_RED_NORMAL='\033[0;31m' # Normal red color
 TTY_RED_BOLD='\033[1;31m' # Bold red color
 TTY_GREEN_NORMAL='\033[0;32m' # Normal green color
@@ -344,7 +346,7 @@ setup_profile_file() {
       client_id=$(echo $profile_server_json | jq ". | sort_by(.name)" | jq ".[0]" | jq -r ".id")
 
       # Extract all client IDs and names from the profile server JSON
-      client_ids=$(echo $profile_server_json | jq -c "[.[] | {name: .name, id: .id}]")
+      client_ids=$(echo $profile_server_json | jq -c "[.[] | {id: .id, name: .name}]")
 
       # If running in GitHub Actions, set output parameters
       if [[ -n "${GITHUB_ACTIONS}" ]]; then
@@ -356,28 +358,17 @@ setup_profile_file() {
       fi
 
       # Display the profile setup output
-      echo "."
-      echo -e "The profile file is now set, and the ${TTY_BLUE_NORMAL}step outputs${TTY_COLOR_RESET} for the specified profile(s) have been generated."
-      echo "."
+      echo -e "${TTY_EMOJI_SCROLL} The profile file is now set, and the ${TTY_BLUE_NORMAL}step outputs${TTY_COLOR_RESET} have been generated."
 
-      # Display primary client ID
-      echo "=================="
-      echo -e "Primary ${TTY_BLUE_NORMAL}Client ID${TTY_COLOR_RESET}"
-      echo "------------------"
-      echo -e "${TTY_BLUE_NORMAL}\"client-id\"${TTY_COLOR_RESET}: ${TTY_GREEN_NORMAL}\"$client_id\"${TTY_COLOR_RESET}"
-      echo "=================="
+      if [[ "${PRITUNL_CONCEALED_OUTPUTS}" != "true" ]]; then
+        # Display Primary Client ID (string, bash variable)
+        echo -e "${TTY_BLUE_NORMAL}client-id${TTY_COLOR_RESET}=\"${TTY_GREEN_NORMAL}$client_id${TTY_COLOR_RESET}\""
 
-      echo "."
-
-      # Display list of client IDs
-      echo "=================="
-      echo -e "List of ${TTY_BLUE_NORMAL}Client IDs${TTY_COLOR_RESET}"
-      echo "------------------"
-      echo -e "${TTY_BLUE_NORMAL}\"client-ids\"${TTY_COLOR_RESET}:"
-      echo -e "$client_ids" | jq -C
-      echo "=================="
-
-      echo "."
+        # Display All Client IDs and Names (JSON array)
+        echo -e "${TTY_BLUE_NORMAL}client-ids${TTY_COLOR_RESET}=\"$(echo $client_ids | jq -cC )\""
+      else
+        echo -e "${TTY_YELLOW_NORMAL}Step outputs are concealed. Set 'concealed-outputs' to 'false' in the action inputs to reveal.${TTY_COLOR_RESET}"
+      fi
 
       # Break the loop
       break
@@ -534,7 +525,6 @@ establish_vpn_connection() {
     connections_expected="$(echo $profile_server_json | jq ". | length")"
 
     if [[ "$connections_connected" -eq "$connections_expected" ]]; then
-      echo "."
       echo -e "${TTY_GREEN_BOLD}The profile, which has designated server(s), has been successfully set up.${TTY_COLOR_RESET}"
       break
     fi
@@ -740,7 +730,7 @@ display_installed_client() {
   pritunl-client version |
     awk 'BEGIN {
       # Define Emoji Unicode and Color Codes
-      rocket="'${TTY_EMOJI_ROCKET}'"  # Rocket emoji for visual feedback
+      rocket="'${TTY_EMOJI_PACKAGE}'"  # Rocket emoji for visual feedback
       blue="'${TTY_BLUE_BOLD}'"  # Blue color for version text
       green="'${TTY_GREEN_BOLD}'"  # Green color for version status
       reset="'${TTY_COLOR_RESET}'"  # Reset terminal color
@@ -749,7 +739,7 @@ display_installed_client() {
     {
       # Print the App Name and Version Information with Emoji Unicode and Colors
       printf "%s %s%s %s%s %s%s%s\n", # Rendering Format
-        rocket, # TTY Emoji Rocket
+        rocket, # TTY Package Emoji
         blue, # TTY Color Blue
         $1, # App Name First Word
         $2, # App Name Second Word

@@ -55,6 +55,7 @@ The configuration is declarative and relatively simple to use.
     start-connection: '' # OPTIONAL: Start the Connection (Boolean, default: true)
     ready-profile-timeout: '' # OPTIONAL: Ready Profile Timeout (Natural Numbers, unit of time in seconds, default: 3)
     established-connection-timeout: '' # OPTIONAL: Established Connection Timeout (Natural Numbers, unit of time in seconds, default: 30)
+    concealed-outputs: '' # OPTIONAL: Concealed Outputs (Boolean, default: true)
 ```
 
 > [!IMPORTANT]
@@ -63,19 +64,36 @@ The configuration is declarative and relatively simple to use.
 ### Outputs
 
 * `client-id` — a string representing the primary client ID, which is a single identifier generated during the profile setup process.
-* `client-ids` — a JSON array containing all client IDs and names in the profile, with each entry represented as a key-value pair (e.g., `{ "name": "profile_name", "id": "client_id" }`).
+  - Example:
+    ```
+    client_id="kp4kx4zbcqpsqkbk"
+    ```
+* `client-ids` — a JSON array containing all client IDs and names in the profile, with each entry represented as a key-value pair (e.g., `{"id":"client_id","name":"profile_name"}`).
+
+  - Example _(single entry)_:
+    ```
+    client-ids="[{"id":"6p5yiqbkjbktkrz5","name":"cicd.automation (dev-team)"}]"
+    ```
+  - Example _(multiple entries)_:
+    ```
+    client-ids="[{"id":"kp4kx4zbcqpsqkbk","name":"cicd.automation (dev-team)"},{"id":"rsy6npzw5mwryge2","name":"cicd.automation (qa-team)"}]"
+    ```
+
 
 The step output retrieving examples are:
 * `${{ steps.pritunl-connection.outputs.client-id }}`, for the primary client ID.
 * `${{ steps.pritunl-connection.outputs.client-ids }}`, for the list of client IDs.
 
-_Note: `pritunl-connection` refers to the `Setup Step ID`._
+_Note: `pritunl-connection` refers to the **Setup Step ID**._
 
 > [!TIP]
-> Please see the subsection [Manually Controlling the Connection](#and-even-manually-controlling-the-connection) for an example of using `client-id`.
+> Please see the subsection "[Manually Controlling the Connection](#and-even-manually-controlling-the-connection)" for an example of using `client-id`.
+
+> [!TIP]
+> Please see the subsection "[If the profile has multiple servers and want to specify one or more](#if-the-profile-has-multiple-servers-and-want-to-specify-one-or-more)" for examples of using `client-ids`.
 
 > [!IMPORTANT]
-> See also the workflow file [connection-tests-complete.yml](./.github/workflows/connection-tests-complete.yml) for a complete tests matrix example, including the usage of `client-ids` output.
+> See also the workflow file [connection-tests-complete.yml](./.github/workflows/connection-tests-complete.yml) for a complete tests matrix example.
 
 
 ## Examples
