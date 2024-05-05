@@ -13,8 +13,8 @@ jobs:
           - macos-13
           - windows-2022
         profile-server:
-          - pritunl.server.1
-          - pritunl.server.1, pritunl.server.2
+          - dev-team
+          - gha-automator-qa2 (dev-team), gha-automator-qa2 (qa-team)
         concealed-outputs:
           - true
           - false
