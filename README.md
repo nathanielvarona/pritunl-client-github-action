@@ -85,24 +85,24 @@ Configure the **Pritunl Client GitHub Action** using a declarative syntax, makin
 ```
 
 > [!IMPORTANT]
-> Please note: For the `profile-file` input, ensure you convert the `tar` archive file format to `base64` text file format. Refer to the [Working with Pritunl Profile File](#working-with-pritunl-profile-file) subsection for guidance.
+> For the `profile-file` input, ensure you convert the `tar` archive file format to `base64` text file format. Refer to the [Working with Pritunl Profile File](#working-with-pritunl-profile-file) subsection for guidance.
 
 ### Outputs
 
 * `client-id` — a string representing the primary client ID, which is a single identifier generated during the profile setup process.
   - Example:
     ```
-    client_id="kp4kx4zbcqpsqkbk"
+    client_id="6p5yiqbkjbktkrz5"
     ```
 * `client-ids` — a JSON array containing all client IDs and names in the profile, with each entry represented as a key-value pair (e.g., `{"id":"client_id","name":"profile_name"}`).
 
   - Example _(single entry)_:
     ```
-    client-ids="[{"id":"6p5yiqbkjbktkrz5","name":"cicd.automation (dev-team)"}]"
+    client-ids="[{"id":"6p5yiqbkjbktkrz5","name":"gha-automator-dev (dev-team)"}]"
     ```
   - Example _(multiple entries)_:
     ```
-    client-ids="[{"id":"kp4kx4zbcqpsqkbk","name":"cicd.automation (dev-team)"},{"id":"rsy6npzw5mwryge2","name":"cicd.automation (qa-team)"}]"
+    client-ids="[{"id":"kp4kx4zbcqpsqkbk","name":"gha-automator-qa2 (dev-team)"},{"id":"rsy6npzw5mwryge2","name":"gha-automator-qa2 (qa-team)"}]"
     ```
 
 
@@ -113,8 +113,9 @@ The step output retrieving examples are:
 _Note: `pritunl-connection` refers to the **Setup Step ID**._
 
 > [!TIP]
-> * See "[Manually Controlling the Connection](#and-even-manually-controlling-the-connection)" for an example of using `client-id`.
+> * See "[Manual Connection Control](#manual-connection-control)" for an example of using `client-id`.
 > * See "[Specifying Server or Servers in a Multi-Server Profile](#specifying-server-or-servers-in-a-multi-server-profile)" for examples of using `client-ids`.
+> * See "[Controlling Output Visibility in GitHub Actions Log](#controlling-output-visibility-in-github-actions-log)" by setting `concealed-outputs`.
 
 > [!IMPORTANT]
 > See also the workflow file [connection-tests-complete.yml](./.github/workflows/connection-tests-complete.yml) for a complete tests matrix example.
@@ -152,17 +153,24 @@ If your VPN connection requires authentication, use the `profile-pin` input to p
 
 ### Specifying Server or Servers in a Multi-Server Profile
 
-You can connect to a specific server by specifying its name. You can use the short name (e.g., `qa-team`) or the full profile name (e.g., `cicd.automation (qa-team)`).
+Select one or more servers by specifying their names. You can use:
 
-You can connect to a specific server by specifying its name.
+* Short name: A concise name (e.g., `dev-team`)
+* Short name with multiple servers: Separate multiple short names with commas (e.g., `dev-team, qa-team`)
+* Full profile name: A complete name with the profile and server (e.g., `gha-automator-qa1 (dev-team)`)
+* Full profile name with multiple servers: Separate multiple full profile names with commas (e.g., `gha-automator-qa1 (dev-team), gha-automator-qa1 (qa-team)`)
+
+Example:
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    profile-server: <server-name>  # e.g., qa-team, dev-team, or cicd.automation (qa-team)
-    concealed-outputs: <false|true>  # optional, defaults to true
+    profile-server: dev-team # Specify a single server using its short name
+    # profile-server: dev-team, qa-team # Connect to multiple servers using short names
+    # profile-server: gha-automator-qa1 (dev-team) # Use a full profile name to specify a single server
+    # profile-server: gha-automator-qa1 (dev-team), gha-automator-qa1 (qa-team) # Use full profile names to specify multiple servers
 ```
 
 > [!TIP]
@@ -264,6 +272,18 @@ Demonstrates manual control over the VPN connection, including starting, stoppin
 > [!TIP]
 > See a working example of manual connection control in our [connection-tests-manual-readme-example.yml](./.github/workflows/connection-tests-manual-readme-example.yml) for the readme example manual test.
 
+### Controlling Output Visibility in GitHub Actions Log
+
+By default, outputs are concealed in the GitHub Actions log for security. To reveal outputs, set `concealed-outputs` to `false`.
+
+```yml
+- name: Setup Pritunl Profile and Start VPN Connection
+  uses: nathanielvarona/pritunl-client-github-action@v1
+  with:
+    profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
+    concealed-outputs: false # Set to false to reveal outputs in the GitHub Actions log
+```
+
 ## Working with Pritunl Profile File
 
 The Pritunl Client CLI requires a specific file format, and GitHub has limitations on uploading binary files. To store the Pritunl Profile in GitHub Secrets, we need to convert the `tar` archive file to a `base64` text file format.
@@ -315,24 +335,26 @@ Then, copy the entire `base64` text data.
 
 Create a GitHub Action Secret (e.g., `PRITUNL_PROFILE_FILE`) and paste the entire `base64` text data as the secret value.
 
-> [!TIP]
-> **One-liner Shorthand Script**
->
-> Use this handy one-liner script to simplify the first three steps:
->
-> ```bash
-> # For macOS
-> encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | pbcopy }
->
-> # For Linux
-> encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xclip -selection clipboard } # Or,
-> encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xsel --clipboard --input }
->
-> # Usage
-> encode_profile_and_copy https://vpn.domain.tld/key/a1b2c3d4e5.tar
-> ```
->
-> This script combines the steps of downloading the profile, converting to base64, and copying to the clipboard into a single command. Just replace the URL with your profile link!
+<details>
+  <summary>Pro Tip: One-liner Shorthand Script</summary>
+
+  Use this handy one-liner script to simplify the first three steps:
+
+  ```bash
+  # For macOS
+  encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | pbcopy }
+
+  # For Linux
+  encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xclip -selection clipboard } # Or,
+  encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xsel --clipboard --input }
+
+  # Usage
+  encode_profile_and_copy https://vpn.domain.tld/key/a1b2c3d4e5.tar
+  ```
+
+  This script combines the steps of downloading the profile, converting to base64, and copying to the clipboard into a single command. Just replace the URL with your profile link!
+
+</details>
 
 ## Supported Arm64 Architecture Runners
 
