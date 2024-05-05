@@ -358,7 +358,7 @@ setup_profile_file() {
       fi
 
       # Display the profile setup output
-      echo -e "${TTY_EMOJI_SCROLL} The profile file is now set, and the ${TTY_BLUE_NORMAL}step outputs${TTY_COLOR_RESET} have been generated."
+      echo -e "${TTY_EMOJI_SCROLL}  The profile file is now set, and the ${TTY_BLUE_NORMAL}step outputs${TTY_COLOR_RESET} have been generated."
 
       if [[ "${PRITUNL_CONCEALED_OUTPUTS}" != "true" ]]; then
         # Display Primary Client ID (string, bash variable)
@@ -730,7 +730,7 @@ display_installed_client() {
   pritunl-client version |
     awk 'BEGIN {
       # Define Emoji Unicode and Color Codes
-      rocket="'${TTY_EMOJI_PACKAGE}'"  # Rocket emoji for visual feedback
+      emoji="'${TTY_EMOJI_PACKAGE}'"  # Emoji for visual feedback
       blue="'${TTY_BLUE_BOLD}'"  # Blue color for version text
       green="'${TTY_GREEN_BOLD}'"  # Green color for version status
       reset="'${TTY_COLOR_RESET}'"  # Reset terminal color
@@ -738,8 +738,8 @@ display_installed_client() {
     # Format the output with Emoji Unicode and Colors
     {
       # Print the App Name and Version Information with Emoji Unicode and Colors
-      printf "%s %s%s %s%s %s%s%s\n", # Rendering Format
-        rocket, # TTY Package Emoji
+      printf "%s  %s%s %s%s %s%s%s\n", # Rendering Format
+        emoji, # TTY Emoji
         blue, # TTY Color Blue
         $1, # App Name First Word
         $2, # App Name Second Word
