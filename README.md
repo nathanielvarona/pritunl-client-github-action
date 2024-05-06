@@ -5,10 +5,10 @@ Automate secure [Pritunl VPN](https://pritunl.com/) in [GitHub Actions](https://
 Simplify your workflow, strengthen security, and safeguard access to corporate resources and infrastructure. This utility ensures secure connections, protecting your organization's valuable assets and data.
 
 Streamline tasks such as:
-* Cross-platform, multi-arch builds for desktop apps, mobile, IoT, and firmware
-* Secure access to private resources like file servers (e.g. `SharePoint`, `NFS`) and corporate infrastructure using Pritunl VPN Enterprise Servers
-* Automated testing of internal/private API endpoints
-* Periodic/Regular backups
+* Build and distribute cross-platform and multi-arch support for powerful desktop, mobile, IoT, and firmware applications across teams.
+* Ensure secure access to private resources, including file servers (such as `SharePoint` and `NFS`) and corporate infrastructure, with Pritunl VPN Enterprise Servers.
+* Automated testing of internal and private API endpoints.
+* Ensure data safety with scheduled backups.
 
 ## Action Diagram
 
@@ -43,7 +43,7 @@ Runner                              | OpenVPN                | WireGuard
 > View the comprehensive connection tests matrix on our [GitHub Actions](https://github.com/nathanielvarona/pritunl-client-github-action/actions) page for more details.
 
 ### Confirmed Compatibility
-We have confirmed compatibility with [Pritunl v1.32.3805.95](https://github.com/pritunl/pritunl/releases/tag/1.32.3805.95) Server through rigorous testing. Server clusters are deployed on both [AWS](https://aws.amazon.com/), [Azure](https://azure.microsoft.com/) and [Linode (Akamai)](https://www.linode.com/) cloud platforms.
+We have confirmed compatibility with [Pritunl v1.32.3805.95](https://github.com/pritunl/pritunl/releases/tag/1.32.3805.95) and later versions through rigorous testing. Our server clusters are deployed across multiple cloud platforms, including [AWS](https://aws.amazon.com/), [Azure](https://azure.microsoft.com/) and [Linode (Akamai)](https://www.linode.com/).
 
 
 ## Usage
@@ -127,7 +127,7 @@ Provided that `profile-file` is available, we have the flexibility to generate m
 
 ### Minimum Working Configuration
 
-Start a VPN connection with just two lines of code! Set the `profile-file` and let the action handle the rest.
+Establish a VPN connection with just a few lines of code! Simply set the required `profile-file` input, and let the action handle the rest.
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -160,8 +160,6 @@ Select one or more servers by specifying their names. You can use:
 * Full profile name: A complete name with the profile and server (e.g., `gha-automator-qa1 (dev-team)`)
 * Full profile name with multiple servers: Separate multiple full profile names with commas (e.g., `gha-automator-qa1 (dev-team), gha-automator-qa1 (qa-team)`)
 
-Example:
-
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
   uses: nathanielvarona/pritunl-client-github-action@v1
@@ -176,9 +174,9 @@ Example:
 > [!TIP]
 > See an example of connecting to multiple servers in our [connection-tests-multi-server-profile.yml](./.github/workflows/connection-tests-multi-server-profile.yml) file. This workflow demonstrates how to configure and test connections to multiple servers using a single profile.
 
-### Specify Client Version and VPN Mode
+### Specify Client Version
 
-Use a specific version of the Pritunl client and WireGuard for VPN mode.
+Use a specific version of the Pritunl client.
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -186,6 +184,17 @@ Use a specific version of the Pritunl client and WireGuard for VPN mode.
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
     client-version: 1.3.3814.40
+```
+
+### Specify VPN Mode
+
+Use a specific VPN mode (e.g., WireGuard).
+
+```yml
+- name: Setup Pritunl Profile and Start VPN Connection
+  uses: nathanielvarona/pritunl-client-github-action@v1
+  with:
+    profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
     vpn-mode: wg
 ```
 
@@ -274,7 +283,7 @@ Demonstrates manual control over the VPN connection, including starting, stoppin
 
 ### Controlling Output Visibility in GitHub Actions Log
 
-By default, outputs are concealed in the GitHub Actions log for security. To reveal outputs, set `concealed-outputs` to `false`.
+By default, outputs are hidden in the GitHub Actions log to keep it clean and clutter-free. To reveal outputs, set `concealed-outputs` to `false`.
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
