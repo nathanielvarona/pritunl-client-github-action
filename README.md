@@ -5,10 +5,11 @@ Automate secure [Pritunl VPN](https://pritunl.com/) in [GitHub Actions](https://
 Simplify your workflow, strengthen security, and safeguard access to corporate resources and infrastructure. This utility ensures secure connections, protecting your organization's valuable assets and data.
 
 Streamline tasks such as:
-* Build and distribute cross-platform and multi-arch support for powerful desktop, mobile, IoT, and firmware applications across teams.
-* Ensure secure access to private resources, including file servers (such as `SharePoint` and `NFS`) and corporate infrastructure, with Pritunl VPN Enterprise Servers.
-* Automated testing of internal and private API endpoints.
-* Ensure data safety with scheduled backups.
+
+* Securely distribute cross-platform, multi-architecture builds across teams, including corporate internal custom desktop and mobile applications, custom embedded software, firmware, server applications, and single-board computer operating system images.
+* Ensure secure access to corporate infrastructure private resources, including internal file storage solutions such as SharePoint, Samba, and NFS shares.
+* Automate end-to-end testing of internal and private systems, including applications and data interfaces.
+* Ensure data safety and resource availability with regular, periodic schedule operations for internal resources, including backups.
 
 ## Action Diagram
 
@@ -113,9 +114,9 @@ The step output retrieving examples are:
 _Note: `pritunl-connection` refers to the **Setup Step ID**._
 
 > [!TIP]
-> * See "[Manual Connection Control](#manual-connection-control)" for an example of using `client-id`.
-> * See "[Specifying Server or Servers in a Multi-Server Profile](#specifying-server-or-servers-in-a-multi-server-profile)" for examples of using `client-ids`.
-> * See "[Controlling Output Visibility in GitHub Actions Log](#controlling-output-visibility-in-github-actions-log)" by setting `concealed-outputs`.
+> * See "[Manual Connection Control](#manual-connection-control)" for an example of using `client_id`.
+> * See "[Specifying Server or Servers in a Multi-Server Profile](#specifying-server-or-servers-in-a-multi-server-profile)" for examples of using `client_ids`.
+> * See "[Controlling Step Outputs Visibility in GitHub Actions Log](#controlling-step-outputs-visibility-in-github-actions-log)" by setting `concealed-outputs`.
 
 > [!IMPORTANT]
 > See also the workflow file [connection-tests-complete.yml](./.github/workflows/connection-tests-complete.yml) for a complete tests matrix example.
@@ -281,16 +282,16 @@ Demonstrates manual control over the VPN connection, including starting, stoppin
 > [!TIP]
 > See a working example of manual connection control in our [connection-tests-manual-readme-example.yml](./.github/workflows/connection-tests-manual-readme-example.yml) for the readme example manual test.
 
-### Controlling Output Visibility in GitHub Actions Log
+### Controlling Step Outputs Visibility in GitHub Actions Log
 
-By default, outputs are hidden in the GitHub Actions log to keep it clean and clutter-free. To reveal outputs, set `concealed-outputs` to `false`.
+By default, step outputs are hidden in the GitHub Actions log to keep it clean and clutter-free. To reveal step outputs, set `concealed-outputs` to `false`.
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    concealed-outputs: false # Set to false to reveal outputs in the GitHub Actions log
+    concealed-outputs: false # Set to false to reveal step outputs in the GitHub Actions log
 ```
 
 ## Working with Pritunl Profile File
