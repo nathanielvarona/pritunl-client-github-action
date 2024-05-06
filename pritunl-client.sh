@@ -301,6 +301,7 @@ setup_profile_file() {
 
   # Define Profile Server Information
   local profile_server_json
+  local profile_server_count
   local client_id
   local client_ids
 
@@ -340,7 +341,10 @@ setup_profile_file() {
 
     profile_server_json=$(fetch_profile_server)
 
-    if [[ $(echo "$profile_server_json" | jq ". | length") -gt 0 ]]; then
+    # Get the lenght of the profile server
+    profile_server_count=$(echo "$profile_server_json" | jq ". | length")
+
+    if [[ "$profile_server_count" -gt 0 ]]; then
 
       # Extract the first client ID and name from the profile server JSON
       client_id=$(echo $profile_server_json | jq ". | sort_by(.name)" | jq ".[0]" | jq -r ".id")
@@ -357,8 +361,8 @@ setup_profile_file() {
         echo "client-ids=$client_ids" >> "$GITHUB_OUTPUT"
       fi
 
-      # Display the profile setup output
-      echo -e "${TTY_EMOJI_SCROLL}  The profile file is now set, and the ${TTY_BLUE_NORMAL}step outputs${TTY_COLOR_RESET} have been generated."
+      # Display the profile setup output with a scroll emoji and colored text
+      echo -e "${TTY_EMOJI_SCROLL}  The profile has been configured, ${TTY_BLUE_NORMAL}step outputs${TTY_COLOR_RESET} generated, and profile $(pluralize_word $profile_server_count "server") are now ready for connection establishment."
 
       if [[ "${PRITUNL_CONCEALED_OUTPUTS}" != "true" ]]; then
         # Display Primary Client ID (string, bash variable)
@@ -525,7 +529,7 @@ establish_vpn_connection() {
     connections_expected="$(echo $profile_server_json | jq ". | length")"
 
     if [[ "$connections_connected" -eq "$connections_expected" ]]; then
-      echo -e "${TTY_GREEN_BOLD}The profile, which has designated server(s), has been successfully set up.${TTY_COLOR_RESET}"
+      echo -e "${TTY_GREEN_BOLD}The profile has been successfully set up, with designated profile $(pluralize_word $connections_expected "server"), and a secure connection established.${TTY_COLOR_RESET}"
       break
     fi
 
@@ -543,7 +547,7 @@ establish_vpn_connection() {
       echo -e "${TTY_YELLOW_BOLD}We could not establish a connection to other servers, but we will go ahead and proceed anyway.${TTY_COLOR_RESET}"
       break
     else
-      echo -e "${TTY_RED_BOLD}We could not connect to the server(s) specified in the profile. The process has been terminated.${TTY_COLOR_RESET}" && exit 1
+      echo -e "${TTY_RED_BOLD}We could not connect to the profile $(pluralize_word $connections_expected "server") specified in the profile. The process has been terminated.${TTY_COLOR_RESET}" && exit 1
     fi
   fi
 }
@@ -748,6 +752,17 @@ display_installed_client() {
         $3, # App Version Number
         reset # TTY Color Reset
     }'
+}
+
+# Define a function to pluralize a word based on a given count
+pluralize_word() {
+  if [ $1 -eq 1 ]; then
+    # If the count is 1, return the singular form of the word
+    echo "$2"
+  else
+    # If the count is not 1, return the plural form of the word (by appending 's')
+    echo "${2}s"
+  fi
 }
 
 # Installation process based on OS
