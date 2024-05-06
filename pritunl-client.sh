@@ -26,8 +26,10 @@ PRITUNL_CONCEALED_OUTPUTS="${PRITUNL_CONCEALED_OUTPUTS:-}" # Concealed Outputs
 
 # Visual Feedback with Emoji Bytes and Color Codes
 # ---------------------------------------------------------------
+# Emojis
 TTY_EMOJI_PACKAGE='\xF0\x9F\x93\xA6' # Package emoji
 TTY_EMOJI_SCROLL='\xF0\x9F\x93\x9C' # Scroll emoji
+# Color Codes
 TTY_RED_NORMAL='\033[0;31m' # Normal red color
 TTY_RED_BOLD='\033[1;31m' # Bold red color
 TTY_GREEN_NORMAL='\033[0;32m' # Normal green color
@@ -36,9 +38,12 @@ TTY_YELLOW_NORMAL='\033[0;33m' # Normal yellow color
 TTY_YELLOW_BOLD='\033[1;33m' # Bold yellow color
 TTY_BLUE_NORMAL='\033[0;34m' # Normal blue color
 TTY_BLUE_BOLD='\033[1;34m' # Bold blue color
+# Gray Colors
+TTY_GRAY_NORMAL='\033[0;37m' # Normal gray color
+TTY_GRAY_BOLD='\033[1;90m' # Bold gray color
+# Color Reset
 TTY_COLOR_RESET='\033[0m' # Reset terminal color
 # ---------------------------------------------------------------
-
 
 # Installation process for Linux
 install_for_linux() {
@@ -365,11 +370,21 @@ setup_profile_file() {
       echo -e "${TTY_EMOJI_SCROLL}  The profile has been configured, ${TTY_BLUE_NORMAL}step outputs${TTY_COLOR_RESET} generated, and profile $(pluralize_word $profile_server_count "server") are now ready for connection establishment."
 
       if [[ "${PRITUNL_CONCEALED_OUTPUTS}" != "true" ]]; then
-        # Display Primary Client ID (string, bash variable)
-        echo -e "${TTY_BLUE_NORMAL}client-id${TTY_COLOR_RESET}=\"${TTY_GREEN_NORMAL}$client_id${TTY_COLOR_RESET}\""
+        # Display header with yellow color
+        echo -e "${TTY_YELLOW_NORMAL}Action Step Outputs${TTY_COLOR_RESET}"
+        # Display horizontal rule with gray color, separating header from content
+        echo -e "${TTY_GRAY_NORMAL}-------------------${TTY_COLOR_RESET}"
 
-        # Display All Client IDs and Names (JSON array)
-        echo -e "${TTY_BLUE_NORMAL}client-ids${TTY_COLOR_RESET}=\"$(echo $client_ids | jq -cC )\""
+        # Display Primary Client ID (string, bash variable) with blue and green colors
+        # client-id is displayed in blue, followed by the actual ID in green
+        echo -e "${TTY_BLUE_NORMAL}client-id${TTY_COLOR_RESET}: ${TTY_GREEN_NORMAL}$client_id${TTY_COLOR_RESET}"
+
+        # Display All Client IDs and Names (JSON array) with blue color
+        # client-ids is displayed in blue, followed by the JSON array of IDs and names
+        echo -e "${TTY_BLUE_NORMAL}client-ids${TTY_COLOR_RESET}: $(echo $client_ids | jq -cC )"
+
+        # Display horizontal rule with gray color, separating content from footer
+        echo -e "${TTY_GRAY_NORMAL}-------------------${TTY_COLOR_RESET}"
       else
         echo -e "${TTY_YELLOW_NORMAL}Step outputs are concealed. Set 'concealed-outputs' to 'false' in the action inputs to reveal.${TTY_COLOR_RESET}"
       fi

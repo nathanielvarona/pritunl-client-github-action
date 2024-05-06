@@ -92,18 +92,18 @@ Configure the **Pritunl Client GitHub Action** using a declarative syntax, makin
 
 * `client-id` — a string representing the primary client ID, which is a single identifier generated during the profile setup process.
   - Example:
-    ```
-    client_id="6p5yiqbkjbktkrz5"
+    ```text
+    6p5yiqbkjbktkrz5
     ```
 * `client-ids` — a JSON array containing all client IDs and names in the profile, with each entry represented as a key-value pair (e.g., `{"id":"client_id","name":"profile_name"}`).
 
   - Example _(single entry)_:
-    ```
-    client-ids="[{"id":"6p5yiqbkjbktkrz5","name":"gha-automator-dev (dev-team)"}]"
+    ```json
+    [{"id":"6p5yiqbkjbktkrz5","name":"gha-automator-dev (dev-team)"}]
     ```
   - Example _(multiple entries)_:
-    ```
-    client-ids="[{"id":"kp4kx4zbcqpsqkbk","name":"gha-automator-qa2 (dev-team)"},{"id":"rsy6npzw5mwryge2","name":"gha-automator-qa2 (qa-team)"}]"
+    ```json
+    [{"id":"kp4kx4zbcqpsqkbk","name":"gha-automator-qa2 (dev-team)"},{"id":"rsy6npzw5mwryge2","name":"gha-automator-qa2 (qa-team)"}]
     ```
 
 
