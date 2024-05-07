@@ -1,6 +1,6 @@
 # Pritunl Client GitHub Action
 
-Automate secure [Pritunl VPN](https://pritunl.com/) in [GitHub Actions](https://github.com/features/actions)! Establish secure connections with [Pritunl Client](https://client.pritunl.com/) modes [OpenVPN](https://openvpn.net/), and [WireGuard](https://www.wireguard.com/).
+Establish automated secure [Pritunl VPN](https://pritunl.com/) connections with [Pritunl Client](https://client.pritunl.com/) in [GitHub Actions](https://github.com/features/actions), supporting [OpenVPN](https://openvpn.net/) and [WireGuard](https://www.wireguard.com/).
 
 Simplify your workflow, strengthen security, and safeguard access to corporate resources and infrastructure. This utility ensures secure connections, protecting your organization's valuable assets and data.
 
@@ -41,7 +41,8 @@ Runner                              | OpenVPN                | WireGuard
 `windows-2019`                      | :white_check_mark: yes | :white_check_mark: yes
 
 > [!TIP]
-> View the comprehensive connection tests matrix on our [GitHub Actions](https://github.com/nathanielvarona/pritunl-client-github-action/actions) page for more details.
+> * See  the workflow file [connection-tests-complete.yml](./.github/workflows/connection-tests-complete.yml) for a complete tests matrix example.
+> * View the comprehensive connection tests matrix on our [GitHub Actions](https://github.com/nathanielvarona/pritunl-client-github-action/actions) page for more details.
 
 ### Confirmed Compatibility
 We have confirmed compatibility with [Pritunl v1.32.3805.95](https://github.com/pritunl/pritunl/releases/tag/1.32.3805.95) and later versions through rigorous testing. Our server clusters are deployed across multiple cloud platforms, including [AWS](https://aws.amazon.com/), [Azure](https://azure.microsoft.com/) and [Linode (Akamai)](https://www.linode.com/).
@@ -52,6 +53,8 @@ We have confirmed compatibility with [Pritunl v1.32.3805.95](https://github.com/
 Configure the **Pritunl Client GitHub Action** using a declarative syntax, making it easy to integrate and manage your VPN connections.
 
 ### Inputs
+
+Provides input parameters for the **Pritunl Client GitHub Action**, allowing users to customize the setup process and connection settings.
 
 ```yaml
 - name: Pritunl Client GitHub Action
@@ -90,36 +93,48 @@ Configure the **Pritunl Client GitHub Action** using a declarative syntax, makin
 
 ### Outputs
 
-* `client-id` — a string representing the primary client ID, which is a single identifier generated during the profile setup process.
-  - Example:
+Outputs essential variables from **Pritunl Client** setup, supporting and extending automation, integration, and audit processes.
+
+* `client-id` — a unique string identifier generated during the profile setup process.
+  + Example:
     ```text
     6p5yiqbkjbktkrz5
     ```
-* `client-ids` — a JSON array containing all client IDs and names in the profile, with each entry represented as a key-value pair (e.g., `{"id":"client-id","name":"profile-name (server-name)"}`).
 
-  - Example _(single entry)_:
+* `client-ids` — a JSON array containing all client IDs and names in the profile, with each entry represented as a key-value pair.
+  + Format _(elements)_:
+    ```json
+    {"id":"client-id","name":"profile-name (server-name)"}
+    ```
+  + Example _(single entry)_:
     ```json
     [{"id":"6p5yiqbkjbktkrz5","name":"gha-automator-dev (dev-team)"}]
     ```
-  - Example _(multiple entries)_:
+  + Example _(multiple entries)_:
     ```json
     [{"id":"kp4kx4zbcqpsqkbk","name":"gha-automator-qa2 (dev-team)"},{"id":"rsy6npzw5mwryge2","name":"gha-automator-qa2 (qa-team)"}]
     ```
 
+#### Retrieving Step Outputs
 
-The step output retrieving examples are:
-* `${{ steps.pritunl-connection.outputs.client-id }}`, for the primary client ID.
-* `${{ steps.pritunl-connection.outputs.client-ids }}`, for the list of client IDs.
+* To retrieve the `client-id`:
+  ```
+  ${{ steps.pritunl-connection.outputs.client-id }}
+  ```
 
-_Note: `pritunl-connection` refers to the **Setup Step ID**._
+* To retrieve the `client-ids`:
+  ```
+  ${{ steps.pritunl-connection.outputs.client-ids }}
+  ```
+
+> [!NOTE]
+> The `pritunl-connection` refers to the **Setup Step ID**. Make sure to replace it with the actual step ID in your workflow._
 
 > [!TIP]
 > * See "[Manual Connection Control](#manual-connection-control)" for an example of using `client_id`.
 > * See "[Specifying Server or Servers in a Multi-Server Profile](#specifying-server-or-servers-in-a-multi-server-profile)" for examples of using `client_ids`.
 > * See "[Controlling Step Outputs Visibility in GitHub Actions Log](#controlling-step-outputs-visibility-in-github-actions-log)" by setting `concealed-outputs`.
 
-> [!IMPORTANT]
-> See also the workflow file [connection-tests-complete.yml](./.github/workflows/connection-tests-complete.yml) for a complete tests matrix example.
 
 
 ## Examples
@@ -368,11 +383,13 @@ Create a GitHub Action Secret (e.g., `PRITUNL_PROFILE_FILE`) and paste the entir
 
 ## Supported Arm64 Architecture Runners
 
-> [!TIP]
-> See an example of Arm64 support in our [connection-tests-arm64.yml](./.github/workflows/connection-tests-arm64.yml) file.
+Supports GitHub Actions runners with Arm64 architecture, enabling users to run workflows on Arm64-based systems.
 
 > [!WARNING]
 > <sup>arm64*</sup> — Arm64 runners incur usage charges, even in public repositories. Please note that these charges apply to your account.
+
+> [!TIP]
+> See an example of Arm64 support in our [connection-tests-arm64.yml](./.github/workflows/connection-tests-arm64.yml) file.
 
 For a detailed understanding of your billing, we recommend reviewing the "[About billing for GitHub Actions](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions)" page.
 
