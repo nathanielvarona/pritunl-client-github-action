@@ -10,14 +10,11 @@ jobs:
       matrix:
         os:
           - ubuntu-22.04
-          - ubuntu-20.04
           - macos-13
-          - macos-12
           - windows-2022
-          - windows-2019
         profile-server:
-          - gha-automator-dev (dev-team)
-          - dev-team, qa-team
+          - dev-team
+          - gha-automator-dev (dev-team), gha-automator-dev (qa-team)
         vpn-mode:
           - ovpn
           - wg
@@ -27,9 +24,16 @@ jobs:
         start-connection:
           - true
           - false
+        ready-profile-timeout:
+          - 5
+        established-connection-timeout:
+          - 35
+        concealed-outputs:
+          - true
+          - false
 
     runs-on: ${{ matrix.os }}
-    name: "run:${{ matrix.os }}, ps:'${{ matrix.profile-server }}', vpn:${{ matrix.vpn-mode }}, cv:${{ matrix.client-version }}, sc:${{ matrix.start-connection }}"
+    name: "run:${{ matrix.os }}, ps:'${{ matrix.profile-server }}', vpn:${{ matrix.vpn-mode }}, cv:${{ matrix.client-version }}, sc:${{ matrix.start-connection }}, rpt:${{ matrix.ready-profile-timeout }}, ect:${{ matrix.established-connection-timeout }}, co:${{ matrix.concealed-outputs }}"
 
     steps:
       - name: Checkout
@@ -45,8 +49,9 @@ jobs:
           vpn-mode: ${{ matrix.vpn-mode }}
           client-version: ${{ matrix.client-version }}
           start-connection: ${{ matrix.start-connection }}
-          ready-profile-timeout: 5
-          established-connection-timeout: 35
+          ready-profile-timeout: ${{ matrix.ready-profile-timeout }}
+          established-connection-timeout: ${{ matrix.established-connection-timeout }}
+          concealed-outputs: ${{ matrix.concealed-outputs }}
 
       - name: Starting a VPN Connection Manually
         if: matrix.start-connection == false

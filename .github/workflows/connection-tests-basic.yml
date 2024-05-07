@@ -10,8 +10,11 @@ jobs:
       matrix:
         os:
           - ubuntu-22.04
+          - ubuntu-20.04
           - macos-13
+          - macos-12
           - windows-2022
+          - windows-2019
     runs-on: ${{ matrix.os }}
     name: "run:${{ matrix.os }}"
 
