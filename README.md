@@ -397,7 +397,7 @@ For a detailed understanding of your billing, we recommend reviewing the "[About
 
 Thank you for your interest in contributing to our project! We appreciate your help in making our project better.
 
-### Fork & Pull Requests
+### Fork and Pull Requests
 
 1. Fork our repository to your own GitHub account.
 2. Make changes, additions, or fixes on your forked repository.
@@ -408,16 +408,21 @@ Thank you for your interest in contributing to our project! We appreciate your h
 1. Rebase your branch on top of the latest main branch before submitting a pull request.
 2. Squash your commits into a single, meaningful commit.
 
-### Using Your Fork
+### Modify and Test Your Fork
 
-If you have any suggestions for improvement, please don't hesitate to fork the project. Here's an example of how to use your fork:
-
-Modify the main files:
+**Modify the main files:**
 
 * [action.yml](./action.yml) — GitHub Action Metadata File and Inline Entrypoint Script for `pritunl-client.sh`.
 * [pritunl-client.sh](./pritunl-client.sh) — Pritunl Client Script File, the GitHub Action Logic.
 
-Example of using your fork:
+
+**Test your changes thoroughly:**
+
+Ensure your contributions are reliable by testing your fork using the same GitHub Actions workflows we use for our project. Please update or add new test workflows in the [.github/workflows/](./.github/workflows)`connection-tests-*.yml` files as needed to cover your changes.
+
+#### Use Your Fork
+
+Once you've modified and tested your fork, you can use it in your own projects. Here's an example usage:
 
 ```yml
 - name: Pritunl Client GitHub Action (Development Fork)
@@ -429,13 +434,10 @@ Example of using your fork:
     ...
 ```
 
-### Testing
-
-We use GitHub Actions to test our project. You can find example test workflows in the [.github/workflows/](./.github/workflows)`connection-tests-*.yml` files. Please make sure to update these tests or add new ones as necessary to cover your changes.
-
 ### Documentation
 
 When contributing to our project, please make sure to document your features or changes in the following ways:
+
 * Update the [README.md](./README.md) file to include information about your feature or change.
 * Add comments to your code to explain what it does and how it works.
 * If necessary, create a new documentation file or update an existing one to provide more detailed information about your feature or change.
