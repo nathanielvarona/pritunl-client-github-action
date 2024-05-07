@@ -1,9 +1,18 @@
 #!/usr/bin/env bash
 
-# Refer to these links for Pritunl Client installation and setup guides:
-# https://client.pritunl.com/#install
-# https://docs.pritunl.com/docs/installation-client
-# https://github.com/pritunl/pritunl-client-electron
+# GitHub Project Information
+# ============================
+# Name:        Pritunl Client GitHub Action
+# Description: Establish automated secure Pritunl VPN connections with Pritunl Client in GitHub Actions, supporting OpenVPN and WireGuard.
+# Repository:  https://github.com/nathanielvarona/pritunl-client-github-action
+
+# Pritunl Client Resources
+# =======================
+# Installation and Setup Guides:
+#   - https://client.pritunl.com/#install
+#   - https://docs.pritunl.com/docs/installation-client
+# Source Repository:
+#   - https://github.com/pritunl/pritunl-client-electron
 
 # Set up error handling to ensure the script fails on errors and pipes
 set -euo pipefail  # Enables error handling and pipefail

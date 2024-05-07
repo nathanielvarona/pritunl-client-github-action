@@ -1,6 +1,6 @@
 # Define the GitHub Action
 name: Pritunl Client GitHub Action
-description: Automate secure Pritunl VPN in GitHub Actions! Establish secure connections with Pritunl Client modes OpenVPN, and WireGuard.
+description: Establish automated secure Pritunl VPN connections with Pritunl Client in GitHub Actions, supporting OpenVPN and WireGuard.
 
 # Define branding for the GitHub Marketplace
 branding:
