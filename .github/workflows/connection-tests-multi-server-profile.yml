@@ -13,14 +13,11 @@ jobs:
           - macos-13
           - windows-2022
         profile-server:
-          - dev-team
-          - gha-automator-qa2 (dev-team), gha-automator-qa2 (qa-team)
-        concealed-outputs:
-          - true
-          - false
+          - gha-automator-qa2 (dev-team)
+          - dev-team, qa-team
 
     runs-on: ${{ matrix.os }}
-    name: "run:${{ matrix.os }}, ps:'${{ matrix.profile-server }}, co:${{ matrix.concealed-outputs }}"
+    name: "run:${{ matrix.os }}, ps:'${{ matrix.profile-server }}"
 
     steps:
       - name: Checkout
@@ -32,7 +29,6 @@ jobs:
         with:
           profile-file: ${{ secrets.PRITUNL_PROFILE_FILE_MULTI_SERVER }}
           profile-server: ${{ matrix.profile-server }}
-          concealed-outputs: ${{ matrix.concealed-outputs }}
 
       - name: Install IP Tooling (IP Calculator)
         shell: bash
