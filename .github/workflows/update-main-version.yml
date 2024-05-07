@@ -1,4 +1,5 @@
 name: Update Main Version
+
 run-name: Move ${{ github.event.inputs.major_version }} to ${{ github.event.inputs.target }}
 
 on:
