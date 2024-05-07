@@ -95,7 +95,7 @@ Configure the **Pritunl Client GitHub Action** using a declarative syntax, makin
     ```text
     6p5yiqbkjbktkrz5
     ```
-* `client-ids` — a JSON array containing all client IDs and names in the profile, with each entry represented as a key-value pair (e.g., `{"id":"client_id","name":"profile_name"}`).
+* `client-ids` — a JSON array containing all client IDs and names in the profile, with each entry represented as a key-value pair (e.g., `{"id":"client-id","name":"profile-name (server-name)"}`).
 
   - Example _(single entry)_:
     ```json
@@ -395,11 +395,12 @@ Thank you for your interest in contributing to our project! We appreciate your h
 
 If you have any suggestions for improvement, please don't hesitate to fork the project. Here's an example of how to use your fork:
 
-* Modify the main files:
-  - `action.yml` _(GitHub Actions Metadata File)_
-  - `pritunl-client.sh` _(Pritunl Client Entrypoint Script File)_
+Modify the main files:
 
-**Example of using your fork:**
+* [action.yml](./action.yml) — GitHub Action Metadata File and Inline Entrypoint Script for `pritunl-client.sh`.
+* [pritunl-client.sh](./pritunl-client.sh) — Pritunl Client Script File, the GitHub Action Logic.
+
+Example of using your fork:
 
 ```yml
 - name: Pritunl Client GitHub Action (Development Fork)
