@@ -1,6 +1,13 @@
+# Define the GitHub Action
 name: Pritunl Client GitHub Action
 description: Automate secure Pritunl VPN in GitHub Actions! Establish secure connections with Pritunl Client modes OpenVPN, and WireGuard.
 
+# Define branding for the GitHub Marketplace
+branding:
+  icon: server
+  color: gray-dark
+
+# Define inputs for the Action
 inputs:
   profile-file:
     description: Pritunl Profile Key file
@@ -47,6 +54,7 @@ inputs:
     required: false
     default: 'true'
 
+# Define outputs for the Action
 outputs:
   client-id:
     description: Primary Client ID (string, bash variable)
@@ -56,6 +64,7 @@ outputs:
     description: All Client IDs and Names (JSON array)
     value: ${{ steps.pritunl-client.outputs.client-ids }}
 
+# Define the Action's workflow
 runs:
   using: "composite"
   steps:
@@ -74,9 +83,31 @@ runs:
         PRITUNL_CONCEALED_OUTPUTS: ${{ inputs.concealed-outputs }}
       shell: bash
       run: |
-        # pritunl-client.sh
-        "${GITHUB_ACTION_PATH}$([[ "${RUNNER_OS}" == "Windows" ]] && echo '\' || echo '/')pritunl-client.sh"
+        # Entrypoint for executing 'pritunl-client.sh' script
 
-branding:
-  icon: server
-  color: gray-dark
+        # Define the pritunl_client function
+        pritunl_client() {
+          # Declare a local variable to store the path separator
+          # (using a local variable to avoid polluting the global namespace)
+          local separator
+
+          # Determine the path separator based on the runner OS
+          case "${RUNNER_OS}" in
+            Windows)
+              # Use a backslash (\) for Windows (required for Windows paths)
+              separator='\'
+              ;;
+            *)
+              # Catch-all for non-Windows OSes (Linux, macOS, etc.)
+              # Use a forward slash (/) for paths
+              separator='/'
+              ;;
+          esac
+
+          # Construct and run the full path to the 'pritunl-client.sh' script
+          # using the GITHUB_ACTION_PATH and the separator
+          "${GITHUB_ACTION_PATH}${separator}pritunl-client.sh"
+        }
+
+        # Call the pritunl_client function to start the script
+        pritunl_client
