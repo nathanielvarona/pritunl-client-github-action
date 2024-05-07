@@ -26,10 +26,8 @@ PRITUNL_CONCEALED_OUTPUTS="${PRITUNL_CONCEALED_OUTPUTS:-}" # Concealed Outputs
 
 # Visual Feedback with Emoji Bytes and Color Codes
 # ---------------------------------------------------------------
-# Emojis
 TTY_EMOJI_PACKAGE='\xF0\x9F\x93\xA6' # Package emoji
 TTY_EMOJI_SCROLL='\xF0\x9F\x93\x9C' # Scroll emoji
-# Color Codes
 TTY_RED_NORMAL='\033[0;31m' # Normal red color
 TTY_RED_BOLD='\033[1;31m' # Bold red color
 TTY_GREEN_NORMAL='\033[0;32m' # Normal green color
@@ -38,10 +36,8 @@ TTY_YELLOW_NORMAL='\033[0;33m' # Normal yellow color
 TTY_YELLOW_BOLD='\033[1;33m' # Bold yellow color
 TTY_BLUE_NORMAL='\033[0;34m' # Normal blue color
 TTY_BLUE_BOLD='\033[1;34m' # Bold blue color
-# Gray Colors
 TTY_GRAY_NORMAL='\033[0;37m' # Normal gray color
 TTY_GRAY_BOLD='\033[1;90m' # Bold gray color
-# Color Reset
 TTY_COLOR_RESET='\033[0m' # Reset terminal color
 # ---------------------------------------------------------------
 
@@ -57,23 +53,16 @@ install_for_linux() {
     # Installing using Pritunl Prebuilt Apt Repository
     # This section sets up the Pritunl repository and installs the client using the package manager.
 
-    # Set the Pritunl Linux Runner GPG Key
-    # Default value: 7568D9BB55FF9E5287D586017AE645C0CF8E292A
-    # Check https://keyserver.ubuntu.com/ for the latest key
+    # Set Pritunl Linux Runner GPG Key (default: 7568D9BB55FF9E5287D586017AE645C0CF8E292A)
+    # Verify key: Search on https://keyserver.ubuntu.com/
     PRITUNL_LINUX_RUNNER_GPG_KEY="${PRITUNL_LINUX_RUNNER_GPG_KEY:-7568D9BB55FF9E5287D586017AE645C0CF8E292A}"
 
-    # Note: If the default key fails, you can override it with a new key
-    # Example: In GitHub Actions, use the 'env' key to set a new GPG key
-    # See the example workflow below:
-    # ```
-    # - name: ...
-    #   uses: nathanielvarona/pritunl-client-github-action@v1
+    # Override GPG key in GitHub Actions (if default key expires or is revoked by the maintainers):
+    # - uses: nathanielvarona/pritunl-client-github-action@v1
     #   with:
-    #     profile-file: ...
-    #      ...
+    #     ...
     #   env:
-    #     PRITUNL_LINUX_RUNNER_GPG_KEY: <YOUR LINUX RUNNER GPG KEY OVERRIDE>
-    # ```
+    #     PRITUNL_LINUX_RUNNER_GPG_KEY: <YOUR_LINUX_RUNNER_GPG_KEY_OVERRIDE>
 
     # Add Pritunl repository to the system
     echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/pritunl.list
