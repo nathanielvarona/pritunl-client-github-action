@@ -24,26 +24,40 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        # Checkout the code to run tests
 
       - name: Setup Pritunl Profile
         id: pritunl-connection
-        uses: ./ # Use `nathanielvarona/pritunl-client-github-action@v1` for your GitHub Action workflow.
+        uses: ./
+        # Use `nathanielvarona/pritunl-client-github-action@v1` for your GitHub Action workflow.
         with:
           profile-file: ${{ secrets.PRITUNL_PROFILE_FILE_BASIC }}
           vpn-mode: ${{ matrix.vpn-mode }}
           client-version: ${{ matrix.client-version }}
 
+
+      # Example of Our CI/CD Core Logic
+      # This step demonstrates our core CI/CD logic, which includes:
+      # 1. Installing IP Calculator
+      # 2. Pinging the VPN gateway
+      # This is a simple example of how to test VPN gateway connectivity
+
       - name: Install IP Tooling (IP Calculator)
         shell: bash
         run: |
           # Install IP Calculator
-
+          # Check the runner OS and install IP Calculator accordingly
+          # Linux: use apt-get
+          # macOS: use brew
+          # Windows: download from URL with retry logic (up to 3 attempts)
           if [ "$RUNNER_OS" == "Linux" ]; then
+            # Install IP Calculator on Linux
             sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y ipcalc
           elif [ "$RUNNER_OS" == "macOS" ]; then
+            # Install IP Calculator on macOS
             brew install -q ipcalc
           elif [ "$RUNNER_OS" == "Windows" ]; then
-            # Retry up to 3 times in case of failure
+            # Install IP Calculator on Windows with retry logic
             for attempt in $(seq 3); do
               if curl -sSL "https://raw.githubusercontent.com/kjokjo/ipcalc/0.51/ipcalc" \
                 -o $HOME/bin/ipcalc && chmod +x $HOME/bin/ipcalc; then
@@ -58,7 +72,7 @@ jobs:
             done
           fi
 
-          # Validate the IP Calculator Installation
+          # Verify IP Calculator installation
           echo "ipcalc version $(ipcalc --version)"
 
       - name:  VPN Gateway Reachability Test
@@ -66,11 +80,17 @@ jobs:
         run: |
           # VPN Gateway Reachability Test
 
+          # Set the ping count
           ping_count_number=5
+
+          # Get the profile IP
           profile_ip=$(pritunl-client list -j | jq ". | sort_by(.name)" | jq ".[0]" | jq -r ".client_address")
 
+          # Get the VPN gateway IP
           vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
+
+          # Set the ping flags based on the runner OS
           ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n $ping_count_number" || echo "-c $ping_count_number")"
 
-          # Ping VPN Gateway
+          # Ping the VPN gateway
           ping $vpn_gateway $ping_flags

@@ -229,68 +229,34 @@ Demonstrates manual control over the VPN connection, including starting, stoppin
 - name: Starting a VPN Connection Manually
   shell: bash
   run: |
-    # Starting a VPN Connection Manually
-
+    # Start VPN connection manually
+    # Start the VPN connection using the client ID and password
     pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
       --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }}
+
+    # Sleep for a while to simulate establish connection test
+    # Wait for 10 seconds to allow the connection to establish
+    sleep 10
 
 - name: Show VPN Connection Status Manually
   shell: bash
   run: |
-    # Show VPN Connection Status Manually
-
-    sleep 10
+    # Show VPN connection status
+    # List the VPN connections and show the profile name and client address
     pritunl-client list -j | jq 'sort_by(.name) | .[0] | { "Profile Name": .name, "Client Address": .client_address }'
 
-- name: Your CI/CD Core Logic
+
+- name: Then Your CI/CD Core Logic
   shell: bash
   run: |
-    # Your CI/CD Core Logic
-
-    ##
-    # Below is our simple example for VPN connectivity test.
-    ##
-
-    # Install IP Calculator
-    if [ "$RUNNER_OS" == "Linux" ]; then
-      sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y ipcalc
-    elif [ "$RUNNER_OS" == "macOS" ]; then
-      brew install -q ipcalc
-    elif [ "$RUNNER_OS" == "Windows" ]; then
-      # Retry up to 3 times in case of failure
-      for attempt in $(seq 3); do
-        if curl -sSL "https://raw.githubusercontent.com/kjokjo/ipcalc/0.51/ipcalc" \
-          -o $HOME/bin/ipcalc && chmod +x $HOME/bin/ipcalc; then
-          break
-        else
-          echo "Attempt $attempt failed. Retrying..." && sleep 1
-          # If all retries fail, exit with an error
-          if [ $attempt -eq 3 ]; then
-            echo "Failed to install ipcalc after 3 attempts." && exit 1
-          fi
-        fi
-      done
-    fi
-
-    # Validate the IP Calculator Installation
-    echo "ipcalc version $(ipcalc --version)"
-
-    # VPN Gateway Reachability Test
-    ping_count_number=5
-    profile_ip=$(pritunl-client list -j | jq -r 'sort_by(.name) | .[0].client_address')
-
-    vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
-    ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n $ping_count_number" || echo "-c $ping_count_number")"
-
-    # Ping VPN Gateway
-    ping $vpn_gateway $ping_flags
+    echo "Then Your CI/CD Core Logic"
 
 - name: Stop VPN Connection Manually
   if: ${{ always() }}
   shell: bash
   run: |
-    # Stop VPN Connection Manually
-
+    # Stop VPN connection manually
+    # Stop the VPN connection using the client ID
     pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
 ```
 

@@ -1,13 +1,13 @@
 #!/usr/bin/env bash
 
 # GitHub Project Information
-# ============================
+# ==========================
 # Name:        Pritunl Client GitHub Action
 # Description: Establish automated secure Pritunl VPN connections with Pritunl Client in GitHub Actions, supporting OpenVPN and WireGuard.
 # Repository:  https://github.com/nathanielvarona/pritunl-client-github-action
 
 # Pritunl Client Resources
-# =======================
+# ========================
 # Installation and Setup Guides:
 #   - https://client.pritunl.com/#install
 #   - https://docs.pritunl.com/docs/installation-client
