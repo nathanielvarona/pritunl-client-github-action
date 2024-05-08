@@ -60,31 +60,40 @@ Provides input parameters for the **Pritunl Client GitHub Action**, allowing use
 - name: Pritunl Client GitHub Action
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
-    profile-file: ''  # REQUIRED: Pritunl Profile File (Base64 text format)
+    profile-file: ''
+      # REQUIRED: Pritunl Profile File (Base64 text format)
       # Description: Provide the Base64-encoded Pritunl profile file contents.
 
-    profile-pin: ''  # OPTIONAL: Profile Pin (Numerical values, default: no pin)
+    profile-pin: ''
+      # OPTIONAL: Profile Pin (Numerical values, default: no pin)
       # Description: Specify a numerical pin for the profile (if required).
 
-    profile-server: ''  # OPTIONAL: Profile Server (Single string or comma-separated for multiple names, default: first or only server in the profile)
+    profile-server: ''
+      # OPTIONAL: Profile Server (Single string or comma-separated for multiple names, default: first or only server in the profile)
       # Description: Specify the profile server(s) to connect to.
 
-    vpn-mode: ''  # OPTIONAL: VPN Connection Mode (choices: 'ovpn', 'openvpn', 'OpenVPN', 'wg', 'wireguard', 'WireGuard', default: 'ovpn')
+    vpn-mode: ''
+      # OPTIONAL: VPN Connection Mode (choices: 'ovpn' for OpenVPN, or 'wg' for WireGuard, default: 'ovpn')
       # Description: Select the VPN connection mode.
 
-    client-version: ''  # OPTIONAL: Pritunl Client Version (Numerical dot-separated identifiers, default: latest version from Package Manager)
+    client-version: ''
+      # OPTIONAL: Pritunl Client Version (Numerical dot-separated identifiers, default: latest version from Package Manager)
       # Description: Specify the Pritunl client version to use.
 
-    start-connection: ''  # OPTIONAL: Start the Connection (Boolean, default: true)
+    start-connection: ''
+      # OPTIONAL: Start the Connection (Boolean, default: true)
       # Description: Set to 'false' to prevent the connection from starting automatically.
 
-    ready-profile-timeout: ''  # OPTIONAL: Ready Profile Timeout (Natural Numbers, unit of time in seconds, default: 3)
+    ready-profile-timeout: ''
+      # OPTIONAL: Ready Profile Timeout (Natural Numbers, unit of time in seconds, default: 3)
       # Description: Set the timeout for the profile to become ready.
 
-    established-connection-timeout: ''  # OPTIONAL: Established Connection Timeout (Natural Numbers, unit of time in seconds, default: 30)
+    established-connection-timeout: ''
+      # OPTIONAL: Established Connection Timeout (Natural Numbers, unit of time in seconds, default: 30)
       # Description: Set the timeout for the connection to become established.
 
-    concealed-outputs: ''  # OPTIONAL: Concealed Outputs (Boolean, default: true)
+    concealed-outputs: ''
+      # OPTIONAL: Concealed Outputs (Boolean, default: true)
       # Description: Set to 'false' to reveal sensitive output information.
 ```
 
@@ -95,25 +104,27 @@ Provides input parameters for the **Pritunl Client GitHub Action**, allowing use
 
 Outputs essential variables from **Pritunl Client** setup, supporting and extending automation, integration, and audit processes.
 
-* `client-id` — a unique string identifier generated during the profile setup process.
-  + Example:
-    ```text
-    6p5yiqbkjbktkrz5
-    ```
+`client-id` — a unique string identifier generated during the profile setup process.
 
-* `client-ids` — a JSON array containing all client IDs and names in the profile, with each entry represented as a key-value pair.
-  + Format _(elements)_:
-    ```json
-    {"id":"client-id","name":"profile-name (server-name)"}
-    ```
-  + Example _(single entry)_:
-    ```json
-    [{"id":"6p5yiqbkjbktkrz5","name":"gha-automator-dev (dev-team)"}]
-    ```
-  + Example _(multiple entries)_:
-    ```json
-    [{"id":"kp4kx4zbcqpsqkbk","name":"gha-automator-qa2 (dev-team)"},{"id":"rsy6npzw5mwryge2","name":"gha-automator-qa2 (qa-team)"}]
-    ```
+* Example:
+  ```text
+  6p5yiqbkjbktkrz5
+  ```
+
+`client-ids` — a JSON array containing all client IDs and names in the profile, with each entry represented as a key-value pair.
+
+* Format _(json elements)_:
+  ```json
+  {"id":"client-id","name":"profile-name (server-name)"}
+  ```
+* Example _(single entry)_:
+  ```json
+  [{"id":"6p5yiqbkjbktkrz5","name":"gha-automator-dev (dev-team)"}]
+  ```
+* Example _(multiple entries)_:
+  ```json
+  [{"id":"kp4kx4zbcqpsqkbk","name":"gha-automator-qa2 (dev-team)"},{"id":"rsy6npzw5mwryge2","name":"gha-automator-qa2 (qa-team)"}]
+  ```
 
 #### Retrieving Step Outputs
 
@@ -128,7 +139,7 @@ Outputs essential variables from **Pritunl Client** setup, supporting and extend
   ```
 
 > [!NOTE]
-> The `pritunl-connection` refers to the **Setup Step ID**. Make sure to replace it with the actual step ID in your workflow._
+> _The `pritunl-connection` refers to the **Setup Step ID**. Make sure to replace it with the actual step ID in your workflow._
 
 > [!TIP]
 > * See "[Manual Connection Control](#manual-connection-control)" for an example of using `client_id`.
@@ -204,7 +215,7 @@ Use a specific version of the Pritunl client.
 
 ### Specify VPN Mode
 
-Use a specific VPN mode (e.g., WireGuard).
+Use a specific VPN mode (e.g., **WireGuard**).
 
 ```yml
 - name: Setup Pritunl Profile and Start VPN Connection
@@ -244,7 +255,6 @@ Demonstrates manual control over the VPN connection, including starting, stoppin
     # Show VPN connection status
     # List the VPN connections and show the profile name and client address
     pritunl-client list -j | jq 'sort_by(.name) | .[0] | { "Profile Name": .name, "Client Address": .client_address }'
-
 
 - name: Then Your CI/CD Core Logic
   shell: bash
