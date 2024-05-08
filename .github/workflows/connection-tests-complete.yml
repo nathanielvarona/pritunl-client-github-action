@@ -10,7 +10,7 @@ jobs:
       matrix:
         os:
           - ubuntu-22.04
-          - macos-13 # See the '.github/workflows/connection-tests-complete.yml' file for macOS Arm64 connection test examples.
+          - macos-13  # macOS Arm64 connection test examples in '.github/workflows/connection-tests-arm64.yml'
           - windows-2022
         profile-server:
           - dev-team
@@ -37,11 +37,12 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # Checkout the code to run tests
 
       - name: Setup Pritunl Profile
         id: pritunl-connection
-        uses: ./ # Use `nathanielvarona/pritunl-client-github-action@v1` for your GitHub Action workflow.
+        uses: ./
+        # Use `nathanielvarona/pritunl-client-github-action@v1` for your GitHub Action workflow.
         with:
           profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
           profile-pin: ${{ secrets.PRITUNL_PROFILE_PIN }}
@@ -53,27 +54,43 @@ jobs:
           established-connection-timeout: ${{ matrix.established-connection-timeout }}
           concealed-outputs: ${{ matrix.concealed-outputs }}
 
+
+      # Example of Our CI/CD Core Logic
+      # This step demonstrates our core CI/CD logic, which includes:
+      # 1. Starting a VPN connection manually (if matrix.start-connection == false)
+      # 2. Showing the VPN connection status (if matrix.start-connection == false)
+      # 3. Installing IP Calculator
+      # 4. Pinging the VPN gateway
+      # 5. Stopping the VPN connection manually (if matrix.start-connection == false)
+      # This is a simple example of how to test VPN gateway connectivity, with conditional steps for starting and stopping the VPN connection
+
       - name: Starting a VPN Connection Manually
         if: matrix.start-connection == false
         shell: bash
         run: |
-          # Start the VPN Connection Manually
+          # Start the VPN connection manually
 
+          # Get the client IDs from the previous step
           profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-ids }}'
 
+          # Loop through each client ID
           while read -r line; do
             profile_server_ids_array+=("$line")
           done < <(echo "$profile_server_ids_json" | jq -c '.[]')
 
+          # Start the VPN connection for each profile server
           for profile_server_item in "${profile_server_ids_array[@]}"; do
             echo "Starting connection for '$(echo "$profile_server_item" | jq -r ".name")' profile server."
 
+            # Get the ID of the profile server
             profile_id="$(echo "$profile_server_item" | jq -r ".id")"
 
+            # Start the VPN connection using the pritunl-client command
             pritunl-client start $profile_id \
               --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }} \
               --mode ${{ matrix.vpn-mode }}
 
+            # Wait for 2 seconds
             sleep 2
           done
 
@@ -81,28 +98,34 @@ jobs:
         if: matrix.start-connection == false
         shell: bash
         run: |
-          # Show VPN Connection Status Manually
+          # Show VPN connection status manually
 
+          # Wait for 10 seconds
           sleep 10
           profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-ids }}'
           profile_server_ids_array=()
 
+          # Loop through each client ID
           while read -r line; do
           profile_server_ids_array+=("$line")
           done < <(echo "$profile_server_ids_json" | jq -c '.[]')
 
+          # Show the VPN connection status for each profile server
           for profile_server_item in "${profile_server_ids_array[@]}"; do
             echo "Establish connection for '$(echo "$profile_server_item" | jq -r ".name")' profile server."
 
+            # Get the ID of the profile server
             profile_id="$(echo "$profile_server_item" | jq -r ".id")"
             profile_name="$(echo "$profile_server_item" | jq -r ".name")"
 
+            # Get the VPN connection status
             profile_server=$(pritunl-client list -j)
             profile_ip="$(echo "$profile_server" | jq --arg profile_id "$profile_id" '.[] | select(.id == $profile_id)' | jq -r '.client_address')"
 
+            # Print the VPN connection status
             echo "Connected as '$profile_name' with a private client address of '$profile_ip'."
 
-            # Print new line
+            # Print a new line
             echo -n -e "\n"
           done
 
@@ -111,6 +134,7 @@ jobs:
         run: |
           # Install IP Calculator
 
+          # Install IP Calculator based on the runner OS
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y ipcalc
           elif [ "$RUNNER_OS" == "macOS" ]; then
@@ -131,7 +155,7 @@ jobs:
             done
           fi
 
-          # Validate the IP Calculator Installation
+          # Validate the IP Calculator installation
           echo "ipcalc version $(ipcalc --version)"
 
       - name: VPN Gateway Reachability Test
@@ -139,50 +163,62 @@ jobs:
         run: |
           # VPN Gateway Reachability Test
 
+          # Set the ping count
           ping_count_number=5
+
+          # Get the client IDs from the previous step
           profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-ids }}'
           profile_server_ids_array=()
 
+          # Loop through each client ID
           while read -r line; do
           profile_server_ids_array+=("$line")
           done < <(echo "$profile_server_ids_json" | jq -c '.[]')
 
+          # Ping the VPN gateway for each profile server
           for profile_server_item in "${profile_server_ids_array[@]}"; do
             echo "Pinging '$(echo "$profile_server_item" | jq -r ".name")' Gateway."
 
+            # Get the ID of the profile server
             profile_id="$(echo "$profile_server_item" | jq -r ".id")"
             profile_ip="$(pritunl-client list -j | jq --arg profile_id "$profile_id" '.[] | select(.id == $profile_id)' | jq -r '.client_address')"
 
+            # Get the VPN gateway IP
             vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
             ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n $ping_count_number" || echo "-c $ping_count_number")"
 
-            # Ping VPN Gateway
+            # Ping the VPN gateway
             ping $vpn_gateway $ping_flags
 
-            # Print new line
+            # Print a new line
             echo -n -e "\n"
           done
-
 
       - name: Stop VPN Connection Manually
         if: matrix.start-connection == false
         shell: bash
         run: |
-          # Stop Connection Manually
+          # Stop VPN Connection Manually
 
+          # Get the client IDs from the previous step
           profile_server_ids_json='${{ steps.pritunl-connection.outputs.client-ids }}'
           profile_server_ids_array=()
 
+          # Loop through each client ID
           while read -r line; do
-            profile_server_ids_array+=("$line")
+          profile_server_ids_array+=("$line")
           done < <(echo "$profile_server_ids_json" | jq -c '.[]')
 
+          # Stop the VPN connection for each profile server
           for profile_server_item in "${profile_server_ids_array[@]}"; do
             echo "Stopping connection for '$(echo "$profile_server_item" | jq -r ".name")' profile server."
 
+            # Get the ID of the profile server
             profile_id="$(echo "$profile_server_item" | jq -r ".id")"
 
+            # Stop the VPN connection using the pritunl-client command
             pritunl-client stop $profile_id
 
+            # Wait for 2 seconds
             sleep 2
           done

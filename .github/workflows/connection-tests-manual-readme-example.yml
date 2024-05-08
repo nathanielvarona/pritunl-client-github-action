@@ -17,41 +17,50 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4 # Checkout the code to run tests
 
       - name: Setup Pritunl Profile
-        id: pritunl-connection # A `Setup Step ID` has been added as a reference identifier for the output `client-id`.
-        uses: ./ # Use `nathanielvarona/pritunl-client-github-action@v1` for your GitHub Action workflow.
+        id: pritunl-connection
+        uses: ./
+        # Use `nathanielvarona/pritunl-client-github-action@v1` for your GitHub Action workflow.
         with:
           profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-          start-connection: false # Do not establish a connection in this step.
+          start-connection: false
+
+
+      # Example of Our CI/CD Core Logic
+      # This step demonstrates our core CI/CD logic, which includes:
+      # 1. Installing IP Calculator
+      # 2. Starting a VPN connection manually
+      # 3. Showing the VPN connection status
+      # 4. Pinging the VPN gateway
+      # 5. Stopping the VPN connection manually
+      # This is a simple example of how to test VPN gateway connectivity
 
       - name: Starting a VPN Connection Manually
         shell: bash
         run: |
-          # Starting a VPN Connection Manually
-
+          # Start VPN connection manually
+          # Start the VPN connection using the client ID and password
           pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
             --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }}
+
+          # Sleep for a while to simulate establish connection test
+          # Wait for 10 seconds to allow the connection to establish
+          sleep 10
 
       - name: Show VPN Connection Status Manually
         shell: bash
         run: |
-          # Show VPN Connection Status Manually
-
-          sleep 10
+          # Show VPN connection status
+          # List the VPN connections and show the profile name and client address
           pritunl-client list -j | jq 'sort_by(.name) | .[0] | { "Profile Name": .name, "Client Address": .client_address }'
 
-      - name: Your CI/CD Core Logic
+      - name: Install IP Calculator
         shell: bash
         run: |
-          # Your CI/CD Core Logic
-
-          ##
-          # Below is our simple example for VPN connectivity test.
-          ##
-
           # Install IP Calculator
+          # Install IP Calculator based on the runner OS
           if [ "$RUNNER_OS" == "Linux" ]; then
             sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y ipcalc
           elif [ "$RUNNER_OS" == "macOS" ]; then
@@ -71,24 +80,29 @@ jobs:
               fi
             done
           fi
-
           # Validate the IP Calculator Installation
           echo "ipcalc version $(ipcalc --version)"
 
-          # VPN Gateway Reachability Test
+      - name: Ping VPN Gateway
+        shell: bash
+        run: |
+          # Set the ping count
           ping_count_number=5
-          profile_ip=$(pritunl-client list -j | jq -r 'sort_by(.name) | .[0].client_address')
 
+          # Get the Profile ID Details
+          profile_ip=$(pritunl-client list -j | jq -r 'sort_by(.name) | .[0].client_address')
           vpn_gateway="$(ipcalc $profile_ip | awk 'NR==6{print $2}')"
+
+          # Construct the Ping Flags
           ping_flags="$([[ "$RUNNER_OS" == "Windows" ]] && echo "-n $ping_count_number" || echo "-c $ping_count_number")"
 
-          # Ping VPN Gateway
+          # Ping the VPN gateway
           ping $vpn_gateway $ping_flags
 
       - name: Stop VPN Connection Manually
         if: ${{ always() }}
         shell: bash
         run: |
-          # Stop VPN Connection Manually
-
+          # Stop VPN connection manually
+          # Stop the VPN connection using the client ID
           pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
