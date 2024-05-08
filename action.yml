@@ -83,31 +83,29 @@ runs:
         PRITUNL_CONCEALED_OUTPUTS: ${{ inputs.concealed-outputs }}
       shell: bash
       run: |
-        # Entrypoint for executing 'pritunl-client.sh' script
+        # Main entry point for executing the 'pritunl-client.sh' script
 
-        # Define the pritunl_client function
+        # Define the 'pritunl_client' function, which sets up and runs the script
         pritunl_client() {
-          # Declare a local variable to store the path separator
-          # (using a local variable to avoid polluting the global namespace)
+          # Declare a local variable to store the path 'separator', to avoid polluting the global namespace
           local separator
 
           # Determine the path separator based on the runner OS
           case "${RUNNER_OS}" in
             Windows)
-              # Use a backslash (\) for Windows (required for Windows paths)
+              # Use a backslash (\) for Windows paths
               separator='\'
               ;;
             *)
-              # Catch-all for non-Windows OSes (Linux, macOS, etc.)
-              # Use a forward slash (/) for paths
+              # Use a forward slash (/) for non-Windows OSes (Linux, macOS, etc.)
               separator='/'
               ;;
           esac
 
-          # Construct and run the full path to the 'pritunl-client.sh' script
-          # using the GITHUB_ACTION_PATH and the separator
+          # Construct the full path to the 'pritunl-client.sh' script using 'GITHUB_ACTION_PATH' and the 'separator'
+          # and run the script
           "${GITHUB_ACTION_PATH}${separator}pritunl-client.sh"
         }
 
-        # Call the pritunl_client function to start the script
+        # Call the 'pritunl_client' function to start the script execution
         pritunl_client
