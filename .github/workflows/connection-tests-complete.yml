@@ -37,12 +37,11 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4  # Checkout the code to run tests
+        uses: actions/checkout@v4 # Checkout the code to run tests
 
       - name: Setup Pritunl Profile
         id: pritunl-connection
-        uses: ./
-        # Use `nathanielvarona/pritunl-client-github-action@v1` for your GitHub Action workflow.
+        uses: ./ # Use `nathanielvarona/pritunl-client-github-action@v1` for your GitHub Action workflow.
         with:
           profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
           profile-pin: ${{ secrets.PRITUNL_PROFILE_PIN }}
@@ -53,7 +52,6 @@ jobs:
           ready-profile-timeout: ${{ matrix.ready-profile-timeout }}
           established-connection-timeout: ${{ matrix.established-connection-timeout }}
           concealed-outputs: ${{ matrix.concealed-outputs }}
-
 
       # Example of Our CI/CD Core Logic
       # This step demonstrates our core CI/CD logic, which includes:

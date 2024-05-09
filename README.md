@@ -23,22 +23,22 @@ Streamline tasks such as:
 [![Connection Tests - Basic](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml?query=branch:main)
 [![Connection Tests - Complete](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml?query=branch:main)
 [![Connection Tests - Multi Server Profile](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml?query=branch:main)
-[![Connection Tests - Manual (README Example)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-readme-example.yml?query=branch:main)
+[![Connection Tests - Manual Control](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-control.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-control.yml?query=branch:main)
 [![Connection Tests - Arm64](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml?query=branch:main)
 
 ### Compatibility Matrix
 
 Check the compatibility of various runners and VPN modes:
 
-Runner                              | OpenVPN                | WireGuard
-------------------------------------|------------------------|-----------------------
-`ubuntu-22.04`                      | :white_check_mark: yes | :white_check_mark: yes
-`ubuntu-20.04`                      | :white_check_mark: yes | :white_check_mark: yes
-`macos-13`                          | :white_check_mark: yes | :white_check_mark: yes
-`macos-13-xlarge` <sup>arm64*</sup> | :white_check_mark: yes | :white_check_mark: yes
-`macos-12`                          | :white_check_mark: yes | :white_check_mark: yes
-`windows-2022`                      | :white_check_mark: yes | :white_check_mark: yes
-`windows-2019`                      | :white_check_mark: yes | :white_check_mark: yes
+Runner                                                                                  | OpenVPN                | WireGuard
+----------------------------------------------------------------------------------------|------------------------|-----------------------
+`ubuntu-22.04`                                                                          | :white_check_mark: yes | :white_check_mark: yes
+`ubuntu-20.04`                                                                          | :white_check_mark: yes | :white_check_mark: yes
+`macos-13`                                                                              | :white_check_mark: yes | :white_check_mark: yes
+`macos-13-xlarge` <sup>[arm64<sup>1</sup>](#supported-arm64-architecture-runners)</sup> | :white_check_mark: yes | :white_check_mark: yes
+`macos-12`                                                                              | :white_check_mark: yes | :white_check_mark: yes
+`windows-2022`                                                                          | :white_check_mark: yes | :white_check_mark: yes
+`windows-2019`                                                                          | :white_check_mark: yes | :white_check_mark: yes
 
 > [!TIP]
 > * See  the workflow file [connection-tests-complete.yml](./.github/workflows/connection-tests-complete.yml) for a complete tests matrix example.
@@ -230,6 +230,7 @@ Use a specific VPN mode (e.g., **WireGuard**).
 Demonstrates manual control over the VPN connection, including starting, stopping, and checking the connection status.
 
 ```yml
+# Set up Pritunl profile and store client ID for later use
 - name: Setup Pritunl Profile
   id: pritunl-connection # A `Setup Step ID` has been added as a reference identifier for the output `client-id`.
   uses: nathanielvarona/pritunl-client-github-action@v1
@@ -237,41 +238,40 @@ Demonstrates manual control over the VPN connection, including starting, stoppin
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
     start-connection: false # Do not establish a connection in this step.
 
-- name: Starting a VPN Connection Manually
+# Start VPN connection using stored client ID and password (if available)
+- name: Start VPN Connection Manually
   shell: bash
   run: |
-    # Start VPN connection manually
-    # Start the VPN connection using the client ID and password
     pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
       --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }}
-
-    # Sleep for a while to simulate establish connection test
     # Wait for 10 seconds to allow the connection to establish
     sleep 10
 
+# Display VPN connection status
 - name: Show VPN Connection Status Manually
   shell: bash
   run: |
-    # Show VPN connection status
-    # List the VPN connections and show the profile name and client address
     pritunl-client list -j | jq 'sort_by(.name) | .[0] | { "Profile Name": .name, "Client Address": .client_address }'
+    # Show the profile name and client address
 
-- name: Then Your CI/CD Core Logic
+# Insert your CI/CD core logic here
+- name: CI/CD Core Logic Manually
   shell: bash
   run: |
-    echo "Then Your CI/CD Core Logic"
+    echo "Insert your CI/CD core logic here"
+    # Add your CI/CD core logic here
 
+# Stop VPN connection using stored client ID (always run, even on failure)
 - name: Stop VPN Connection Manually
   if: ${{ always() }}
   shell: bash
   run: |
-    # Stop VPN connection manually
-    # Stop the VPN connection using the client ID
     pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
+    # Stop the VPN connection
 ```
 
 > [!TIP]
-> See a working example of manual connection control in our [connection-tests-manual-readme-example.yml](./.github/workflows/connection-tests-manual-readme-example.yml) for the readme example manual test.
+> See a working example of manual connection control in our [connection-tests-manual-control.yml](./.github/workflows/connection-tests-manual-control.yml) for the readme example manual test.
 
 ### Controlling Step Outputs Visibility in GitHub Actions Log
 
@@ -362,7 +362,7 @@ Create a GitHub Action Secret (e.g., `PRITUNL_PROFILE_FILE`) and paste the entir
 Supports GitHub Actions runners with Arm64 architecture, enabling users to run workflows on Arm64-based systems.
 
 > [!WARNING]
-> <sup>arm64*</sup> — Arm64 runners incur usage charges, even in public repositories. Please note that these charges apply to your account.
+> <sup>arm64<sup>1</sup></sup> — Arm64 runners incur usage charges, even in public repositories. Please note that these charges apply to your account.
 
 > [!TIP]
 > See an example of Arm64 support in our [connection-tests-arm64.yml](./.github/workflows/connection-tests-arm64.yml) file.
