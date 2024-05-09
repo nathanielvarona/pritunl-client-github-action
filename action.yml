@@ -2,11 +2,6 @@
 name: Pritunl Client GitHub Action
 description: Establish automated secure Pritunl VPN connections with Pritunl Client in GitHub Actions, supporting OpenVPN and WireGuard.
 
-# Define branding for the GitHub Marketplace
-branding:
-  icon: server
-  color: gray-dark
-
 # Define inputs for the Action
 inputs:
   profile-file:
@@ -109,3 +104,8 @@ runs:
 
         # Call the 'pritunl_client' function to start the script execution
         pritunl_client
+
+# Define branding for the GitHub Marketplace
+branding:
+  icon: server
+  color: gray-dark

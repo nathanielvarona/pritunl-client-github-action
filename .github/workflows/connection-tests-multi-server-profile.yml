@@ -25,12 +25,10 @@ jobs:
 
       - name: Setup Pritunl Profile
         id: pritunl-connection
-        uses: ./
-        # Use `nathanielvarona/pritunl-client-github-action@v1` for your GitHub Action workflow.
+        uses: ./ # Use `nathanielvarona/pritunl-client-github-action@v1` for your GitHub Action workflow.
         with:
           profile-file: ${{ secrets.PRITUNL_PROFILE_FILE_MULTI_SERVER }}
           profile-server: ${{ matrix.profile-server }}
-
 
       # Example of Our CI/CD Core Logic
       # This step demonstrates our core CI/CD logic, which includes:
