@@ -20,11 +20,12 @@ Streamline tasks such as:
 
 ## Connection Tests
 
+[![Connection Tests - Arm64](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml?query=branch:main)
 [![Connection Tests - Basic](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml?query=branch:main)
 [![Connection Tests - Complete](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml?query=branch:main)
-[![Connection Tests - Multi Server Profile](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml?query=branch:main)
 [![Connection Tests - Manual Control](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-control.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-control.yml?query=branch:main)
-[![Connection Tests - Arm64](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml?query=branch:main)
+[![Connection Tests - Multi Server Profile](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml?query=branch:main)
+
 
 ### Compatibility Matrix
 
@@ -336,25 +337,56 @@ Then, copy the entire `base64` text data.
 
 Create a GitHub Action Secret (e.g., `PRITUNL_PROFILE_FILE`) and paste the entire `base64` text data as the secret value.
 
-<details>
-  <summary>Pro Tip: One-liner Shorthand Script</summary>
 
-  Use this handy one-liner script to simplify the first three steps:
+### Pro Tip!
+
+<details>
+  <summary>Reveal the Magic: One-liner Shorthand Script</summary>
+
+  Simplify the first three steps with this handy one-liner script:
 
   ```bash
-  # For macOS
-  encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | pbcopy }
+  # Define a function to encode a profile and copy it to the clipboard
+  encode_profile_and_copy() {
+    # Check if a file path is provided as an argument
+    if [ $# -eq 1 ] && [ -f "$1" ]; then
+      # If a file path is provided, use that
+      # Encode the file to base64 and copy to clipboard
+      base64 -w 0 "$1" | {
+        # Use pbcopy for macOS
+        pbcopy
+      } || {
+        # Use xclip or xsel for Linux
+        xclip -selection clipboard || xsel --clipboard --input
+      }
+    else
+      # Download the profile, convert to base64, and copy to clipboard
+      curl -sSL "$1" | base64 -w 0 | {
+        # Use pbcopy for macOS
+        pbcopy
+      } || {
+        # Use xclip or xsel for Linux
+        xclip -selection clipboard || xsel --clipboard --input
+      }
+    fi
+  }
 
-  # For Linux
-  encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xclip -selection clipboard } # Or,
-  encode_profile_and_copy() { curl -sSL $1 | base64 -w 0 | xsel --clipboard --input }
+  # Usage:
+  # encode_profile_and_copy <url or file path>
 
-  # Usage
-  encode_profile_and_copy https://vpn.domain.tld/key/a1b2c3d4e5.tar
+  # Examples:
+  # Using a URL:
+  # encode_profile_and_copy https://vpn.domain.tld/key/a1b2c3d4e5.tar
+
+  # Using a local file path:
+  # encode_profile_and_copy ./pritunl.profile.tar
+
+  # Description:
+  # This script encodes a VPN profile to base64 and copies it to the clipboard.
+  # It can handle both URLs and local file paths as input.
+  # If a URL is provided, it will download the profile and then encode it.
+  # If a local file path is provided, it will read the file and encode its contents.
   ```
-
-  This script combines the steps of downloading the profile, converting to base64, and copying to the clipboard into a single command. Just replace the URL with your profile link!
-
 </details>
 
 ## Supported Arm64 Architecture Runners
