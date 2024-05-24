@@ -26,14 +26,13 @@ jobs:
           profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
           start-connection: false # Do not establish a connection in this step.
 
-      # Example of Our CI/CD Core Logic
-      # This step demonstrates our core CI/CD logic, which includes:
+      # The steps below demonstrate how to verify VPN gateway connectivity, including:
       # 1. Installing IP Calculator
       # 2. Start VPN Connection Manually
       # 3. Show VPN Connection Status Manually
       # 4. Pinging the VPN gateway
       # 5. Stop VPN Connection Manually
-      # This is a simple example of how to test VPN gateway connectivity
+      # This is a simple example of how to test VPN gateway connectivity, ensuring a stable and secure connection.
 
       # Start VPN connection using stored client ID and password (if available)
       - name: Start VPN Connection Manually

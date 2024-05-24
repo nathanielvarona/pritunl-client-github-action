@@ -30,12 +30,10 @@ jobs:
           profile-file: ${{ secrets.PRITUNL_PROFILE_FILE_MULTI_SERVER }}
           profile-server: ${{ matrix.profile-server }}
 
-      # Example of Our CI/CD Core Logic
-      # This step demonstrates our core CI/CD logic, which includes:
+      # The steps below demonstrate how to verify VPN gateway connectivity, including:
       # 1. Installing IP Calculator
-      # 2. Pinging the VPN Gateway for reachability
-      # 3. Testing VPN connectivity with multiple profile servers
-      # This is a simple example of how to test VPN gateway connectivity
+      # 2. Pinging the VPN Gateway for reachability (testing VPN connectivity with multiple profile servers if defined)
+      # This is a simple example of how to test VPN gateway connectivity, ensuring a stable and secure connection.
 
       - name: Install IP Calculator
         shell: bash

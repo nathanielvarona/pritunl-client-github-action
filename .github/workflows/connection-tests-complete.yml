@@ -53,14 +53,13 @@ jobs:
           established-connection-timeout: ${{ matrix.established-connection-timeout }}
           concealed-outputs: ${{ matrix.concealed-outputs }}
 
-      # Example of Our CI/CD Core Logic
-      # This step demonstrates our core CI/CD logic, which includes:
+      # The steps below demonstrate how to verify VPN gateway connectivity, including:
       # 1. Starting a VPN connection manually (if matrix.start-connection == false)
       # 2. Showing the VPN connection status (if matrix.start-connection == false)
       # 3. Installing IP Calculator
       # 4. Pinging the VPN gateway
       # 5. Stopping the VPN connection manually (if matrix.start-connection == false)
-      # This is a simple example of how to test VPN gateway connectivity, with conditional steps for starting and stopping the VPN connection
+      # This is a simple example of how to test VPN gateway connectivity, ensuring a stable and secure connection.
 
       - name: Starting a VPN Connection Manually
         if: matrix.start-connection == false
