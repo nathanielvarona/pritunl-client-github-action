@@ -9,14 +9,14 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-13-xlarge
           - macos-14-xlarge
+          - macos-13-xlarge
         vpn-mode:
           - ovpn
           - wg
         client-version:
           - from-package-manager
-          - 1.3.3709.64
+          - 1.3.3883.60
 
     runs-on: ${{ matrix.os }}
     name: "run:${{ matrix.os }}, vpn:${{ matrix.vpn-mode }}, cv:${{ matrix.client-version }}"
@@ -33,11 +33,10 @@ jobs:
           vpn-mode: ${{ matrix.vpn-mode }}
           client-version: ${{ matrix.client-version }}
 
-      # Example of Our CI/CD Core Logic
-      # This step demonstrates our core CI/CD logic, which includes:
+      # The steps below demonstrate how to verify VPN gateway connectivity, including:
       # 1. Installing IP Calculator
       # 2. Pinging the VPN gateway
-      # This is a simple example of how to test VPN gateway connectivity
+      # This is a simple example of how to test VPN gateway connectivity, ensuring a stable and secure connection.
 
       - name: Install IP Tooling (IP Calculator)
         shell: bash
