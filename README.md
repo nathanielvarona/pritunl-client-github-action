@@ -51,7 +51,7 @@ We have confirmed compatibility with [Pritunl v1.32.3805.95](https://github.com/
 
 ## Usage
 
-Configure the **Pritunl Client GitHub Action** using a declarative syntax, making it easy to integrate and manage your VPN connections.
+Configure the **Pritunl Client GitHub Action** using YAML's declarative syntax, making it easy to integrate and manage your VPN connections in a clear and concise manner. Define your configuration in a simple and human-readable YAML file, and let the action handle the rest.
 
 ### Inputs
 
@@ -193,10 +193,18 @@ Select one or more servers by specifying their names. You can use:
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    profile-server: dev-team # Specify a single server using its short name
-    # profile-server: dev-team, qa-team # Connect to multiple servers using short names
-    # profile-server: gha-automator-qa1 (dev-team) # Use a full profile name to specify a single server
-    # profile-server: gha-automator-qa1 (dev-team), gha-automator-qa1 (qa-team) # Use full profile names to specify multiple servers
+
+    # Specify a single server using its short name
+    profile-server: dev-team
+
+    # Connect to multiple servers using short names
+    # profile-server: dev-team, qa-team
+
+    # Use a full profile name to specify a single server
+    # profile-server: gha-automator-qa1 (dev-team)
+
+    # Use full profile names to specify multiple servers
+    # profile-server: gha-automator-qa1 (dev-team), gha-automator-qa1 (qa-team)
 ```
 
 > [!TIP]
@@ -256,11 +264,7 @@ Demonstrates manual control over the VPN connection, including starting, stoppin
     # Show the profile name and client address
 
 # Insert your CI/CD core logic here
-- name: CI/CD Core Logic Manually
-  shell: bash
-  run: |
-    echo "Insert your CI/CD core logic here"
-    # Add your CI/CD core logic here
+- name: Your CI/CD Core Logic Here
 
 # Stop VPN connection using stored client ID (always run, even on failure)
 - name: Stop VPN Connection Manually
