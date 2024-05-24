@@ -33,7 +33,7 @@ Check the compatibility of various runners and VPN modes:
 
 Runner                                                                                                                   | OpenVPN                | WireGuard
 -------------------------------------------------------------------------------------------------------------------------|------------------------|-----------------------
-`ubuntu-24.04` <sup>[:warning: beta](https://github.com/actions/runner-images?tab=readme-ov-file#available-images)</sup> | :white_check_mark: yes | :white_check_mark: yes
+`ubuntu-24.04` <sup>[:warning: beta](https://github.com/actions/runner-images?tab=readme-ov-file#available-images)</sup> | :white_check_mark: yes | :x: intermittent connection
 `ubuntu-22.04`                                                                                                           | :white_check_mark: yes | :white_check_mark: yes
 `ubuntu-20.04`                                                                                                           | :white_check_mark: yes | :white_check_mark: yes
 `macos-13`                                                                                                               | :white_check_mark: yes | :white_check_mark: yes
