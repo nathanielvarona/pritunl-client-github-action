@@ -9,7 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-24.04
+          - ubuntu-22.04
           - macos-13  # macOS Arm64 connection test examples in '.github/workflows/connection-tests-arm64.yml'
           - windows-2022
         profile-server:

@@ -9,7 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-24.04
+          - ubuntu-22.04
           - macos-13
           - windows-2022
         profile-server:
