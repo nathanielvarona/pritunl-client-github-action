@@ -20,7 +20,7 @@ jobs:
           - wg
         client-version:
           - from-package-manager
-          - 1.3.3814.40
+          - 1.3.3883.60
         start-connection:
           - true
           - false

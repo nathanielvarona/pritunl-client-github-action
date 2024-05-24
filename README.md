@@ -219,7 +219,7 @@ Use a specific version of the Pritunl client.
   uses: nathanielvarona/pritunl-client-github-action@v1
   with:
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
-    client-version: 1.3.3814.40
+    client-version: 1.3.3883.60
 ```
 
 ### Specify VPN Mode

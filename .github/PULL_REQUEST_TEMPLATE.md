@@ -42,7 +42,7 @@
 - [x] Installed from the package manager <!-- default -->
 - Version specific
   <!-- Please specify the versions of the Pritunl Client that you are currently using. -->
-  - [ ] 1.3.3814.40
+  - [ ] 1.3.3883.60
 
 **Start Connection:** *If the connection is started on the setup step.*
 - [x] True <!-- default -->
