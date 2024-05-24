@@ -78,32 +78,27 @@ runs:
         PRITUNL_CONCEALED_OUTPUTS: ${{ inputs.concealed-outputs }}
       shell: bash
       run: |
-        # Main entry point for executing the 'pritunl-client.sh' script
+        # main entry point for executing the 'pritunl-client.sh' script
 
-        # Define the 'pritunl_client' function, which sets up and runs the script
-        pritunl_client() {
-          # Declare a local variable to store the path 'separator', to avoid polluting the global namespace
-          local separator
-
+        # Define a function to determine the path separator based on the runner OS
+        os_path_separator() {
           # Determine the path separator based on the runner OS
           case "${RUNNER_OS}" in
             Windows)
-              # Use a backslash (\) for Windows paths
-              separator='\'
+              # Use a backslash (\) for Windows paths to avoid file name confusion
+              echo '\'
               ;;
             *)
-              # Use a forward slash (/) for non-Windows OSes (Linux, macOS, etc.)
-              separator='/'
+              # Use a forward slash (/) for non-Windows OSes (Linux, macOS, etc.) for consistency
+              echo '/'
               ;;
           esac
-
-          # Construct the full path to the 'pritunl-client.sh' script using 'GITHUB_ACTION_PATH' and the 'separator'
-          # and run the script
-          "${GITHUB_ACTION_PATH}${separator}pritunl-client.sh"
         }
 
-        # Call the 'pritunl_client' function to start the script execution
-        pritunl_client
+        # Run the 'pritunl-client.sh' script using the dynamically constructed path
+        # The path is constructed by combining 'GITHUB_ACTION_PATH' with the appropriate path separator by OS
+        # and the script name 'pritunl-client.sh' to ensure correct script execution
+        ${GITHUB_ACTION_PATH}$(os_path_separator)pritunl-client.sh
 
 # Define branding for the GitHub Marketplace
 branding:
