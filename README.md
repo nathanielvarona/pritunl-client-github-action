@@ -308,30 +308,32 @@ Convert the Pritunl Profile File from `tar` archive file format to `base64` text
 base64 --wrap 0 ./pritunl.profile.tar > ./pritunl.profile.base64
 ```
 
-#### 3. Copy the Base64 Data
+#### 3. Copy the Base64-encoded Data
 
-Copy the contents of the base64 text file format.
+##### CLI (Command-Line Interface)
 
-```bash
-# For macOS:
-# Using `pbcopy`
-cat ./pritunl.profile.base64 | pbcopy
+* **macOS** (using `pbcopy`):
+  ```bash
+  cat ./pritunl.profile.base64 | pbcopy
+  ```
+* **Linux** or **WSL**:
+  - Using `xclip`:
+    ```bash
+    cat ./pritunl.profile.base64 | xclip -selection clipboard
+    ```
+  - Using `xsel`:
+    ```bash
+    cat ./pritunl.profile.base64 | xsel --clipboard --input
+    ```
+* **Windows** (using `PowerShell`):
+  ```powershell
+  Get-Content .\pritunl.profile.base64 | Set-Clipboard
+  ```
 
-# For Linux:
-# Using `xclip`
-cat ./pritunl.profile.base64 | xclip -selection clipboard
-# Using `xsel`
-cat ./pritunl.profile.base64 | xsel --clipboard --input
-```
+##### GUI (Graphical User Interface)
 
-Alternatively, open the file in a code editor and copy the contents
-
-```bash
-code ./pritunl.profile.base64 # or,
-vim ./pritunl.profile.base64
-```
-
-Then, copy the entire `base64` text data.
+1. Open the file `./pritunl.profile.base64` in a code editor (e.g., `code` or `vim`) and select all the text (or use the keyboard shortcut `Ctrl+A` or `Cmd+A`).
+2. Right-click and select `"Copy"` (or use the keyboard shortcut `Ctrl+C` or `Cmd+C`).
 
 #### 4. Create a GitHub Action Secret
 
