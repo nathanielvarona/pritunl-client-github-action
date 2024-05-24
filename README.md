@@ -31,15 +31,16 @@ Streamline tasks such as:
 
 Check the compatibility of various runners and VPN modes:
 
-Runner                                                                                  | OpenVPN                | WireGuard
-----------------------------------------------------------------------------------------|------------------------|-----------------------
-`ubuntu-22.04`                                                                          | :white_check_mark: yes | :white_check_mark: yes
-`ubuntu-20.04`                                                                          | :white_check_mark: yes | :white_check_mark: yes
-`macos-13`                                                                              | :white_check_mark: yes | :white_check_mark: yes
-`macos-13-xlarge` <sup>[arm64<sup>1</sup>](#supported-arm64-architecture-runners)</sup> | :white_check_mark: yes | :white_check_mark: yes
-`macos-12`                                                                              | :white_check_mark: yes | :white_check_mark: yes
-`windows-2022`                                                                          | :white_check_mark: yes | :white_check_mark: yes
-`windows-2019`                                                                          | :white_check_mark: yes | :white_check_mark: yes
+Runner                                                                                                                   | OpenVPN                | WireGuard
+-------------------------------------------------------------------------------------------------------------------------|------------------------|-----------------------
+`ubuntu-24.04` <sup>[:warning: beta](https://github.com/actions/runner-images?tab=readme-ov-file#available-images)</sup> | :white_check_mark: yes | :white_check_mark: yes
+`ubuntu-22.04`                                                                                                           | :white_check_mark: yes | :white_check_mark: yes
+`ubuntu-20.04`                                                                                                           | :white_check_mark: yes | :white_check_mark: yes
+`macos-13`                                                                                                               | :white_check_mark: yes | :white_check_mark: yes
+`macos-13-xlarge` <sup>[arm64<sup>1</sup>](#supported-arm64-architecture-runners)</sup>                                  | :white_check_mark: yes | :white_check_mark: yes
+`macos-12`                                                                                                               | :white_check_mark: yes | :white_check_mark: yes
+`windows-2022`                                                                                                           | :white_check_mark: yes | :white_check_mark: yes
+`windows-2019`                                                                                                           | :white_check_mark: yes | :white_check_mark: yes
 
 > [!TIP]
 > * See  the workflow file [connection-tests-complete.yml](./.github/workflows/connection-tests-complete.yml) for a complete tests matrix example.
