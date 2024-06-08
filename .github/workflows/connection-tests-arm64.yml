@@ -9,7 +9,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-14-xlarge
+          # - macos-14-xlarge # TODO: For Testing
           - macos-13-xlarge
         vpn-mode:
           - ovpn
