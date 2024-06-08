@@ -37,6 +37,8 @@ PRITUNL_CONCEALED_OUTPUTS="${PRITUNL_CONCEALED_OUTPUTS:-}" # Concealed Outputs
 # ---------------------------------------------------------------
 TTY_EMOJI_PACKAGE='\xF0\x9F\x93\xA6' # Package emoji
 TTY_EMOJI_SCROLL='\xF0\x9F\x93\x9C' # Scroll emoji
+TTY_EMOJI_EYE='\xF0\x9F\x91\x80' # Eye emoji
+TTY_EMOJI_LINK='\xF0\x9F\x94\x97' # Link emoji
 TTY_RED_NORMAL='\033[0;31m' # Normal red color
 TTY_RED_BOLD='\033[1;31m' # Bold red color
 TTY_GREEN_NORMAL='\033[0;32m' # Normal green color
@@ -384,7 +386,7 @@ setup_profile_file() {
         # Display horizontal rule with gray color, separating content from footer
         echo -e "${TTY_GRAY_NORMAL}-------------------${TTY_COLOR_RESET}"
       else
-        echo -e "${TTY_YELLOW_NORMAL}Step outputs are concealed. Set 'concealed-outputs' to 'false' in the action inputs to reveal.${TTY_COLOR_RESET}"
+        echo -e "${TTY_EMOJI_EYE}  Step outputs are concealed. Set ${TTY_YELLOW_NORMAL}concealed-outputs${TTY_COLOR_RESET} to ${TTY_YELLOW_NORMAL}false${TTY_COLOR_RESET} in the action inputs to reveal."
       fi
 
       # Break the loop
@@ -542,7 +544,7 @@ establish_vpn_connection() {
     connections_expected="$(echo $profile_server_json | jq ". | length")"
 
     if [[ "$connections_connected" -eq "$connections_expected" ]]; then
-      echo -e "${TTY_GREEN_BOLD}The profile has been successfully set up, with designated profile $(pluralize_word $connections_expected "server"), and a secure connection established.${TTY_COLOR_RESET}"
+      echo -e "${TTY_EMOJI_LINK}  The ${TTY_GREEN_BOLD}profile${TTY_COLOR_RESET} has been successfully set up, with designated ${TTY_GREEN_BOLD}profile $(pluralize_word $connections_expected "server")${TTY_COLOR_RESET}, and a ${TTY_GREEN_BOLD}secure connection${TTY_COLOR_RESET} established."
       break
     fi
 
