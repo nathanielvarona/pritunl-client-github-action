@@ -42,7 +42,7 @@ Runner                                                                          
 `macos-13-xlarge` <sup>[arm64<sup>1</sup>](#supported-arm64-architecture-runners)</sup>                                  | :white_check_mark: yes  | :white_check_mark: yes
 `macos-12`                                                                                                               | :white_check_mark: yes  | :white_check_mark: yes
 `windows-2022`                                                                                                           | :white_check_mark: yes  | :white_check_mark: yes
-`windows-2019`                                                                                                           | :white_check_mark: | :white_check_mark: 
+`windows-2019`                                                                                                           | :white_check_mark: yes  | :white_check_mark: yes
 
 > [!TIP]
 > * See  the workflow file [connection-tests-complete.yml](./.github/workflows/connection-tests-complete.yml) for a complete tests matrix example.
@@ -250,21 +250,20 @@ Demonstrates manual control over the VPN connection, including starting, stoppin
     profile-file: ${{ secrets.PRITUNL_PROFILE_FILE }}
     start-connection: false # Do not establish a connection in this step.
 
-# Start VPN connection using stored client ID and password (if available)
+# Start VPN connection using stored client ID and password (use stored secret if available, otherwise use an empty string)
 - name: Start VPN Connection Manually
   shell: bash
   run: |
     pritunl-client start ${{ steps.pritunl-connection.outputs.client-id }} \
       --password ${{ secrets.PRITUNL_PROFILE_PIN || '' }}
-    # Wait for 10 seconds to allow the connection to establish
-    sleep 10
+
+    sleep 10 # Wait for 10 seconds to allow the connection to establish
 
 # Display VPN connection status
-- name: Show VPN Connection Status Manually
+- name: Display VPN Connection Status Manually
   shell: bash
   run: |
-    pritunl-client list -j | jq 'sort_by(.name) | .[0] | { "Profile Name": .name, "Client Address": .client_address }'
-    # Show the profile name and client address
+    pritunl-client list --json | jq 'sort_by(.name) | .[0] | { "Profile Name": .name, "Client Address": .client_address }'
 
 # Insert your CI/CD core logic here
 - name: Your CI/CD Core Logic Here
@@ -275,7 +274,6 @@ Demonstrates manual control over the VPN connection, including starting, stoppin
   shell: bash
   run: |
     pritunl-client stop ${{ steps.pritunl-connection.outputs.client-id }}
-    # Stop the VPN connection
 ```
 
 > [!TIP]
