@@ -23,7 +23,7 @@ Streamline tasks such as:
 [![Connection Tests - Basic](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml?query=branch:main)
 [![Connection Tests - Complete](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml?query=branch:main)
 [![Connection Tests - Manual Control](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-control.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-control.yml?query=branch:main)
-[![Connection Tests - Multi Server Profile](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml?query=branch:main) 
+[![Connection Tests - Multi Server Profile](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml?query=branch:main)
 
 
 ### Compatibility Matrix
@@ -371,10 +371,10 @@ Create a GitHub Action Secret (e.g., `PRITUNL_PROFILE_FILE`) and paste the entir
     if [ $# -eq 0 ]; then
       # If no argument is provided, print an error message and usage instructions
       echo "Error: No argument provided"
-      echo "Usage: encode_profile_and_copy <url or file path>"
+      echo "Usage: $(basename "$0") <url or file path>"
       echo "Examples:"
-      echo "  Using a URL: encode_profile_and_copy https://vpn.domain.tld/key/a1b2c3d4e5.tar"
-      echo "  Using a local file path: encode_profile_and_copy ./pritunl.profile.tar"
+      echo "  Using a URL: $(basename "$0") https://vpn.domain.tld/key/a1b2c3d4e5.tar"
+      echo "  Using a local file path: $(basename "$0") ./pritunl.profile.tar"
       return 1
     fi
 
