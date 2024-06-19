@@ -10,7 +10,7 @@ jobs:
       matrix:
         os:
           - ubuntu-22.04
-          - macos-13  # macOS Arm64 connection test examples in '.github/workflows/connection-tests-arm64.yml'
+          - macos-14
           - windows-2022
         profile-server:
           - dev-team
