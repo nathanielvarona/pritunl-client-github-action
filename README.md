@@ -20,29 +20,26 @@ Streamline tasks such as:
 
 ## Connection Tests
 
-[![Connection Tests - Arm64](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-arm64.yml?query=branch:main)
 [![Connection Tests - Basic](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-basic.yml?query=branch:main)
 [![Connection Tests - Complete](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-complete.yml?query=branch:main)
 [![Connection Tests - Manual Control](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-control.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-manual-control.yml?query=branch:main)
-[![Connection Tests - Multi Server Profile](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml?query=branch:main)
+[![Connection Tests - Multi Server Profile](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml/badge.svg?branch=main)](https://github.com/nathanielvarona/pritunl-client-github-action/actions/workflows/connection-tests-multi-server-profile.yml?query=branch:main) 
 
 
 ### Compatibility Matrix
 
 Check the compatibility of various runners and VPN modes:
 
-Runner                                                                                                                   | OpenVPN                 | WireGuard
--------------------------------------------------------------------------------------------------------------------------|-------------------------|--------------------------------------
-`ubuntu-24.04` <sup>[:warning: beta](https://github.com/actions/runner-images?tab=readme-ov-file#available-images)</sup> | :white_check_mark: yes  | :cockroach: intermittent connectivity
-`ubuntu-22.04`                                                                                                           | :white_check_mark: yes  | :white_check_mark: yes
-`ubuntu-20.04`                                                                                                           | :white_check_mark: yes  | :white_check_mark: yes
-`macos-14-large`                                                                                                         | :construction: untested | :construction: untested
-`macos-14-xlarge` <sup>[arm64<sup>1</sup>](#supported-arm64-architecture-runners)</sup>                                  | :construction: untested | :construction: untested
-`macos-13`                                                                                                               | :white_check_mark: yes  | :white_check_mark: yes
-`macos-13-xlarge` <sup>[arm64<sup>1</sup>](#supported-arm64-architecture-runners)</sup>                                  | :white_check_mark: yes  | :white_check_mark: yes
-`macos-12`                                                                                                               | :white_check_mark: yes  | :white_check_mark: yes
-`windows-2022`                                                                                                           | :white_check_mark: yes  | :white_check_mark: yes
-`windows-2019`                                                                                                           | :white_check_mark: yes  | :white_check_mark: yes
+Runner                                                                                                                   | OpenVPN                | WireGuard
+-------------------------------------------------------------------------------------------------------------------------|------------------------|------------------------
+`ubuntu-24.04` <sup>[:warning: beta](https://github.com/actions/runner-images?tab=readme-ov-file#available-images)</sup> | :white_check_mark: Yes | :construction: Unstable
+`ubuntu-22.04`                                                                                                           | :white_check_mark: Yes | :white_check_mark: Yes
+`ubuntu-20.04`                                                                                                           | :white_check_mark: Yes | :white_check_mark: Yes
+`macos-14` <sup>[arm64](#supported-arm64-architecture-runners)</sup>                                                     | :white_check_mark: Yes | :white_check_mark: Yes
+`macos-13`                                                                                                               | :white_check_mark: Yes | :white_check_mark: Yes
+`macos-12`                                                                                                               | :white_check_mark: Yes | :white_check_mark: Yes
+`windows-2022`                                                                                                           | :white_check_mark: Yes | :white_check_mark: Yes
+`windows-2019`                                                                                                           | :white_check_mark: Yes | :white_check_mark: Yes
 
 > [!TIP]
 > * See  the workflow file [connection-tests-complete.yml](./.github/workflows/connection-tests-complete.yml) for a complete tests matrix example.
@@ -350,7 +347,7 @@ Create a GitHub Action Secret (e.g., `PRITUNL_PROFILE_FILE`) and paste the entir
 <details>
   <summary>Reveal the Magic: One-liner Shorthand Script</summary>
 
-  Simplify the first three steps with this handy one-liner script:
+  Simplify the first three steps with this handy one-liner invocation script:
 
   ```bash
   # Define a private function to read file data or download from URL
@@ -401,13 +398,13 @@ Create a GitHub Action Secret (e.g., `PRITUNL_PROFILE_FILE`) and paste the entir
 
 Supports GitHub Actions runners with Arm64 architecture, enabling users to run workflows on Arm64-based systems.
 
-> [!WARNING]
-> <sup>arm64<sup>1</sup></sup> — Arm64 runners incur usage charges, even in public repositories. Please note that these charges apply to your account.
-
 > [!TIP]
-> See an example of Arm64 support in our [connection-tests-arm64.yml](./.github/workflows/connection-tests-arm64.yml) file.
+> See an example of Arm64 support in our [connection-tests-basic.yml](./.github/workflows/connection-tests-basic.yml) file.
 
-For a detailed understanding of your billing, we recommend reviewing the "[About billing for GitHub Actions](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions)" page.
+> [!WARNING]
+> <sup>arm64</sup> — While most runners are free to use in public repositories, certain Arm64 runners may incur usage charges to your account.
+
+For details on runner billing, please refer to the "[About billing for GitHub Actions](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions)" documentation.
 
 ## Contributing
 
