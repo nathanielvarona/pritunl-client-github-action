@@ -17,8 +17,11 @@ jobs:
           - macos-12
           - windows-2022
           - windows-2019
+        vpn-mode:
+          - ovpn
+          - wg
     runs-on: ${{ matrix.os }}
-    name: "run:${{ matrix.os }}"
+    name: "run:${{ matrix.os }}, vpn:${{ matrix.vpn-mode }}"
 
     steps:
       - name: Checkout
@@ -29,6 +32,7 @@ jobs:
         uses: ./ # Use `nathanielvarona/pritunl-client-github-action@v1` for your GitHub Action workflow.
         with:
           profile-file: ${{ secrets.PRITUNL_PROFILE_FILE_BASIC }}
+          vpn-mode: ${{ matrix.vpn-mode }}
 
       # The steps below demonstrate how to verify VPN gateway connectivity, including:
       # 1. Installing IP Calculator
