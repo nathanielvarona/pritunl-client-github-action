@@ -9,10 +9,10 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-24.04 # WARNING: Please note that this is a Beta version. For the most up-to-date information on available images, please refer to the official GitHub Actions Runner Images documentation: https://github.com/actions/runner-images?tab=readme-ov-file#available-images
+          - ubuntu-24.04 # WARNING: Please note that this is a Beta version.
           - ubuntu-22.04
           - ubuntu-20.04
-          # - macos-14-large # TODO: For Testing
+          - macos-14 # An Arm64 Runner.
           - macos-13
           - macos-12
           - windows-2022
