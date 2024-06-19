@@ -35,7 +35,7 @@ Runner                                                                          
 `ubuntu-24.04` <sup>[:warning: beta](https://github.com/actions/runner-images?tab=readme-ov-file#available-images)</sup> | :white_check_mark: Yes | :construction: Unstable
 `ubuntu-22.04`                                                                                                           | :white_check_mark: Yes | :white_check_mark: Yes
 `ubuntu-20.04`                                                                                                           | :white_check_mark: Yes | :white_check_mark: Yes
-`macos-14` <sup>[arm64](#supported-arm64-architecture-runners)</sup>                                                     | :white_check_mark: Yes | :white_check_mark: Yes
+`macos-14` <sup>[arm64](#supported-arm64-architecture-runners)</sup>                                                     | :white_check_mark: Yes | :construction: Unstable
 `macos-13`                                                                                                               | :white_check_mark: Yes | :white_check_mark: Yes
 `macos-12`                                                                                                               | :white_check_mark: Yes | :white_check_mark: Yes
 `windows-2022`                                                                                                           | :white_check_mark: Yes | :white_check_mark: Yes
