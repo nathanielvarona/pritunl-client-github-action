@@ -2,6 +2,11 @@
 name: Pritunl Client GitHub Action
 description: Establish automated secure Pritunl VPN connections with Pritunl Client in GitHub Actions, supporting OpenVPN and WireGuard.
 
+# Define branding for the GitHub Marketplace
+branding:
+  icon: server
+  color: gray-dark
+
 # Define inputs for the Action
 inputs:
   profile-file:
@@ -84,14 +89,14 @@ runs:
         os_path_separator() {
           # Determine the path separator based on the runner OS
           case "${RUNNER_OS}" in
-            Windows)
-              # Use a backslash (\) for Windows paths to avoid file name confusion
-              echo '\'
-              ;;
-            *)
-              # Use a forward slash (/) for non-Windows OSes (Linux, macOS, etc.) for consistency
-              echo '/'
-              ;;
+          Windows)
+            # Use a backslash (\) for Windows paths to avoid file name confusion
+            echo '\'
+            ;;
+          *)
+            # Use a forward slash (/) for non-Windows OSes (Linux, macOS, etc.) for consistency
+            echo '/'
+            ;;
           esac
         }
 
@@ -99,8 +104,3 @@ runs:
         # The path is constructed by combining 'GITHUB_ACTION_PATH' with the appropriate path separator by OS
         # and the script name 'pritunl-client.sh' to ensure correct script execution
         ${GITHUB_ACTION_PATH}$(os_path_separator)pritunl-client.sh
-
-# Define branding for the GitHub Marketplace
-branding:
-  icon: server
-  color: gray-dark

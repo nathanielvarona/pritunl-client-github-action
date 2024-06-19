@@ -15,41 +15,41 @@
 #   - https://github.com/pritunl/pritunl-client-electron
 
 # Set up error handling to ensure the script fails on errors and pipes
-set -euo pipefail  # Enables error handling and pipefail
+set -euo pipefail # Enables error handling and pipefail
 
 # Define environment variables based on GitHub Action inputs
 # Default values are set if inputs are not provided
 
 # GitHub Action Inputs as Environment Variables
 # ---------------------------------------------------------------
-PRITUNL_PROFILE_FILE="${PRITUNL_PROFILE_FILE:-}" # Pritunl Profile File
-PRITUNL_PROFILE_PIN="${PRITUNL_PROFILE_PIN:-}" # Pritunl Profile PIN
-PRITUNL_PROFILE_SERVER="${PRITUNL_PROFILE_SERVER:-}" # Pritunl Profile Server
-PRITUNL_VPN_MODE="${PRITUNL_VPN_MODE:-}" # VPN Connection Mode
-PRITUNL_CLIENT_VERSION="${PRITUNL_CLIENT_VERSION:-}" # Pritunl Client Version
-PRITUNL_START_CONNECTION="${PRITUNL_START_CONNECTION:-}" # Start VPN Connection
-PRITUNL_READY_PROFILE_TIMEOUT="${PRITUNL_READY_PROFILE_TIMEOUT:-}" # Ready Profile Timeout
+PRITUNL_PROFILE_FILE="${PRITUNL_PROFILE_FILE:-}"                                     # Pritunl Profile File
+PRITUNL_PROFILE_PIN="${PRITUNL_PROFILE_PIN:-}"                                       # Pritunl Profile PIN
+PRITUNL_PROFILE_SERVER="${PRITUNL_PROFILE_SERVER:-}"                                 # Pritunl Profile Server
+PRITUNL_VPN_MODE="${PRITUNL_VPN_MODE:-}"                                             # VPN Connection Mode
+PRITUNL_CLIENT_VERSION="${PRITUNL_CLIENT_VERSION:-}"                                 # Pritunl Client Version
+PRITUNL_START_CONNECTION="${PRITUNL_START_CONNECTION:-}"                             # Start VPN Connection
+PRITUNL_READY_PROFILE_TIMEOUT="${PRITUNL_READY_PROFILE_TIMEOUT:-}"                   # Ready Profile Timeout
 PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT:-}" # Established Connection Timeout
-PRITUNL_CONCEALED_OUTPUTS="${PRITUNL_CONCEALED_OUTPUTS:-}" # Concealed Outputs
+PRITUNL_CONCEALED_OUTPUTS="${PRITUNL_CONCEALED_OUTPUTS:-}"                           # Concealed Outputs
 # ---------------------------------------------------------------
 
 # Visual Feedback with Emoji Bytes and Color Codes
 # ---------------------------------------------------------------
 TTY_EMOJI_PACKAGE='\xF0\x9F\x93\xA6' # Package emoji
-TTY_EMOJI_SCROLL='\xF0\x9F\x93\x9C' # Scroll emoji
-TTY_EMOJI_EYE='\xF0\x9F\x91\x80' # Eye emoji
-TTY_EMOJI_LINK='\xF0\x9F\x94\x97' # Link emoji
-TTY_RED_NORMAL='\033[0;31m' # Normal red color
-TTY_RED_BOLD='\033[1;31m' # Bold red color
-TTY_GREEN_NORMAL='\033[0;32m' # Normal green color
-TTY_GREEN_BOLD='\033[1;32m' # Bold green color
-TTY_YELLOW_NORMAL='\033[0;33m' # Normal yellow color
-TTY_YELLOW_BOLD='\033[1;33m' # Bold yellow color
-TTY_BLUE_NORMAL='\033[0;34m' # Normal blue color
-TTY_BLUE_BOLD='\033[1;34m' # Bold blue color
-TTY_GRAY_NORMAL='\033[0;37m' # Normal gray color
-TTY_GRAY_BOLD='\033[1;90m' # Bold gray color
-TTY_COLOR_RESET='\033[0m' # Reset terminal color
+TTY_EMOJI_SCROLL='\xF0\x9F\x93\x9C'  # Scroll emoji
+TTY_EMOJI_EYE='\xF0\x9F\x91\x80'     # Eye emoji
+TTY_EMOJI_LINK='\xF0\x9F\x94\x97'    # Link emoji
+TTY_RED_NORMAL='\033[0;31m'          # Normal red color
+TTY_RED_BOLD='\033[1;31m'            # Bold red color
+TTY_GREEN_NORMAL='\033[0;32m'        # Normal green color
+TTY_GREEN_BOLD='\033[1;32m'          # Bold green color
+TTY_YELLOW_NORMAL='\033[0;33m'       # Normal yellow color
+TTY_YELLOW_BOLD='\033[1;33m'         # Bold yellow color
+TTY_BLUE_NORMAL='\033[0;34m'         # Normal blue color
+TTY_BLUE_BOLD='\033[1;34m'           # Bold blue color
+TTY_GRAY_NORMAL='\033[0;37m'         # Normal gray color
+TTY_GRAY_BOLD='\033[1;90m'           # Bold gray color
+TTY_COLOR_RESET='\033[0m'            # Reset terminal color
 # ---------------------------------------------------------------
 
 # Installation process for Linux
@@ -78,9 +78,9 @@ install_for_linux() {
     # Add Pritunl repository to the system
     echo "deb https://repo.pritunl.com/stable/apt $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/pritunl.list
     # Import Pritunl's GPG key
-    gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys ${PRITUNL_LINUX_RUNNER_GPG_KEY} > /dev/null 2>&1
+    gpg --keyserver hkp://keyserver.ubuntu.com --recv-keys ${PRITUNL_LINUX_RUNNER_GPG_KEY} >/dev/null 2>&1
     # Export the GPG key and add it to the trusted keyring
-    gpg --armor --export ${PRITUNL_LINUX_RUNNER_GPG_KEY} | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc > /dev/null
+    gpg --armor --export ${PRITUNL_LINUX_RUNNER_GPG_KEY} | sudo tee /etc/apt/trusted.gpg.d/pritunl.asc >/dev/null
     # Update the package list and install Pritunl client
     sudo apt-get update -qq -y && sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y pritunl-client
 
@@ -258,33 +258,33 @@ install_vpn_dependencies() {
   # This function installs dependencies required for VPN connections based on the operating system.
 
   case "${RUNNER_OS}" in
-    Linux)
-      # Install base dependent packages for `pritunl-client` on Linux
-      # Update package list and install required packages
-      sudo apt-get update -qq -y
-      sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y net-tools iptables openvpn resolvconf
+  Linux)
+    # Install base dependent packages for `pritunl-client` on Linux
+    # Update package list and install required packages
+    sudo apt-get update -qq -y
+    sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y net-tools iptables openvpn resolvconf
 
-      # Install additional packages based on VPN mode
-      if [[ "${PRITUNL_VPN_MODE}" == "ovpn" ]]; then
-        # Install OpenVPN systemd-resolved package for ovpn mode
-        sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y openvpn-systemd-resolved
-      elif [[ "${PRITUNL_VPN_MODE}" == "wg" ]]; then
-        # Install WireGuard tools for wg mode
-        sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y wireguard-tools
-      fi
-      ;;
-    macOS)
-      # Install WireGuard tools for macOS (only for wg mode)
-      if [[ "${PRITUNL_VPN_MODE}" == "wg" ]]; then
-        brew install -q wireguard-tools
-      fi
-      ;;
-    Windows)
-      # Install WireGuard for Windows (only for wg mode)
-      if [[ "${PRITUNL_VPN_MODE}" == "wg" ]]; then
-        choco install --no-progress -y wireguard
-      fi
-      ;;
+    # Install additional packages based on VPN mode
+    if [[ "${PRITUNL_VPN_MODE}" == "ovpn" ]]; then
+      # Install OpenVPN systemd-resolved package for ovpn mode
+      sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y openvpn-systemd-resolved
+    elif [[ "${PRITUNL_VPN_MODE}" == "wg" ]]; then
+      # Install WireGuard tools for wg mode
+      sudo apt-get install -qq -o=Dpkg::Use-Pty=0 -y wireguard-tools
+    fi
+    ;;
+  macOS)
+    # Install WireGuard tools for macOS (only for wg mode)
+    if [[ "${PRITUNL_VPN_MODE}" == "wg" ]]; then
+      brew install -q wireguard-tools
+    fi
+    ;;
+  Windows)
+    # Install WireGuard for Windows (only for wg mode)
+    if [[ "${PRITUNL_VPN_MODE}" == "wg" ]]; then
+      choco install --no-progress -y wireguard
+    fi
+    ;;
   esac
 }
 
@@ -313,7 +313,7 @@ setup_profile_file() {
   # Progress Status
   timeout_seconds="${PRITUNL_READY_PROFILE_TIMEOUT}"
   start_time=$(date +%s)
-  end_time=$(( start_time + timeout_seconds ))
+  end_time=$((start_time + timeout_seconds))
   current_time=$(date +%s)
 
   # Store the base64 data in a variable
@@ -321,12 +321,12 @@ setup_profile_file() {
   profile_file="${RUNNER_TEMP}/profile-file.tar"
 
   # Check if the base64 data is valid
-  if ! [[ $(base64 -d <<< "$profile_base64" 2>/dev/null | tr -d '\0') ]]; then
+  if ! [[ $(base64 -d <<<"$profile_base64" 2>/dev/null | tr -d '\0') ]]; then
     echo -e "${TTY_RED_NORMAL}Base64 data is not valid.${TTY_COLOR_RESET}" && exit 1
   fi
 
   # If the base64 data is valid, decode it and store it to temporary file.
-  echo "$profile_base64" | base64 -d > "$profile_file"
+  echo "$profile_base64" | base64 -d >"$profile_file"
 
   if [[ -e "$profile_file" ]]; then
     # Check if the file is a valid tar archive
@@ -360,10 +360,10 @@ setup_profile_file() {
       # If running in GitHub Actions, set output parameters
       if [[ -n "${GITHUB_ACTIONS}" ]]; then
         # Set output parameter `client-id`
-        echo "client-id=$client_id" >> "$GITHUB_OUTPUT"
+        echo "client-id=$client_id" >>"$GITHUB_OUTPUT"
 
         # Set output parameter `client-ids`
-        echo "client-ids=$client_ids" >> "$GITHUB_OUTPUT"
+        echo "client-ids=$client_ids" >>"$GITHUB_OUTPUT"
       fi
 
       # Display the profile setup output with a scroll emoji and colored text
@@ -381,7 +381,7 @@ setup_profile_file() {
 
         # Display All Client IDs and Names (JSON array) with blue color
         # client-ids is displayed in blue, followed by the JSON array of IDs and names
-        echo -e "${TTY_BLUE_NORMAL}client-ids${TTY_COLOR_RESET}: $(echo $client_ids | jq -cC )"
+        echo -e "${TTY_BLUE_NORMAL}client-ids${TTY_COLOR_RESET}: $(echo $client_ids | jq -cC)"
 
         # Display horizontal rule with gray color, separating content from footer
         echo -e "${TTY_GRAY_NORMAL}-------------------${TTY_COLOR_RESET}"
@@ -434,12 +434,12 @@ start_vpn_connection() {
 
   # Add VPN mode flag if set
   if [[ -n "${PRITUNL_VPN_MODE}" ]]; then
-    pritunl_client_start_flags+=( "--mode" "${PRITUNL_VPN_MODE}" )
+    pritunl_client_start_flags+=("--mode" "${PRITUNL_VPN_MODE}")
   fi
 
   # Add password flag if set
   if [[ -n "${PRITUNL_PROFILE_PIN}" ]]; then
-    pritunl_client_start_flags+=( "--password" "${PRITUNL_PROFILE_PIN}" )
+    pritunl_client_start_flags+=("--password" "${PRITUNL_PROFILE_PIN}")
   fi
 
   # Convert the JSON data into a Bash array
@@ -480,7 +480,7 @@ establish_vpn_connection() {
   # Progress status
   timeout_seconds="${PRITUNL_ESTABLISHED_CONNECTION_TIMEOUT}"
   start_time=$(date +%s)
-  end_time=$(( start_time + timeout_seconds ))
+  end_time=$((start_time + timeout_seconds))
   current_time=$(date +%s)
 
   # Empty initialization
@@ -591,7 +591,7 @@ fetch_profile_server() {
     else
 
       # Split the comma-separated profile server names into an array
-      IFS=',' read -r -a profile_server_array <<< "${PRITUNL_PROFILE_SERVER}"
+      IFS=',' read -r -a profile_server_array <<<"${PRITUNL_PROFILE_SERVER}"
 
       # Remove leading and trailing spaces from each element in the array
       for profile_server_array_item in "${!profile_server_array[@]}"; do
@@ -620,12 +620,12 @@ fetch_profile_server() {
         # If matching profiles were found, print them as a JSON array
         profile_server_json=$(
           echo "["
-            for ((i=0; i<${#profile_server_matching[@]}; i++)); do
-              echo "${profile_server_matching[i]}"
-              if [ $i -lt $((${#profile_server_matching[@]}-1)) ]; then
-                echo ","
-              fi
-            done
+          for ((i = 0; i < ${#profile_server_matching[@]}; i++)); do
+            echo "${profile_server_matching[i]}"
+            if [ $i -lt $((${#profile_server_matching[@]} - 1)) ]; then
+              echo ","
+            fi
+          done
           echo "]"
         )
       else
@@ -697,18 +697,18 @@ normalize_vpn_mode() {
 
   # Check and normalize VPN mode
   case "$vpn_mode" in
-    ovpn|openvpn)
-      # Set normalized VPN mode to "ovpn"
-      PRITUNL_VPN_MODE="ovpn"
-      ;;
-    wg|wireguard)
-      # Set normalized VPN mode to "wg"
-      PRITUNL_VPN_MODE="wg"
-      ;;
-    *)
-      # Print error message if invalid VPN mode and exit
-      echo -e "${TTY_RED_NORMAL}Invalid VPN mode for \"${PRITUNL_VPN_MODE}\".${TTY_COLOR_RESET}" && exit 1
-      ;;
+  ovpn | openvpn)
+    # Set normalized VPN mode to "ovpn"
+    PRITUNL_VPN_MODE="ovpn"
+    ;;
+  wg | wireguard)
+    # Set normalized VPN mode to "wg"
+    PRITUNL_VPN_MODE="wg"
+    ;;
+  *)
+    # Print error message if invalid VPN mode and exit
+    echo -e "${TTY_RED_NORMAL}Invalid VPN mode for \"${PRITUNL_VPN_MODE}\".${TTY_COLOR_RESET}" && exit 1
+    ;;
   esac
 }
 
@@ -787,49 +787,49 @@ install_vpn_platform() {
 
   # Install Packages by OS
   case "${RUNNER_OS}" in
-    Linux)
-      # Install VPN client for Linux
-      install_for_linux
-      ;;
-    macOS)
-      # Install VPN client for macOS
-      install_for_macos
-      ;;
-    Windows)
-      # Install VPN client for Windows
-      install_for_windows
-      ;;
+  Linux)
+    # Install VPN client for Linux
+    install_for_linux
+    ;;
+  macOS)
+    # Install VPN client for macOS
+    install_for_macos
+    ;;
+  Windows)
+    # Install VPN client for Windows
+    install_for_windows
+    ;;
   esac
 }
 
 # Main script execution
 case "${RUNNER_OS}" in
-  Linux|macOS|Windows)
-    # Check the operating system and proceed with installation, setup, and starting the VPN connection if specified
+Linux | macOS | Windows)
+  # Check the operating system and proceed with installation, setup, and starting the VPN connection if specified
 
-    # Normalize the VPN mode to ensure consistency
-    normalize_vpn_mode
+  # Normalize the VPN mode to ensure consistency
+  normalize_vpn_mode
 
-    # Install the VPN client based on the operating system
-    if install_vpn_platform; then
-      # Display the installed Pritunl client version for reference
-      display_installed_client
-    fi
+  # Install the VPN client based on the operating system
+  if install_vpn_platform; then
+    # Display the installed Pritunl client version for reference
+    display_installed_client
+  fi
 
-    # Load the Pritunl Profile File for configuration
-    setup_profile_file
+  # Load the Pritunl Profile File for configuration
+  setup_profile_file
 
-    # Check if the VPN connection should be started automatically
-    if [[ "${PRITUNL_START_CONNECTION}" == "true" ]]; then
-      # Start the VPN connection
-      start_vpn_connection
+  # Check if the VPN connection should be started automatically
+  if [[ "${PRITUNL_START_CONNECTION}" == "true" ]]; then
+    # Start the VPN connection
+    start_vpn_connection
 
-      # Wait for the VPN connection to be established
-      establish_vpn_connection
-    fi
-    ;;
-  *)
-    # If the operating system is not supported, print an error message and exit
-    echo -e "${TTY_RED_BOLD}Unsupported OS: ${RUNNER_OS}.${TTY_COLOR_RESET}" && exit 1
-    ;;
+    # Wait for the VPN connection to be established
+    establish_vpn_connection
+  fi
+  ;;
+*)
+  # If the operating system is not supported, print an error message and exit
+  echo -e "${TTY_RED_BOLD}Unsupported OS: ${RUNNER_OS}.${TTY_COLOR_RESET}" && exit 1
+  ;;
 esac
