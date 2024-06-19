@@ -12,7 +12,7 @@ jobs:
           - ubuntu-24.04 # WARNING: Please note that this is a Beta version.
           - ubuntu-22.04
           - ubuntu-20.04
-          - macos-14 # An Arm64 Runner.
+          - macos-14 # NOTE: An Arm64 Runner.
           - macos-13
           - macos-12
           - windows-2022

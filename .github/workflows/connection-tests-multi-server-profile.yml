@@ -10,7 +10,7 @@ jobs:
       matrix:
         os:
           - ubuntu-22.04
-          - macos-14
+          - macos-13
           - windows-2022
         profile-server:
           - gha-automator-qa2 (dev-team)
