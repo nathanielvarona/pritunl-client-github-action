@@ -341,6 +341,31 @@ base64 --wrap 0 ./pritunl.profile.tar > ./pritunl.profile.base64
 
 Create a GitHub Action Secret (e.g., `PRITUNL_PROFILE_FILE`) and paste the entire `base64` text data as the secret value.
 
+### Noticeable Issues and Solutions
+
+* **Pritunl Client Installation**
+  - **Affected Runners:** **Ubuntu (Linux) Runners** using the `Apt Repository` for installation.
+
+  - **Related Issues:** #209 #206
+
+  - **Problems:**
+    - Occasionally, updates to the Pritunl Client package in the Ubuntu repository can cause installation issues.
+    - Sometimes, the GitHub Actions Runner images have problems with their internal package caches, leading to failed installations.
+
+  - **Solutions:**
+    - Specify the desired Pritunl Client version using the `client-version` input in your GitHub Action. This will download the client directly from the official [Pritunl Client GitHub Releases](https://github.com/pritunl/pritunl-client-electron/releases) page, ensuring you get the exact version you need.
+
+      > NOTE: When specifying the `client-version` input, please use the version number without the 'v' prefix. For example, use 1.3.3883.60 instead of v1.3.3883.60.
+
+      _Example:_
+
+      ```yml
+      - uses: nathanielvarona/pritunl-client-github-action@v1
+        ...
+        with:
+          ...
+          client-version: 1.3.3883.60
+      ```
 
 ### Pro Tip!
 
