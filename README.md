@@ -341,9 +341,9 @@ base64 --wrap 0 ./pritunl.profile.tar > ./pritunl.profile.base64
 
 Create a GitHub Action Secret (e.g., `PRITUNL_PROFILE_FILE`) and paste the entire `base64` text data as the secret value.
 
-### Noticeable Issues and Solutions
+## Noticeable Issues and Solutions
 
-* **Pritunl Client Installation**
+### Pritunl Client Installation
   - **Affected Runners:** **Ubuntu (Linux) Runners** using the `Apt Repository` for installation.
 
   - **Related Issues:** #209 #206
