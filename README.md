@@ -341,32 +341,6 @@ base64 --wrap 0 ./pritunl.profile.tar > ./pritunl.profile.base64
 
 Create a GitHub Action Secret (e.g., `PRITUNL_PROFILE_FILE`) and paste the entire `base64` text data as the secret value.
 
-## Noticeable Issues and Solutions
-
-### Pritunl Client Installation
-  - **Affected Runners:** **Ubuntu (Linux) Runners** using the `Apt Repository` for installation.
-
-  - **Related Issues:** #209 #206
-
-  - **Problems:**
-    - Occasionally, updates to the Pritunl Client package in the Ubuntu repository can cause installation issues.
-    - Sometimes, the GitHub Actions Runner images have problems with their internal package caches, leading to failed installations.
-
-  - **Solutions:**
-    - Specify the desired Pritunl Client version using the `client-version` input in your GitHub Action. This will download the client directly from the official [Pritunl Client GitHub Releases](https://github.com/pritunl/pritunl-client-electron/releases) page, ensuring you get the exact version you need.
-
-      > NOTE: When specifying the `client-version` input, please use the version number without the 'v' prefix. For example, use 1.3.3883.60 instead of v1.3.3883.60.
-
-      _Example:_
-
-      ```yml
-      - uses: nathanielvarona/pritunl-client-github-action@v1
-        ...
-        with:
-          ...
-          client-version: 1.3.3883.60
-      ```
-
 ### Pro Tip!
 
 <details>
@@ -417,6 +391,8 @@ Create a GitHub Action Secret (e.g., `PRITUNL_PROFILE_FILE`) and paste the entir
     }
   }
   ```
+
+  _Check out this script ([pritunl-profile-encode.sh](https://github.com/nathanielvarona/dotfiles/blob/master/.scripts/source/pritunl-profile-encode.sh)) from [nathanielvarona/dotfiles](https://github.com/nathanielvarona/dotfiles) for an example of how to implement one-liner shorthand script._
 </details>
 
 ## Supported Arm64 Architecture Runners
@@ -430,6 +406,32 @@ Supports GitHub Actions runners with Arm64 architecture, enabling users to run w
 > <sup>arm64</sup> — While most runners are free to use in public repositories, certain Arm64 runners may incur usage charges to your account.
 
 For details on runner billing, please refer to the "[About billing for GitHub Actions](https://docs.github.com/en/billing/managing-billing-for-github-actions/about-billing-for-github-actions)" documentation.
+
+## Noticeable Issues and Solutions
+
+### Pritunl Client Installation
+  - **Affected Runners:** **Ubuntu (Linux) Runners** using the `Apt Repository` for installation.
+
+  - **Related Issues:** [#209](https://github.com/nathanielvarona/pritunl-client-github-action/issues/209), [#206](https://github.com/nathanielvarona/pritunl-client-github-action/issues/206)
+
+  - **Problems:**
+    - Occasionally, updates to the Pritunl Client package in the Ubuntu repository can cause installation issues.
+    - Sometimes, the GitHub Actions Runner images have problems with their internal package caches, leading to failed installations.
+
+  - **Solutions:**
+    - Specify the desired Pritunl Client version using the `client-version` input in your GitHub Action. This will download the client directly from the official [Pritunl Client GitHub Releases](https://github.com/pritunl/pritunl-client-electron/releases) page, ensuring you get the exact version you need.
+
+      > NOTE: When specifying the `client-version` input, please use the version number without the 'v' prefix. For example, use 1.3.3883.60 instead of v1.3.3883.60.
+
+      _Example:_
+
+      ```yml
+      - uses: nathanielvarona/pritunl-client-github-action@v1
+        ...
+        with:
+          ...
+          client-version: 1.3.3883.60
+      ```
 
 ## Contributing
 
