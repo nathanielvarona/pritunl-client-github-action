@@ -98,7 +98,7 @@ install_for_linux() {
     # Set install file path
     pritunl_install_file="${RUNNER_TEMP}/pritunl-client.deb"
     # Set download URL
-    deb_url="https://github.com/pritunl/pritunl-client-electron/releases/download/${PRITUNL_CLIENT_VERSION}/pritunl-client_${PRITUNL_CLIENT_VERSION}-0ubuntu1.$(lsb_release -cs)_amd64.deb"
+    deb_url="https://github.com/pritunl/pritunl-client/releases/download/${PRITUNL_CLIENT_VERSION}/pritunl-client_${PRITUNL_CLIENT_VERSION}-0ubuntu1.$(lsb_release -cs)_amd64.deb" # releases served from pritunl/pritunl-client since v1.3.3884.0
 
     # Download the Debian package
     curl -sSL "$deb_url" -o "$pritunl_install_file"
@@ -143,7 +143,7 @@ install_for_macos() {
 
     # Set install file path and download URL
     pritunl_install_file="${RUNNER_TEMP}/Pritunl.pkg.zip"
-    pkg_zip_url="https://github.com/pritunl/pritunl-client-electron/releases/download/${PRITUNL_CLIENT_VERSION}/Pritunl.pkg.zip"
+    pkg_zip_url="https://github.com/pritunl/pritunl-client/releases/download/${PRITUNL_CLIENT_VERSION}/Pritunl.pkg.zip" # releases served from pritunl/pritunl-client since v1.3.3884.0
 
     # Download the package
     curl -sSL "$pkg_zip_url" -o "$pritunl_install_file"
@@ -200,7 +200,7 @@ install_for_windows() {
 
     # Set install file path and download URL
     pritunl_install_file="${RUNNER_TEMP}\Pritunl.exe"
-    exe_url="https://github.com/pritunl/pritunl-client-electron/releases/download/${PRITUNL_CLIENT_VERSION}/Pritunl.exe"
+    exe_url="https://github.com/pritunl/pritunl-client/releases/download/${PRITUNL_CLIENT_VERSION}/Pritunl.exe" # releases served from pritunl/pritunl-client since v1.3.3884.0
 
     # Download the executable
     curl -sSL "$exe_url" -o "$pritunl_install_file"
